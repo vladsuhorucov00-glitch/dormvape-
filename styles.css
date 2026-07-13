@@ -508,7 +508,6 @@ section {
 /* ===== CATALOG SECTION ===== */
 .catalog-section {
     padding: 0 !important;
-    overflow-x: clip;
 }
 .catalog-section .container {
     padding-top: 0 !important;
@@ -524,10 +523,6 @@ section {
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     border-bottom: 1px solid rgba(255,255,255,0.06);
-    margin-left: -40px;
-    margin-right: -40px;
-    padding-left: 40px;
-    padding-right: 40px;
     margin-bottom: 20px;
 }
 .filter-bar {
