@@ -486,18 +486,6 @@ section {
     background: rgba(25, 25, 40, 0.95);
 }
 
-.category-card .arrow {
-    color: rgba(255,92,0,0.5);
-    font-size: 18px;
-    margin-top: 16px;
-    transition: all 0.3s;
-    display: block;
-}
-.category-card:hover .arrow {
-    color: #ff5c00;
-    transform: translateX(4px);
-}
-
 .category-card .icon {
     font-size: 40px;
     margin-bottom: 20px;
