@@ -509,6 +509,7 @@ section {
 }
 .catalog-section .container {
     padding-top: 0 !important;
+    overflow: visible;
 }
 
 /* ===== FILTER BUTTONS ===== */
@@ -528,8 +529,8 @@ section {
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     padding-top: 4px;
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-right: 12px;
+    padding-left: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .filter-bar::-webkit-scrollbar {
