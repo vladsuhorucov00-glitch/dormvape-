@@ -98,52 +98,84 @@ const products = [
         images: ['img/7_1.jpg', 'img/7_2.jpg', 'img/7_3.jpg']
     },
     {
-        id: 8, name: 'Vaporesso Xros 4', category: 'device',
-        brand: 'Vaporesso', strength: null, volume: null,
-        desc: 'Pod-система. 1000мАч, 2мл картридж',
-        price: 2490, oldPrice: 2990,
-        flavors: null,
+        id: 8, name: 'Жидкость 8', category: 'liquid',
+        brand: '—', strength: '—', volume: '—',
+        desc: 'Ждём данные от тебя',
+        price: 550, oldPrice: null,
+        flavors: ['Вкус 1', 'Вкус 2'],
         images: ['img/8_1.jpg', 'img/8_2.jpg']
     },
     {
-        id: 9, name: 'GTX Coil 0.6\u03A9', category: 'coil',
-        brand: 'Vaporesso', strength: null, volume: null,
-        desc: 'Сетка 0.6 Ом, от 25 до 35W. Упаковка 5шт',
-        price: 490, oldPrice: 590,
+        id: 9, name: 'Вейп 1', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 490, oldPrice: null,
         flavors: null,
-        images: svgMulti('GTX Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a40', fg:'#cccccc'},{bg:'#2a2a40', fg:'#dddddd'}])
+        images: ['img/v1_1.jpg', 'img/v1_2.jpg', 'img/v1_3.jpg']
     },
     {
-        id: 10, name: 'Pnp Coil 0.3\u03A9', category: 'coil',
-        brand: 'Voopoo', strength: null, volume: null,
-        desc: 'Сетка 0.3 Ом, от 40 до 55W. Упаковка 5шт',
+        id: 10, name: 'Вейп 2', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
         price: 540, oldPrice: null,
         flavors: null,
-        images: svgMulti('Pnp Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a3a3a', fg:'#aaeeff'},{bg:'#2a2a40', fg:'#cccccc'}])
+        images: ['img/v2_1.jpg', 'img/v2_2.jpg', 'img/v2_3.jpg']
     },
     {
-        id: 11, name: 'Baby Mesh 0.4\u03A9', category: 'coil',
-        brand: 'SMOK', strength: null, volume: null,
-        desc: 'Сетка 0.4 Ом, от 30 до 45W. Упаковка 3шт',
-        price: 380, oldPrice: 480,
+        id: 11, name: 'Вейп 3', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 380, oldPrice: null,
         flavors: null,
-        images: svgMulti('Baby Mesh', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#eeff88'},{bg:'#2a2a40', fg:'#dddddd'}])
+        images: ['img/v3_1.jpg', 'img/v3_2.jpg', 'img/v3_3.jpg', 'img/v3_4.jpg']
     },
     {
-        id: 12, name: 'Geekvape Aegis 2', category: 'device',
-        brand: 'Geekvape', strength: null, volume: null,
-        desc: 'Мод с батареей 18650, до 200W',
-        price: 3890, oldPrice: 4590,
+        id: 12, name: 'Вейп 4', category: 'device',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 2490, oldPrice: null,
         flavors: null,
-        images: svgMulti('Aegis 2', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#ffcc00'},{bg:'#2a2a40', fg:'#eeeeee'}])
+        images: ['img/v4_1.jpg', 'img/v4_2.jpg', 'img/v4_3.jpg']
     },
     {
-        id: 13, name: 'Uwell Caliburn G3', category: 'device',
-        brand: 'Uwell', strength: null, volume: null,
-        desc: 'Pod-система. 900мАч, Type-C',
+        id: 13, name: 'Вейп 5', category: 'device',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 3890, oldPrice: null,
+        flavors: null,
+        images: ['img/v5_1.jpg', 'img/v5_2.jpg', 'img/v5_3.jpg', 'img/v5_4.jpg']
+    },
+    {
+        id: 14, name: 'Вейп 6', category: 'device',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
         price: 2190, oldPrice: null,
         flavors: null,
-        images: svgMulti('Caliburn G3', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a2a3a', fg:'#aabbff'},{bg:'#2a2a40', fg:'#cccccc'}])
+        images: ['img/v6_1.jpg', 'img/v6_2.jpg', 'img/v6_3.jpg', 'img/v6_4.jpg']
+    },
+    {
+        id: 15, name: 'Вейп 7', category: 'device',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 1990, oldPrice: null,
+        flavors: null,
+        images: ['img/v7_1.jpg', 'img/v7_2.jpg', 'img/v7_3.jpg']
+    },
+    {
+        id: 16, name: 'Вейп 8', category: 'device',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 1990, oldPrice: null,
+        flavors: null,
+        images: ['img/v8_1.jpg']
+    },
+    {
+        id: 17, name: 'Вейп 9', category: 'device',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 1990, oldPrice: null,
+        flavors: null,
+        images: ['img/v9_1.jpg']
     }
 ];
 

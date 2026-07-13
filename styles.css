@@ -553,7 +553,7 @@ section {
 .products {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 24px;
 }
 
 .product-thumb {
@@ -2220,6 +2220,7 @@ footer p {
 
     .products {
         grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
 
     .contacts-wrapper {
