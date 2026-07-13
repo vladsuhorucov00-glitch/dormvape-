@@ -497,18 +497,10 @@ function openCheckoutModal() {
     summary.innerHTML = itemsHtml + `<div class="summary-total"><span>Итого:</span><span>${total}\u20BD</span></div>`;
 
     checkoutModal.classList.add('active');
-    document.body.style.position = 'fixed';
-    document.body.style.top = -window.scrollY + 'px';
-    document.body.style.width = '100%';
 }
 
 function closeCheckoutModal() {
-    const scrollY = document.body.style.top;
     checkoutModal.classList.remove('active');
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    window.scrollTo(0, parseInt(scrollY || '0') * -1);
     checkoutForm.reset();
 }
 

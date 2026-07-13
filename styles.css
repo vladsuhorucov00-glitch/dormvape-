@@ -1503,19 +1503,19 @@ footer p {
     left: 0;
     width: 100%;
     height: 100%;
-    min-height: 100dvh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.95);
     z-index: 300;
     display: none;
     justify-content: center;
-    align-items: center;
     padding: 20px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-overlay.active {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .modal {
@@ -1528,6 +1528,7 @@ footer p {
     border-top-color: rgba(255,255,255,0.25);
     position: relative;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    margin: auto 0;
 }
 
 .modal::before {
