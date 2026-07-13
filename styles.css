@@ -1507,14 +1507,15 @@ footer p {
     background: rgba(0, 0, 0, 0.95);
     z-index: 300;
     display: none;
-    overflow-y: auto;
+    justify-content: center;
+    align-items: center;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .modal-overlay.active {
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    align-items: center;
 }
 
 .modal {
@@ -1525,11 +1526,8 @@ footer p {
     max-width: 440px;
     border: 1px solid rgba(255,255,255,0.12);
     border-top-color: rgba(255,255,255,0.25);
-    max-height: 90vh;
-    overflow-y: auto;
     position: relative;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    overflow: hidden;
 }
 
 .modal::before {
@@ -2528,5 +2526,19 @@ footer p {
 
     .delivery-card {
         background: rgba(255,255,255,0.04);
+    }
+
+    .modal-overlay {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .modal {
+        border-radius: 20px;
+        padding: 24px 20px;
+    }
+
+    .modal-overlay.active {
+        align-items: flex-start;
     }
 }
