@@ -247,7 +247,16 @@ header .container {
 
 .banner h1 span {
     color: #ff5c00;
-    text-shadow: 0 0 50px rgba(255, 92, 0, 0.5);
+}
+
+.nickname-shout {
+    font-size: 48px;
+    font-weight: 900;
+    color: #ff5c00;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 16px;
+    text-shadow: 0 0 30px rgba(255, 92, 0, 0.4);
 }
 
 .banner p {
