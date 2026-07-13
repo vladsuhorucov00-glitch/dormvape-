@@ -106,7 +106,7 @@ const products = [
         images: ['img/8_1.jpg', 'img/8_2.jpg']
     },
     {
-        id: 9, name: 'Вейп 1', category: 'coil',
+        id: 9, name: 'Вейп 1', category: 'device',
         brand: '—', strength: null, volume: null,
         desc: 'Ждём данные от тебя',
         price: 490, oldPrice: null,
@@ -114,7 +114,7 @@ const products = [
         images: ['img/v1_1.jpg', 'img/v1_2.jpg', 'img/v1_3.jpg']
     },
     {
-        id: 10, name: 'Вейп 2', category: 'coil',
+        id: 10, name: 'Вейп 2', category: 'device',
         brand: '—', strength: null, volume: null,
         desc: 'Ждём данные от тебя',
         price: 540, oldPrice: null,
@@ -122,7 +122,7 @@ const products = [
         images: ['img/v2_1.jpg', 'img/v2_2.jpg', 'img/v2_3.jpg']
     },
     {
-        id: 11, name: 'Вейп 3', category: 'coil',
+        id: 11, name: 'Вейп 3', category: 'device',
         brand: '—', strength: null, volume: null,
         desc: 'Ждём данные от тебя',
         price: 380, oldPrice: null,
