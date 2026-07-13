@@ -525,12 +525,12 @@ section {
     padding-bottom: 4px;
     touch-action: pan-x;
     position: sticky;
-    top: 76px;
+    top: 72px;
     z-index: 50;
     background: rgba(5,5,8,0.7);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    padding-top: 8px;
+    padding-top: 0;
     margin-left: -40px;
     margin-right: -40px;
     padding-left: 40px;
