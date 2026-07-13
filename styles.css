@@ -511,10 +511,16 @@ section {
 
 /* ===== FILTER BUTTONS ===== */
 .filter-bar {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+}
+.filter-bar::-webkit-scrollbar {
+    display: none;
 }
 
 .filter-btn {
@@ -522,15 +528,17 @@ section {
 
     color: rgba(255, 255, 255, 0.5);
     border: 1px solid rgba(255,255,255,0.1);
-    padding: 6px 16px;
+    padding: 8px 18px;
     border-radius: 100px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     transition: all 0.3s;
     font-family: inherit;
     position: relative;
     overflow: hidden;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .filter-btn::before {
