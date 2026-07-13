@@ -47,7 +47,7 @@ const products = [
         desc: 'Сочное манго с ментоловой свежестью',
         price: 690, oldPrice: 860,
         flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'],
-        images: svgMulti('Mango Ice', [{bg:'#2a2a40', fg:'#ffaa00'},{bg:'#3a2a20', fg:'#ff6600'},{bg:'#2a3a30', fg:'#00d4aa'}])
+        images: ['img/1_1.jpg', 'img/1_2.jpg', 'img/1_3.jpg']
     },
     {
         id: 2, name: 'Pink Lemonade', category: 'liquid',
@@ -55,15 +55,15 @@ const products = [
         desc: 'Розовый лимонад с кислинкой',
         price: 590, oldPrice: 740,
         flavors: ['Классический', 'Мятный', 'Малиновый'],
-        images: svgMulti('Pink Lemonade', [{bg:'#2a2a40', fg:'#ff68b5'},{bg:'#3a2030', fg:'#ff8ec8'},{bg:'#2a2a40', fg:'#ffaadd'}])
+        images: ['img/2_1.jpg', 'img/2_2.jpg']
     },
     {
         id: 3, name: 'Blueberry Salt', category: 'liquid',
         brand: 'Salty Fish', strength: '20мг', volume: '30мл',
         desc: 'Черника со льдом',
         price: 450, oldPrice: null,
-        flavors: ['Черника', 'Черника-лёд', 'Черника-所有情节'],
-        images: svgMulti('Blueberry', [{bg:'#2a2a40', fg:'#5a8eef'},{bg:'#1a2a40', fg:'#4488ff'},{bg:'#2a2a40', fg:'#77aaff'}])
+        flavors: ['Черника', 'Черника-лёд'],
+        images: ['img/3_1.jpg', 'img/3_2.jpg']
     },
     {
         id: 4, name: 'Strawberry Cream', category: 'liquid',
@@ -71,55 +71,39 @@ const products = [
         desc: 'Клубника со сливками',
         price: 640, oldPrice: 800,
         flavors: ['Клубника', 'Клубника-сливки', 'Клубника-мёд'],
-        images: svgMulti('Strawberry', [{bg:'#2a2a40', fg:'#ff9d9a'},{bg:'#3a2020', fg:'#ff6b6b'},{bg:'#2a2a40', fg:'#ffaaaa'}])
+        images: ['img/4_1.jpg', 'img/4_2.jpg', 'img/4_3.jpg', 'img/4_4.jpg']
     },
     {
-        id: 5, name: 'GTX Coil 0.6\u03A9', category: 'coil',
-        brand: 'Vaporesso', strength: null, volume: null,
-        desc: 'Сетка 0.6 Ом, от 25 до 35W. Упаковка 5шт',
-        price: 490, oldPrice: 590,
-        flavors: null,
-        images: svgMulti('GTX Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a40', fg:'#cccccc'},{bg:'#2a2a40', fg:'#dddddd'}])
+        id: 5, name: 'Жидкость 5', category: 'liquid',
+        brand: '—', strength: '—', volume: '—',
+        desc: 'Ждём данные от тебя',
+        price: 550, oldPrice: null,
+        flavors: ['Вкус 1', 'Вкус 2'],
+        images: ['img/5_1.jpg', 'img/5_2.jpg', 'img/5_3.jpg', 'img/5_4.jpg']
     },
     {
-        id: 6, name: 'Pnp Coil 0.3\u03A9', category: 'coil',
-        brand: 'Voopoo', strength: null, volume: null,
-        desc: 'Сетка 0.3 Ом, от 40 до 55W. Упаковка 5шт',
-        price: 540, oldPrice: null,
-        flavors: null,
-        images: svgMulti('Pnp Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a3a3a', fg:'#aaeeff'},{bg:'#2a2a40', fg:'#cccccc'}])
+        id: 6, name: 'Жидкость 6', category: 'liquid',
+        brand: '—', strength: '—', volume: '—',
+        desc: 'Ждём данные от тебя',
+        price: 550, oldPrice: null,
+        flavors: ['Вкус 1', 'Вкус 2'],
+        images: ['img/6_1.jpg', 'img/6_2.jpg']
     },
     {
-        id: 7, name: 'Baby Mesh 0.4\u03A9', category: 'coil',
-        brand: 'SMOK', strength: null, volume: null,
-        desc: 'Сетка 0.4 Ом, от 30 до 45W. Упаковка 3шт',
-        price: 380, oldPrice: 480,
-        flavors: null,
-        images: svgMulti('Baby Mesh', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#eeff88'},{bg:'#2a2a40', fg:'#dddddd'}])
+        id: 7, name: 'Жидкость 7', category: 'liquid',
+        brand: '—', strength: '—', volume: '—',
+        desc: 'Ждём данные от тебя',
+        price: 550, oldPrice: null,
+        flavors: ['Вкус 1', 'Вкус 2'],
+        images: ['img/7_1.jpg', 'img/7_2.jpg', 'img/7_3.jpg']
     },
     {
-        id: 8, name: 'Vaporesso Xros 4', category: 'device',
-        brand: 'Vaporesso', strength: null, volume: null,
-        desc: 'Pod-система. 1000мАч, 2мл картридж',
-        price: 2490, oldPrice: 2990,
-        flavors: null,
-        images: svgMulti('Xros 4', [{bg:'#2a2a40', fg:'#00d4ff'},{bg:'#1a2a40', fg:'#00aaff'},{bg:'#2a2a40', fg:'#44ddff'}])
-    },
-    {
-        id: 9, name: 'Geekvape Aegis 2', category: 'device',
-        brand: 'Geekvape', strength: null, volume: null,
-        desc: 'Мод с батареей 18650, до 200W',
-        price: 3890, oldPrice: 4590,
-        flavors: null,
-        images: svgMulti('Aegis 2', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#ffcc00'},{bg:'#2a2a40', fg:'#eeeeee'}])
-    },
-    {
-        id: 10, name: 'Uwell Caliburn G3', category: 'device',
-        brand: 'Uwell', strength: null, volume: null,
-        desc: 'Pod-система. 900мАч, Type-C',
-        price: 2190, oldPrice: null,
-        flavors: null,
-        images: svgMulti('Caliburn G3', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a2a3a', fg:'#aabbff'},{bg:'#2a2a40', fg:'#cccccc'}])
+        id: 8, name: 'Жидкость 8', category: 'liquid',
+        brand: '—', strength: '—', volume: '—',
+        desc: 'Ждём данные от тебя',
+        price: 550, oldPrice: null,
+        flavors: ['Вкус 1', 'Вкус 2'],
+        images: ['img/8_1.jpg', 'img/8_2.jpg']
     }
 ];
 
@@ -193,6 +177,9 @@ function renderProducts(filter) {
         const cartItem = cart.find(c => c.id === p.id);
         const qty = cartItem ? cartItem.qty : 0;
         const specs = [p.brand, p.strength, p.volume].filter(Boolean).join(' · ');
+        const flavorsHtml = p.flavors && p.flavors.length
+            ? `<div class="card-flavors">${p.flavors.map(f => `<span class="card-flavor-tag">${f}</span>`).join('')}</div>`
+            : '';
         return `
         <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
             ${qty > 0 ? `<div class="cart-badge">${qty}</div>` : ''}
@@ -201,6 +188,7 @@ function renderProducts(filter) {
             </div>
             <h4>${p.name}</h4>
             ${specs ? `<div class="product-specs">${specs}</div>` : ''}
+            ${flavorsHtml}
             <div class="desc">${p.desc}</div>
             <div class="price">
                 ${p.price}\u20BD

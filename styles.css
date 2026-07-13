@@ -581,7 +581,7 @@ section {
 }
 
 .product-card {
-    background: linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
+    background: linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 100%);
     padding: 24px;
     text-align: left;
     display: flex;
@@ -623,6 +623,23 @@ section {
     letter-spacing: 0.5px;
     margin-bottom: 6px;
     text-transform: uppercase;
+}
+
+/* FLAVOR TAGS ON CARD */
+.card-flavors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.card-flavor-tag {
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,92,0,0.12);
+    border: 1px solid rgba(255,92,0,0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
 }
 
 /* FLAVOR SELECTOR */
@@ -692,7 +709,7 @@ section {
 }
 
 .product-card:hover {
-    background: linear-gradient(160deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%);
+    background: linear-gradient(160deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.15) 100%);
 }
 
 .product-card:hover::after {
@@ -1129,10 +1146,11 @@ footer p {
 
 .cart-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 16px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .cart-item .item-info {
@@ -1155,7 +1173,7 @@ footer p {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-left: 20px;
+    margin-left: auto;
 }
 
 .cart-item .item-qty button {
@@ -1208,7 +1226,6 @@ footer p {
     cursor: pointer;
     font-size: 18px;
     padding: 0 5px;
-    margin-left: 15px;
     transition: all 0.3s;
 }
 
@@ -2227,7 +2244,7 @@ footer p {
     }
 
     .cart-item .item-qty {
-        margin-left: 0;
+        margin-left: auto;
     }
 
     .cart-actions {
