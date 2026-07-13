@@ -19,6 +19,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 40px;
+    overflow: visible;
 }
 
 /* ===== BACKGROUND ORBS ===== */
@@ -518,6 +519,7 @@ section {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding-bottom: 4px;
+    touch-action: pan-x;
 }
 .filter-bar::-webkit-scrollbar {
     display: none;
