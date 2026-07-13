@@ -8,6 +8,7 @@
 
 html {
     scrollbar-gutter: stable;
+    overflow-x: clip;
 }
 
 body {
@@ -16,7 +17,7 @@ body {
     color: #ffffff;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .container {
