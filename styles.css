@@ -553,9 +553,7 @@ section {
 .products {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    border-radius: 24px;
-    overflow: visible;
+    gap: 20px;
 }
 
 .product-thumb {
@@ -564,7 +562,7 @@ section {
     border-radius: 14px;
     overflow: hidden;
     margin-bottom: 16px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    background: #12121c;
     border: 1px solid rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
@@ -578,7 +576,7 @@ section {
 }
 
 .product-card {
-    background: linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 100%);
+    background: #1a1a2e;
     padding: 24px;
     text-align: left;
     display: flex;
@@ -588,8 +586,8 @@ section {
     position: relative;
     overflow: hidden;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.4);
 }
 
 /* CART BADGE */
@@ -709,7 +707,9 @@ section {
 }
 
 .product-card:hover {
-    background: linear-gradient(160deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.15) 100%);
+    background: #222240;
+    border-color: rgba(255,92,0,0.3);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
 }
 
 .product-card:hover::after {
