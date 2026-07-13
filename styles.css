@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: #050508;
@@ -13,6 +18,8 @@ body {
     line-height: 1.5;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    width: 100%;
+    position: relative;
 }
 
 .container {
@@ -520,7 +527,7 @@ section {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 4px;
+    padding-bottom: 8px;
     touch-action: pan-x;
     position: sticky;
     top: 72px;
@@ -528,10 +535,14 @@ section {
     background: rgba(5,5,8,0.7);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    padding-top: 4px;
-    padding-right: 12px;
-    padding-left: 12px;
+    padding-top: 8px;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin-left: -40px;
+    margin-right: -40px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    min-height: 44px;
+    align-items: center;
 }
 .filter-bar::-webkit-scrollbar {
     display: none;
