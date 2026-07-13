@@ -527,18 +527,14 @@ section {
     -webkit-backdrop-filter: blur(40px);
     border-bottom: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 20px;
+    overflow: visible;
 }
 .filter-bar {
-    margin-bottom: 0;
     display: flex;
     gap: 8px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 4px;
-    padding-top: 4px;
-    padding-left: 0;
-    padding-right: 0;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    padding-top: 8px;
     min-height: 44px;
     align-items: center;
 }
