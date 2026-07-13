@@ -171,7 +171,19 @@ header .container {
 }
 
 .tg-link {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: #ffffff !important;
+    background: rgba(0, 136, 204, 0.25);
+    border: 1px solid rgba(0, 136, 204, 0.4);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-block;
+}
+.tg-link:hover {
+    background: rgba(0, 136, 204, 0.4);
+    border-color: rgba(0, 136, 204, 0.7);
 }
 
 /* ===== HERO / BANNER ===== */
@@ -427,23 +439,22 @@ section {
 .categories {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 1px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    overflow: hidden;
     margin-bottom: 60px;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .category-card {
-    background: rgba(30, 30, 50, 0.85);
+    background: rgba(14, 14, 22, 0.95);
     padding: 48px 32px;
     text-align: left;
     cursor: pointer;
     transition: all 0.4s;
     position: relative;
     overflow: hidden;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    backdrop-filter: blur(20px) saturate(0.8);
-    -webkit-backdrop-filter: blur(20px) saturate(0.8);
 }
 
 .category-card::before {
@@ -620,6 +631,46 @@ section {
     letter-spacing: 0.5px;
     margin-bottom: 6px;
     text-transform: uppercase;
+}
+
+/* CARD QTY CONTROL */
+.card-qty-control {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,92,0,0.4);
+    width: fit-content;
+}
+.card-qty-btn {
+    background: rgba(255,92,0,0.15);
+    color: #ff5c00;
+    border: none;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-qty-btn:hover {
+    background: rgba(255,92,0,0.3);
+}
+.card-qty-num {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: center;
+    background: rgba(255,92,0,0.08);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* FLAVOR TAGS ON CARD */
@@ -904,18 +955,17 @@ section {
 .contacts-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 1px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .contact-info {
-    background: rgba(30, 30, 50, 0.85);
+    background: rgba(14, 14, 22, 0.95);
     padding: 48px 40px;
     position: relative;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    backdrop-filter: blur(20px) saturate(0.8);
-    -webkit-backdrop-filter: blur(20px) saturate(0.8);
 }
 
 .contact-info .info-item {
@@ -1411,21 +1461,20 @@ footer p {
 .delivery-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 1px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .delivery-card {
-    background: rgba(30, 30, 50, 0.85);
+    background: rgba(14, 14, 22, 0.95);
     padding: 48px 32px;
     text-align: left;
     transition: all 0.4s;
     position: relative;
     overflow: hidden;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    backdrop-filter: blur(20px) saturate(0.8);
-    -webkit-backdrop-filter: blur(20px) saturate(0.8);
 }
 
 .delivery-card::before {

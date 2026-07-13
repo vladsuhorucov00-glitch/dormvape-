@@ -210,31 +210,6 @@ function updateCartUI() {
     }
 
     renderCartItems();
-    updateCartBadges();
-}
-
-function updateCartBadges() {
-    document.querySelectorAll('.product-card').forEach(card => {
-        const id = parseInt(card.dataset.productId);
-        const qty = cart.filter(c => c.id === id).reduce((sum, c) => sum + c.qty, 0);
-
-        let badge = card.querySelector('.cart-badge');
-        if (qty > 0) {
-            if (!badge) {
-                badge = document.createElement('div');
-                badge.className = 'cart-badge';
-                card.prepend(badge);
-            }
-            badge.textContent = qty;
-        } else if (badge) {
-            badge.remove();
-        }
-
-        const btn = card.querySelector('.add-to-cart');
-        if (btn) {
-            btn.textContent = qty > 0 ? 'Ещё добавить' : 'Добавить в корзину';
-        }
-    });
 }
 
 // ===== PRODUCTS =====
@@ -246,15 +221,21 @@ function renderProducts(filter) {
         : products;
 
     grid.innerHTML = filtered.map(p => {
-        const cartItem = cart.find(c => c.id === p.id);
-        const qty = cartItem ? cartItem.qty : 0;
+        const totalQty = cart.filter(c => c.id === p.id).reduce((s, c) => s + c.qty, 0);
         const specs = [p.brand, p.strength, p.volume].filter(Boolean).join(' · ');
         const flavorsHtml = p.flavors && p.flavors.length
             ? `<div class="card-flavors">${p.flavors.map(f => `<span class="card-flavor-tag">${f}</span>`).join('')}</div>`
             : '';
+        const qtyControl = totalQty > 0
+            ? `<div class="card-qty-control">
+                <button class="card-qty-btn card-qty-decr" data-id="${p.id}">-</button>
+                <span class="card-qty-num">${totalQty}</span>
+                <button class="card-qty-btn card-qty-incr" data-id="${p.id}">+</button>
+               </div>`
+            : `<button class="add-to-cart" data-id="${p.id}">Добавить в корзину</button>`;
         return `
         <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
-            ${qty > 0 ? `<div class="cart-badge">${qty}</div>` : ''}
+            ${totalQty > 0 ? `<div class="cart-badge">${totalQty}</div>` : ''}
             <div class="product-thumb">
                 <img src="${p.images[0]}" alt="${p.name}">
             </div>
@@ -266,7 +247,7 @@ function renderProducts(filter) {
                 ${p.price}\u20BD
                 ${p.oldPrice ? `<span class="old-price">${p.oldPrice}\u20BD</span>` : ''}
             </div>
-            <button class="add-to-cart" data-id="${p.id}">${qty > 0 ? 'Ещё добавить' : 'Добавить в корзину'}</button>
+            ${qtyControl}
         </div>
     `}).join('');
 
@@ -275,13 +256,45 @@ function renderProducts(filter) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
             const product = products.find(p => p.id === id);
-            if (product) addToCart(product);
+            if (product) {
+                addToCart(product);
+                renderProducts(currentFilter);
+            }
+        });
+    });
+
+    grid.querySelectorAll('.card-qty-incr').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const id = parseInt(this.dataset.id);
+            const product = products.find(p => p.id === id);
+            if (product) {
+                addToCart(product);
+                renderProducts(currentFilter);
+            }
+        });
+    });
+
+    grid.querySelectorAll('.card-qty-decr').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const id = parseInt(this.dataset.id);
+            const item = cart.find(c => c.id === id);
+            if (item) {
+                item.qty--;
+                if (item.qty <= 0) {
+                    cart = cart.filter(c => c.id !== id);
+                }
+                saveCart();
+                updateCartUI();
+                renderProducts(currentFilter);
+            }
         });
     });
 
     grid.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', function(e) {
-            if (e.target.classList.contains('add-to-cart') || e.target.closest('.carousel')) return;
+            if (e.target.closest('.add-to-cart') || e.target.closest('.card-qty-control') || e.target.closest('.carousel')) return;
             const id = parseInt(this.dataset.productId);
             const product = products.find(p => p.id === id);
             if (product) openProductModal(product);
