@@ -7,7 +7,7 @@
 }
 
 html {
-    width: 100%;
+    overflow-x: hidden;
 }
 
 body {
@@ -15,10 +15,7 @@ body {
     background: #050508;
     color: #ffffff;
     line-height: 1.5;
-    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    width: 100%;
-    position: relative;
 }
 
 .container {
@@ -523,8 +520,6 @@ section {
     position: sticky;
     top: 72px;
     z-index: 50;
-    margin-left: -40px;
-    margin-right: -40px;
     background: rgba(5,5,8,0.7);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
