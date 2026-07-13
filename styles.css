@@ -445,7 +445,7 @@ section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+    background: rgba(255,255,255,0.12);
     border-radius: 20px;
     overflow: hidden;
     margin-bottom: 60px;
@@ -463,7 +463,7 @@ section {
     transition: all 0.4s;
     position: relative;
     overflow: hidden;
-    background: rgba(255,255,255,0.03);
+    background: #0e0e16;
     -webkit-tap-highlight-color: transparent;
 }
 
