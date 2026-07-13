@@ -281,6 +281,11 @@
                 <input type="text" id="checkout-flat" placeholder="Кв. 5, под. 2">
                 <label for="checkout-comment">Комментарий</label>
                 <textarea id="checkout-comment" placeholder="Пожелания к заказу..."></textarea>
+                <label class="save-data-check">
+                    <input type="checkbox" id="checkout-save" checked>
+                    <span class="save-data-mark">✓</span>
+                    Сохранить данные
+                </label>
                 <button type="submit" class="submit-btn">Перейти к оплате</button>
             </form>
         </div>
@@ -297,6 +302,12 @@
 
 <!-- CART NOTIFICATION -->
 <div class="cart-notification" id="cart-notification">Товар добавлен в корзину!</div>
+
+<!-- FLAVOR PICKER POPUP -->
+<div class="flavor-picker-popup" id="flavor-picker-popup">
+    <div class="flavor-picker-title">Выберите вкус:</div>
+    <div class="flavor-picker-list" id="flavor-picker-list"></div>
+</div>
 
 <script src="script.js"></script>
 </body>

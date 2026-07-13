@@ -288,7 +288,10 @@ function renderProducts(filter) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
             const product = products.find(p => p.id === id);
-            if (product) {
+            if (!product) return;
+            if (product.flavors && product.flavors.length > 0) {
+                openFlavorPicker(product, this);
+            } else {
                 addToCart(product);
                 renderProducts(currentFilter);
             }
@@ -494,6 +497,42 @@ document.querySelectorAll('.category-card').forEach(card => {
     });
 });
 
+// ===== FLAVOR PICKER =====
+function openFlavorPicker(product, anchor) {
+    const popup = document.getElementById('flavor-picker-popup');
+    const list = document.getElementById('flavor-picker-list');
+    list.innerHTML = product.flavors.map(f =>
+        `<button class="flavor-picker-btn" data-flavor="${f}">${f}</button>`
+    ).join('');
+
+    const rect = anchor.getBoundingClientRect();
+    popup.style.display = 'block';
+    popup.style.position = 'fixed';
+    popup.style.bottom = 'auto';
+    popup.style.left = Math.max(10, Math.min(rect.left, window.innerWidth - popup.offsetWidth - 10)) + 'px';
+    popup.style.top = (rect.top - popup.offsetHeight - 8) + 'px';
+    if (popup.getBoundingClientRect().top < 80) {
+        popup.style.top = (rect.bottom + 8) + 'px';
+    }
+
+    list.querySelectorAll('.flavor-picker-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            addToCart(product, this.dataset.flavor);
+            popup.style.display = 'none';
+            renderProducts(currentFilter);
+        });
+    });
+
+    function closePicker(e) {
+        if (!popup.contains(e.target)) {
+            popup.style.display = 'none';
+            document.removeEventListener('click', closePicker);
+        }
+    }
+    setTimeout(() => document.addEventListener('click', closePicker), 10);
+}
+
 // ===== PRODUCT DETAIL MODAL =====
 const productModalOverlay = document.getElementById('product-modal-overlay');
 const productModalClose = document.getElementById('product-modal-close');
@@ -547,6 +586,7 @@ function openProductModal(product) {
 function closeProductModal() {
     productModalOverlay.classList.remove('active');
     currentModalProduct = null;
+    renderProducts(currentFilter);
 }
 
 productModalClose.addEventListener('click', closeProductModal);
@@ -648,6 +688,14 @@ function openCheckoutModal() {
     checkoutStepForm.style.display = 'block';
     checkoutStepPayment.style.display = 'none';
 
+    const saved = JSON.parse(localStorage.getItem('dormvape_checkout') || 'null');
+    if (saved) {
+        document.getElementById('checkout-name').value = saved.name || '';
+        document.getElementById('checkout-phone').value = saved.phone || '';
+        document.getElementById('checkout-address').value = saved.address || '';
+        document.getElementById('checkout-flat').value = saved.flat || '';
+    }
+
     const summary = document.getElementById('modal-summary');
     let itemsHtml = cart.map(item =>
         `<div class="summary-item"><span>${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty}</span><span>${item.price * item.qty}\u20BD</span></div>`
@@ -693,6 +741,12 @@ checkoutForm.addEventListener('submit', function(e) {
               `${checkoutData.comment ? '\n  Комментарий: ' + checkoutData.comment : ''}`;
 
     sendTelegramMessage(msg);
+
+    if (document.getElementById('checkout-save').checked) {
+        localStorage.setItem('dormvape_checkout', JSON.stringify(checkoutData));
+    } else {
+        localStorage.removeItem('dormvape_checkout');
+    }
 
     checkoutStepForm.style.display = 'none';
     checkoutStepPayment.style.display = 'block';

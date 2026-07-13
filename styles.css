@@ -587,11 +587,52 @@ section {
     border-color: rgba(255,92,0,0.5);
 }
 
+/* ===== FLAVOR PICKER POPUP ===== */
+.flavor-picker-popup {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    background: #1a1a24;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    min-width: 200px;
+    max-width: 90vw;
+}
+.flavor-picker-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 10px;
+}
+.flavor-picker-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.flavor-picker-btn {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+.flavor-picker-btn:hover {
+    background: rgba(255, 92, 0, 0.25);
+    border-color: rgba(255,92,0,0.4);
+    color: #fff;
+}
+
 /* ===== PRODUCTS ===== */
 .products {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 32px;
 }
 
 .product-thumb {
@@ -1726,6 +1767,14 @@ footer p {
     z-index: 1;
 }
 
+label.save-data-check {
+    display: inline-flex !important;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
 .modal input,
 .modal textarea {
     width: 100%;
@@ -1788,6 +1837,41 @@ footer p {
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.save-data-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 20px;
+    user-select: none;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.save-data-check input {
+    display: none;
+}
+.save-data-mark {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.save-data-check input:checked + .save-data-mark {
+    background: rgba(255, 92, 0, 0.3);
+    border-color: rgba(255,92,0,0.5);
+    color: #ff5c00;
 }
 
 .modal .submit-btn {
@@ -2297,7 +2381,7 @@ footer p {
 
     .products {
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        gap: 24px;
     }
 
     .contacts-wrapper {
@@ -2653,7 +2737,7 @@ footer p {
     }
 
     .products {
-        gap: 0;
+        gap: 12px;
         border-radius: 16px;
     }
 
