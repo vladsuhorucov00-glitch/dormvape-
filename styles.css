@@ -507,6 +507,14 @@ section {
     line-height: 1.5;
 }
 
+/* ===== CATALOG SECTION ===== */
+.catalog-section {
+    padding: 0 !important;
+}
+.catalog-section .container {
+    padding-top: 0 !important;
+}
+
 /* ===== FILTER BUTTONS ===== */
 .filter-bar {
     margin-bottom: 20px;
