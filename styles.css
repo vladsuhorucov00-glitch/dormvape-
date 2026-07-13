@@ -520,6 +520,15 @@ section {
     scrollbar-width: none;
     padding-bottom: 4px;
     touch-action: pan-x;
+    position: sticky;
+    top: 72px;
+    z-index: 50;
+    background: #0e0e16;
+    padding-top: 12px;
+    margin-left: -40px;
+    margin-right: -40px;
+    padding-left: 40px;
+    padding-right: 40px;
 }
 .filter-bar::-webkit-scrollbar {
     display: none;
