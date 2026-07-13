@@ -236,6 +236,8 @@ function updateCartUI() {
     const badge = document.getElementById('cart-badge-tab');
     if (count > 0) {
         badge.textContent = count;
+        badge.classList.remove('show');
+        void badge.offsetWidth;
         badge.classList.add('show');
     } else {
         badge.classList.remove('show');
@@ -264,7 +266,7 @@ function renderProducts(filter) {
                 <span class="card-qty-num">${totalQty}</span>
                 <button class="card-qty-btn card-qty-incr" data-id="${p.id}">+</button>
                </div>`
-            : `<button class="add-to-cart" data-id="${p.id}">Добавить в корзину</button>`;
+            : `<button class="add-to-cart" data-id="${p.id}">+ Добавить в корзину</button>`;
         return `
         <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
             ${totalQty > 0 ? `<div class="cart-badge">${totalQty}</div>` : ''}
@@ -289,6 +291,12 @@ function renderProducts(filter) {
             const id = parseInt(this.dataset.id);
             const product = products.find(p => p.id === id);
             if (!product) return;
+            const card = this.closest('.product-card');
+            if (card) {
+                card.classList.remove('card-bounce');
+                void card.offsetWidth;
+                card.classList.add('card-bounce');
+            }
             if (product.flavors && product.flavors.length > 0) {
                 openFlavorPicker(product, this);
             } else {
@@ -775,3 +783,24 @@ document.getElementById('clear-btn').addEventListener('click', function() {
 
 // ===== INIT =====
 updateCartUI();
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+
+function observeCards() {
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.classList.remove('visible');
+        observer.observe(card);
+    });
+}
+
+const productsObserver = new MutationObserver(() => observeCards());
+const grid = document.getElementById('products-grid');
+if (grid) productsObserver.observe(grid, { childList: true });
+observeCards();
