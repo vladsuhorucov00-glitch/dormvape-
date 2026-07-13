@@ -528,16 +528,17 @@ section {
     padding-bottom: 4px;
     touch-action: pan-x;
     position: sticky;
-    top: 72px;
+    top: 76px;
     z-index: 50;
     background: rgba(5,5,8,0.7);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    padding-top: 0;
+    padding-top: 4px;
     margin-left: -40px;
     margin-right: -40px;
     padding-left: 40px;
     padding-right: 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .filter-bar::-webkit-scrollbar {
     display: none;
