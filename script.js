@@ -43,62 +43,82 @@ function svgMulti(text, colors) {
 const products = [
     {
         id: 1, name: 'HSB Mango Ice', category: 'liquid',
-        desc: 'Сочное манго с ментоловой свежестью. 60мл / 3мг',
+        brand: 'HSB', strength: '3мг', volume: '60мл',
+        desc: 'Сочное манго с ментоловой свежестью',
         price: 690, oldPrice: 860,
+        flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'],
         images: svgMulti('Mango Ice', [{bg:'#2a2a40', fg:'#ffaa00'},{bg:'#3a2a20', fg:'#ff6600'},{bg:'#2a3a30', fg:'#00d4aa'}])
     },
     {
         id: 2, name: 'Pink Lemonade', category: 'liquid',
-        desc: 'Розовый лимонад с кислинкой. 60мл / 6мг',
+        brand: 'Pod Juice', strength: '6мг', volume: '60мл',
+        desc: 'Розовый лимонад с кислинкой',
         price: 590, oldPrice: 740,
+        flavors: ['Классический', 'Мятный', 'Малиновый'],
         images: svgMulti('Pink Lemonade', [{bg:'#2a2a40', fg:'#ff68b5'},{bg:'#3a2030', fg:'#ff8ec8'},{bg:'#2a2a40', fg:'#ffaadd'}])
     },
     {
-        id: 3, name: 'Blueberry Slt', category: 'liquid',
-        desc: 'Черника со льдом. 30мл / 20мг соли',
+        id: 3, name: 'Blueberry Salt', category: 'liquid',
+        brand: 'Salty Fish', strength: '20мг', volume: '30мл',
+        desc: 'Черника со льдом',
         price: 450, oldPrice: null,
+        flavors: ['Черника', 'Черника-лёд', 'Черника-所有情节'],
         images: svgMulti('Blueberry', [{bg:'#2a2a40', fg:'#5a8eef'},{bg:'#1a2a40', fg:'#4488ff'},{bg:'#2a2a40', fg:'#77aaff'}])
     },
     {
         id: 4, name: 'Strawberry Cream', category: 'liquid',
-        desc: 'Клубника со сливками. 60мл / 3мг',
+        brand: 'HSB', strength: '3мг', volume: '60мл',
+        desc: 'Клубника со сливками',
         price: 640, oldPrice: 800,
+        flavors: ['Клубника', 'Клубника-сливки', 'Клубника-мёд'],
         images: svgMulti('Strawberry', [{bg:'#2a2a40', fg:'#ff9d9a'},{bg:'#3a2020', fg:'#ff6b6b'},{bg:'#2a2a40', fg:'#ffaaaa'}])
     },
     {
         id: 5, name: 'GTX Coil 0.6\u03A9', category: 'coil',
+        brand: 'Vaporesso', strength: null, volume: null,
         desc: 'Сетка 0.6 Ом, от 25 до 35W. Упаковка 5шт',
         price: 490, oldPrice: 590,
+        flavors: null,
         images: svgMulti('GTX Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a40', fg:'#cccccc'},{bg:'#2a2a40', fg:'#dddddd'}])
     },
     {
         id: 6, name: 'Pnp Coil 0.3\u03A9', category: 'coil',
+        brand: 'Voopoo', strength: null, volume: null,
         desc: 'Сетка 0.3 Ом, от 40 до 55W. Упаковка 5шт',
         price: 540, oldPrice: null,
+        flavors: null,
         images: svgMulti('Pnp Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a3a3a', fg:'#aaeeff'},{bg:'#2a2a40', fg:'#cccccc'}])
     },
     {
         id: 7, name: 'Baby Mesh 0.4\u03A9', category: 'coil',
+        brand: 'SMOK', strength: null, volume: null,
         desc: 'Сетка 0.4 Ом, от 30 до 45W. Упаковка 3шт',
         price: 380, oldPrice: 480,
+        flavors: null,
         images: svgMulti('Baby Mesh', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#eeff88'},{bg:'#2a2a40', fg:'#dddddd'}])
     },
     {
         id: 8, name: 'Vaporesso Xros 4', category: 'device',
+        brand: 'Vaporesso', strength: null, volume: null,
         desc: 'Pod-система. 1000мАч, 2мл картридж',
         price: 2490, oldPrice: 2990,
+        flavors: null,
         images: svgMulti('Xros 4', [{bg:'#2a2a40', fg:'#00d4ff'},{bg:'#1a2a40', fg:'#00aaff'},{bg:'#2a2a40', fg:'#44ddff'}])
     },
     {
         id: 9, name: 'Geekvape Aegis 2', category: 'device',
+        brand: 'Geekvape', strength: null, volume: null,
         desc: 'Мод с батареей 18650, до 200W',
         price: 3890, oldPrice: 4590,
+        flavors: null,
         images: svgMulti('Aegis 2', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#ffcc00'},{bg:'#2a2a40', fg:'#eeeeee'}])
     },
     {
         id: 10, name: 'Uwell Caliburn G3', category: 'device',
+        brand: 'Uwell', strength: null, volume: null,
         desc: 'Pod-система. 900мАч, Type-C',
         price: 2190, oldPrice: null,
+        flavors: null,
         images: svgMulti('Caliburn G3', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a2a3a', fg:'#aabbff'},{bg:'#2a2a40', fg:'#cccccc'}])
     }
 ];
@@ -140,8 +160,7 @@ function updateCartUI() {
 function updateCartBadges() {
     document.querySelectorAll('.product-card').forEach(card => {
         const id = parseInt(card.dataset.productId);
-        const item = cart.find(c => c.id === id);
-        const qty = item ? item.qty : 0;
+        const qty = cart.filter(c => c.id === id).reduce((sum, c) => sum + c.qty, 0);
 
         let badge = card.querySelector('.cart-badge');
         if (qty > 0) {
@@ -173,6 +192,7 @@ function renderProducts(filter) {
     grid.innerHTML = filtered.map(p => {
         const cartItem = cart.find(c => c.id === p.id);
         const qty = cartItem ? cartItem.qty : 0;
+        const specs = [p.brand, p.strength, p.volume].filter(Boolean).join(' · ');
         return `
         <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
             ${qty > 0 ? `<div class="cart-badge">${qty}</div>` : ''}
@@ -180,6 +200,7 @@ function renderProducts(filter) {
                 <img src="${p.images[0]}" alt="${p.name}">
             </div>
             <h4>${p.name}</h4>
+            ${specs ? `<div class="product-specs">${specs}</div>` : ''}
             <div class="desc">${p.desc}</div>
             <div class="price">
                 ${p.price}\u20BD
@@ -216,24 +237,25 @@ function filterCategory(cat) {
     });
 }
 
-function addToCart(product) {
-    const existing = cart.find(item => item.id === product.id);
+function addToCart(product, flavor) {
+    const existing = cart.find(item => item.id === product.id && item.flavor === (flavor || null));
     if (existing) {
         existing.qty++;
     } else {
-        cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
+        cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, flavor: flavor || null });
     }
     saveCart();
     updateCartUI();
 
     const notif = document.getElementById('cart-notification');
-    notif.textContent = '\u201C' + product.name + '\u201D добавлен в корзину!';
+    notif.textContent = '\u201C' + product.name + (flavor ? ' (' + flavor + ')' : '') + '\u201D добавлен в корзину!';
     notif.classList.add('show');
     setTimeout(() => notif.classList.remove('show'), 2500);
 }
 
-function removeFromCart(id) {
-    cart = cart.filter(item => item.id !== id);
+function removeFromCart(id, flavor) {
+    const fv = flavor || null;
+    cart = cart.filter(item => !(item.id === id && item.flavor === fv));
     saveCart();
     updateCartUI();
 }
@@ -261,30 +283,31 @@ function renderCartItems() {
         return `
         <div class="cart-item">
             <div class="item-info">
-                <div class="item-name">${item.name}</div>
+                <div class="item-name">${item.name}${item.flavor ? ' — ' + item.flavor : ''}</div>
                 <div class="item-price">${item.price}\u20BD</div>
             </div>
             <div class="item-qty">
-                <button class="qty-btn" data-id="${item.id}" data-action="decr">-</button>
+                <button class="qty-btn" data-id="${item.id}" data-flavor="${item.flavor || ''}" data-action="decr">-</button>
                 <span>${item.qty}</span>
-                <button class="qty-btn" data-id="${item.id}" data-action="incr">+</button>
+                <button class="qty-btn" data-id="${item.id}" data-flavor="${item.flavor || ''}" data-action="incr">+</button>
             </div>
-            <button class="remove-item" data-id="${item.id}">&times;</button>
+            <button class="remove-item" data-id="${item.id}" data-flavor="${item.flavor || ''}">&times;</button>
         </div>
     `}).join('');
 
     container.querySelectorAll('.qty-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = parseInt(this.dataset.id);
+            const fv = this.dataset.flavor || null;
             const action = this.dataset.action;
-            const item = cart.find(i => i.id === id);
+            const item = cart.find(i => i.id === id && i.flavor === fv);
             if (!item) return;
             if (action === 'incr') {
                 item.qty++;
             } else {
                 item.qty--;
                 if (item.qty <= 0) {
-                    removeFromCart(id);
+                    removeFromCart(id, fv);
                     return;
                 }
             }
@@ -295,7 +318,7 @@ function renderCartItems() {
 
     container.querySelectorAll('.remove-item').forEach(btn => {
         btn.addEventListener('click', function() {
-            removeFromCart(parseInt(this.dataset.id));
+            removeFromCart(parseInt(this.dataset.id), this.dataset.flavor || null);
         });
     });
 }
@@ -384,7 +407,8 @@ function openProductModal(product) {
     ).join('');
 
     document.getElementById('product-modal-name').textContent = product.name;
-    document.getElementById('product-modal-desc').textContent = product.desc;
+    const specs = [product.brand, product.strength, product.volume].filter(Boolean).join(' · ');
+    document.getElementById('product-modal-desc').textContent = specs ? specs + ' · ' + product.desc : product.desc;
     document.getElementById('product-modal-price').textContent = product.price + '\u20BD';
     const oldPriceEl = document.getElementById('product-modal-old-price');
     if (product.oldPrice) {
@@ -393,6 +417,24 @@ function openProductModal(product) {
     } else {
         oldPriceEl.style.display = 'none';
     }
+
+    const flavorWrap = document.getElementById('product-modal-flavors');
+    if (product.flavors && product.flavors.length > 0) {
+        flavorWrap.style.display = 'block';
+        flavorWrap.innerHTML = '<div class="flavor-label">Вкус:</div><div class="flavor-options">' +
+            product.flavors.map((f, i) =>
+                `<button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor="${f}">${f}</button>`
+            ).join('') + '</div>';
+        flavorWrap.querySelectorAll('.flavor-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                flavorWrap.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    } else {
+        flavorWrap.style.display = 'none';
+    }
+
     productModalOverlay.classList.add('active');
 }
 
@@ -446,7 +488,10 @@ document.getElementById('modal-carousel').addEventListener('touchend', function(
 
 document.getElementById('product-modal-add').addEventListener('click', function() {
     if (currentModalProduct) {
-        addToCart(currentModalProduct);
+        const flavorWrap = document.getElementById('product-modal-flavors');
+        const activeFlavor = flavorWrap.querySelector('.flavor-btn.active');
+        const flavor = activeFlavor ? activeFlavor.dataset.flavor : null;
+        addToCart(currentModalProduct, flavor);
         closeProductModal();
     }
 });
@@ -491,7 +536,7 @@ function openCheckoutModal() {
 
     const summary = document.getElementById('modal-summary');
     let itemsHtml = cart.map(item =>
-        `<div class="summary-item"><span>${item.name} x${item.qty}</span><span>${item.price * item.qty}\u20BD</span></div>`
+        `<div class="summary-item"><span>${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty}</span><span>${item.price * item.qty}\u20BD</span></div>`
     ).join('');
     let total = getCartTotal();
     summary.innerHTML = itemsHtml + `<div class="summary-total"><span>Итого:</span><span>${total}\u20BD</span></div>`;
@@ -520,7 +565,7 @@ checkoutForm.addEventListener('submit', function(e) {
         comment: document.getElementById('checkout-comment').value.trim()
     };
 
-    let itemsList = cart.map(item => `  \u2022 ${item.name} x${item.qty} \u2014 ${item.price * item.qty}\u20BD`).join('\n');
+    let itemsList = cart.map(item => `  \u2022 ${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty} \u2014 ${item.price * item.qty}\u20BD`).join('\n');
     let total = getCartTotal();
 
     let msg = `\uD83D\uDED2 *Новый заказ DormVape*\n\n` +

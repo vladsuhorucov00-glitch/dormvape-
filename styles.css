@@ -581,7 +581,7 @@ section {
 }
 
 .product-card {
-    background: linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%);
+    background: linear-gradient(160deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
     padding: 24px;
     text-align: left;
     display: flex;
@@ -615,6 +615,53 @@ section {
     animation: badgePop 0.3s ease;
 }
 
+/* PRODUCT SPECS (brand · strength · ml) */
+.product-specs {
+    font-size: 11px;
+    color: #ff5c00;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+/* FLAVOR SELECTOR */
+.flavor-section {
+    margin: 12px 0 8px;
+}
+.flavor-label {
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+.flavor-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.flavor-btn {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #ccc;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+.flavor-btn:hover {
+    background: rgba(255,92,0,0.15);
+    border-color: rgba(255,92,0,0.3);
+    color: #fff;
+}
+.flavor-btn.active {
+    background: #ff5c00;
+    border-color: #ff5c00;
+    color: #fff;
+    font-weight: 600;
+}
+
 @keyframes badgePop {
     0% { transform: scale(0); }
     60% { transform: scale(1.2); }
@@ -645,7 +692,7 @@ section {
 }
 
 .product-card:hover {
-    background: linear-gradient(160deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+    background: linear-gradient(160deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 100%);
 }
 
 .product-card:hover::after {
