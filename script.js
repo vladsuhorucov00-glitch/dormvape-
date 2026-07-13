@@ -176,6 +176,38 @@ const products = [
         price: 1990, oldPrice: null,
         flavors: null,
         images: ['img/v9_1.jpg']
+    },
+    {
+        id: 18, name: 'Испаритель 1', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 490, oldPrice: null,
+        flavors: null,
+        images: ['img/c1_1.jpg']
+    },
+    {
+        id: 19, name: 'Испаритель 2', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 540, oldPrice: null,
+        flavors: null,
+        images: ['img/c2_1.jpg']
+    },
+    {
+        id: 20, name: 'Картридж 1', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 380, oldPrice: null,
+        flavors: null,
+        images: ['img/c3_1.jpg']
+    },
+    {
+        id: 21, name: 'Картридж 2', category: 'coil',
+        brand: '—', strength: null, volume: null,
+        desc: 'Ждём данные от тебя',
+        price: 380, oldPrice: null,
+        flavors: null,
+        images: ['img/c4_1.jpg']
     }
 ];
 
