@@ -576,7 +576,7 @@ section {
 }
 
 .product-card {
-    background: #1a1a2e;
+    background: linear-gradient(160deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
     padding: 24px;
     text-align: left;
     display: flex;
@@ -586,8 +586,10 @@ section {
     position: relative;
     overflow: hidden;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 6px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 /* CART BADGE */
@@ -1902,7 +1904,7 @@ footer p {
 }
 
 .product-modal {
-    background: linear-gradient(160deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%);
+    background: #1a1a24;
 
     border-radius: 28px;
     width: 100%;
@@ -1914,9 +1916,7 @@ footer p {
     position: relative;
     animation: modalIn 0.3s ease;
     box-shadow:
-        0 20px 60px rgba(0,0,0,0.5),
-        inset 0 1px 0 rgba(255,255,255,0.15),
-        inset 0 -1px 0 rgba(255,255,255,0.02);
+        0 20px 60px rgba(0,0,0,0.5);
     overflow: hidden;
 }
 
@@ -1991,7 +1991,7 @@ footer p {
 .product-modal .modal-img-wrap {
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    background: #12121c;
     display: flex;
     align-items: center;
     justify-content: center;

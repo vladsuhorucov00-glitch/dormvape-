@@ -424,6 +424,7 @@ function openProductModal(product) {
     }
 
     productModalOverlay.classList.add('active');
+    history.pushState({ modal: 'product' }, '');
 }
 
 function closeProductModal() {
@@ -491,6 +492,14 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+window.addEventListener('popstate', function(e) {
+    if (productModalOverlay.classList.contains('active')) {
+        closeProductModal();
+    } else if (checkoutModal.classList.contains('active')) {
+        closeCheckoutModal();
+    }
+});
+
 // ===== TELEGRAM =====
 const TG_BOT_TOKEN = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
 const TG_CHAT_ID = '1951895339';
@@ -530,6 +539,7 @@ function openCheckoutModal() {
     summary.innerHTML = itemsHtml + `<div class="summary-total"><span>Итого:</span><span>${total}\u20BD</span></div>`;
 
     checkoutModal.classList.add('active');
+    history.pushState({ modal: 'checkout' }, '');
 }
 
 function closeCheckoutModal() {
