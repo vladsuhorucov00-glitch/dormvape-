@@ -524,23 +524,18 @@ section {
     overflow: visible;
 }
 
-/* ===== FILTER BUTTONS ===== */
-.filter-sticky {
+.filter-bar {
     position: sticky;
     top: 72px;
     z-index: 50;
-    background: rgba(5,5,8,0.7);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 20px;
-}
-.filter-bar {
     display: flex;
     gap: 8px;
     flex-wrap: nowrap;
     padding-bottom: 8px;
     padding-top: 8px;
+    padding-left: 4px;
+    padding-right: 4px;
     min-height: 44px;
     align-items: center;
     overflow-x: auto;
@@ -552,10 +547,9 @@ section {
 }
 
 .filter-btn {
-    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-
-    color: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(40, 40, 55, 1);
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255,255,255,0.06);
     padding: 8px 18px;
     border-radius: 100px;
     cursor: pointer;
@@ -588,9 +582,9 @@ section {
 }
 
 .filter-btn.active {
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.08) 100%);
+    background: rgba(255, 92, 0, 0.3);
     color: #ffffff;
-    border-color: rgba(255,255,255,0.3);
+    border-color: rgba(255,92,0,0.5);
 }
 
 /* ===== PRODUCTS ===== */
