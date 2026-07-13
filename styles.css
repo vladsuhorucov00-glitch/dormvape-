@@ -576,7 +576,7 @@ section {
 }
 
 .product-card {
-    background: linear-gradient(160deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
+    background: rgba(30, 30, 50, 0.85);
     padding: 24px;
     text-align: left;
     display: flex;
@@ -586,10 +586,10 @@ section {
     position: relative;
     overflow: hidden;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px) saturate(0.8);
+    -webkit-backdrop-filter: blur(20px) saturate(0.8);
 }
 
 /* CART BADGE */

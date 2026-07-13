@@ -98,12 +98,52 @@ const products = [
         images: ['img/7_1.jpg', 'img/7_2.jpg', 'img/7_3.jpg']
     },
     {
-        id: 8, name: 'Жидкость 8', category: 'liquid',
-        brand: '—', strength: '—', volume: '—',
-        desc: 'Ждём данные от тебя',
-        price: 550, oldPrice: null,
-        flavors: ['Вкус 1', 'Вкус 2'],
+        id: 8, name: 'Vaporesso Xros 4', category: 'device',
+        brand: 'Vaporesso', strength: null, volume: null,
+        desc: 'Pod-система. 1000мАч, 2мл картридж',
+        price: 2490, oldPrice: 2990,
+        flavors: null,
         images: ['img/8_1.jpg', 'img/8_2.jpg']
+    },
+    {
+        id: 9, name: 'GTX Coil 0.6\u03A9', category: 'coil',
+        brand: 'Vaporesso', strength: null, volume: null,
+        desc: 'Сетка 0.6 Ом, от 25 до 35W. Упаковка 5шт',
+        price: 490, oldPrice: 590,
+        flavors: null,
+        images: svgMulti('GTX Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a40', fg:'#cccccc'},{bg:'#2a2a40', fg:'#dddddd'}])
+    },
+    {
+        id: 10, name: 'Pnp Coil 0.3\u03A9', category: 'coil',
+        brand: 'Voopoo', strength: null, volume: null,
+        desc: 'Сетка 0.3 Ом, от 40 до 55W. Упаковка 5шт',
+        price: 540, oldPrice: null,
+        flavors: null,
+        images: svgMulti('Pnp Coil', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a3a3a', fg:'#aaeeff'},{bg:'#2a2a40', fg:'#cccccc'}])
+    },
+    {
+        id: 11, name: 'Baby Mesh 0.4\u03A9', category: 'coil',
+        brand: 'SMOK', strength: null, volume: null,
+        desc: 'Сетка 0.4 Ом, от 30 до 45W. Упаковка 3шт',
+        price: 380, oldPrice: 480,
+        flavors: null,
+        images: svgMulti('Baby Mesh', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#eeff88'},{bg:'#2a2a40', fg:'#dddddd'}])
+    },
+    {
+        id: 12, name: 'Geekvape Aegis 2', category: 'device',
+        brand: 'Geekvape', strength: null, volume: null,
+        desc: 'Мод с батареей 18650, до 200W',
+        price: 3890, oldPrice: 4590,
+        flavors: null,
+        images: svgMulti('Aegis 2', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#3a3a2a', fg:'#ffcc00'},{bg:'#2a2a40', fg:'#eeeeee'}])
+    },
+    {
+        id: 13, name: 'Uwell Caliburn G3', category: 'device',
+        brand: 'Uwell', strength: null, volume: null,
+        desc: 'Pod-система. 900мАч, Type-C',
+        price: 2190, oldPrice: null,
+        flavors: null,
+        images: svgMulti('Caliburn G3', [{bg:'#2a2a40', fg:'#ffffff'},{bg:'#2a2a3a', fg:'#aabbff'},{bg:'#2a2a40', fg:'#cccccc'}])
     }
 ];
 
