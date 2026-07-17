@@ -297,6 +297,12 @@
                 </div>
             </div>
 
+            <div class="stats-sync-bar">
+                <button class="stats-sync-btn" id="stats-export-btn">📤 Скачать products.json</button>
+                <button class="stats-sync-btn" id="stats-import-btn">📥 Загрузить products.json</button>
+                <input type="file" id="stats-import-file" accept=".json" style="display:none">
+            </div>
+
             <div class="stats-form-wrap">
                 <div class="stats-form-header" id="stats-form-header">
                     <h3>Добавить доход</h3>
@@ -436,7 +442,8 @@
                     <div class="cat-photo-placeholder" id="cat-photo-placeholder">📸 Нажми чтобы выбрать фото</div>
                     <img id="cat-photo-preview" class="cat-photo-preview" style="display:none">
                 </div>
-                <button type="submit" class="stats-add-btn">Добавить товар</button>
+                <button type="submit" class="stats-add-btn" id="catalog-submit-btn">Добавить товар</button>
+                <button type="button" class="stats-add-btn catalog-cancel-btn" id="catalog-cancel-btn" style="display:none;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);margin-top:8px">Отмена</button>
             </form>
             <div class="catalog-admin-list" id="catalog-admin-list"></div>
             <div class="stats-empty" id="catalog-admin-empty">Нет добавленных товаров</div>

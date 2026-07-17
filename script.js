@@ -45,6 +45,14 @@ function svgMulti(text, colors) {
 
 let customProducts = JSON.parse(localStorage.getItem('dormvape_custom_products') || '[]');
 
+fetch('products.json').then(r => r.json()).then(data => {
+    if (Array.isArray(data) && data.length > 0) {
+        customProducts = data;
+        localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
+        renderProducts(currentFilter);
+    }
+}).catch(() => {});
+
 function saveCustomProducts() {
     localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
 }
@@ -1188,6 +1196,46 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
 renderStats();
 renderStock();
 
+// ===== EXPORT / IMPORT =====
+document.getElementById('stats-export-btn').addEventListener('click', function() {
+    const data = JSON.stringify(customProducts, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'products.json';
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+document.getElementById('stats-import-btn').addEventListener('click', function() {
+    document.getElementById('stats-import-file').click();
+});
+
+document.getElementById('stats-import-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            const data = JSON.parse(ev.target.result);
+            if (Array.isArray(data)) {
+                customProducts = data;
+                saveCustomProducts();
+                renderCatalogAdmin();
+                renderProducts(currentFilter);
+                alert('Карточки загружены! Не забудь запушить products.json на GitHub.');
+            } else {
+                alert('Неверный формат файла');
+            }
+        } catch(err) {
+            alert('Ошибка: файл повреждён');
+        }
+    };
+    reader.readAsText(file);
+    this.value = '';
+});
+
 // ===== STOCK ADD =====
 document.getElementById('stock-add-btn').addEventListener('click', function() {
     const name = document.getElementById('stock-product-name').value.trim();
@@ -1199,6 +1247,8 @@ document.getElementById('stock-add-btn').addEventListener('click', function() {
 });
 
 // ===== CATALOG ADMIN =====
+let editingIdx = -1;
+
 function renderCatalogAdmin() {
     const list = document.getElementById('catalog-admin-list');
     const empty = document.getElementById('catalog-admin-empty');
@@ -1214,24 +1264,77 @@ function renderCatalogAdmin() {
     list.innerHTML = customProducts.map((p, i) => {
         const thumb = p.images && p.images[0] ? `<img class="catalog-admin-thumb" src="${p.images[0]}" alt="">` : `<div class="catalog-admin-thumb"></div>`;
         const cat = { liquid: 'Жидкость', device: 'Вейп', coil: 'Испаритель' }[p.category] || p.category;
-        return `<div class="catalog-admin-item">
+        const isEditing = i === editingIdx;
+        return `<div class="catalog-admin-item${isEditing ? ' editing' : ''}">
             ${thumb}
             <div class="catalog-admin-info">
                 <div class="catalog-admin-name">${p.name}</div>
                 <div class="catalog-admin-meta">${cat}</div>
             </div>
             <div class="catalog-admin-price">${p.price}\u20BD</div>
+            <button class="stock-item-edit" data-idx="${i}">&#9998;</button>
             <button class="stock-item-del" data-idx="${i}">&times;</button>
         </div>`;
     }).join('');
 
     list.querySelectorAll('.stock-item-del').forEach(btn => {
         btn.addEventListener('click', function() {
-            customProducts.splice(parseInt(this.dataset.idx), 1);
+            const idx = parseInt(this.dataset.idx);
+            customProducts.splice(idx, 1);
+            if (editingIdx === idx) cancelEdit();
+            else if (editingIdx > idx) editingIdx--;
             saveCustomProducts();
             renderCatalogAdmin();
         });
     });
+
+    list.querySelectorAll('.stock-item-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+            startEdit(parseInt(this.dataset.idx));
+        });
+    });
+}
+
+function startEdit(idx) {
+    editingIdx = idx;
+    const p = customProducts[idx];
+
+    document.getElementById('cat-category').value = p.category || '';
+    document.getElementById('cat-category').dispatchEvent(new Event('change'));
+    document.getElementById('cat-name').value = p.name || '';
+    document.getElementById('cat-strength').value = p.strength ? parseInt(p.strength) : '';
+    document.getElementById('cat-volume').value = p.volume ? parseInt(p.volume) : '';
+    document.getElementById('cat-flavors').value = p.flavors ? p.flavors.join(', ') : '';
+    document.getElementById('cat-ohm').value = p.ohm || '0.8Ω';
+    document.getElementById('cat-watts').value = p.watts ? p.watts.replace('W', '') : '';
+    document.getElementById('cat-coil-volume').value = p.coilVolume ? parseFloat(p.coilVolume) : '';
+    document.getElementById('cat-price').value = p.price || '';
+    document.getElementById('cat-old-price').value = p.oldPrice || '';
+
+    if (p.images && p.images[0] && !p.images[0].startsWith('data:image/svg')) {
+        catPhotoData = p.images[0];
+        document.getElementById('cat-photo-preview').src = catPhotoData;
+        document.getElementById('cat-photo-preview').style.display = 'block';
+        document.getElementById('cat-photo-placeholder').style.display = 'none';
+    }
+
+    document.getElementById('catalog-submit-btn').textContent = 'Сохранить';
+    document.getElementById('catalog-cancel-btn').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    renderCatalogAdmin();
+}
+
+function cancelEdit() {
+    editingIdx = -1;
+    document.getElementById('catalog-add-form').reset();
+    document.getElementById('catalog-submit-btn').textContent = 'Добавить товар';
+    document.getElementById('catalog-cancel-btn').style.display = 'none';
+    document.getElementById('cat-photo-preview').style.display = 'none';
+    document.getElementById('cat-photo-placeholder').style.display = 'block';
+    document.getElementById('cat-fields-liquid').style.display = 'none';
+    document.getElementById('cat-fields-coil').style.display = 'none';
+    catPhotoData = null;
+    renderCatalogAdmin();
 }
 
 // ===== CATALOG PHOTO UPLOAD =====
@@ -1273,6 +1376,8 @@ document.getElementById('cat-category').addEventListener('change', function() {
     document.getElementById('cat-fields-coil').style.display = this.value === 'coil' ? 'block' : 'none';
 });
 
+document.getElementById('catalog-cancel-btn').addEventListener('click', cancelEdit);
+
 document.getElementById('catalog-add-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('cat-name').value.trim();
@@ -1289,18 +1394,28 @@ document.getElementById('catalog-add-form').addEventListener('submit', function(
     const flavorsStr = document.getElementById('cat-flavors').value.trim();
     const flavors = flavorsStr ? flavorsStr.split(',').map(f => f.trim()).filter(Boolean) : null;
 
-    const maxId = getAllProducts().reduce((max, p) => Math.max(max, p.id), 0);
-    const images = catPhotoData ? [catPhotoData] : [svgPlaceholder(name, '#1a1a2e', '#ff5c00')];
+    const images = catPhotoData ? [catPhotoData] : null;
 
-    customProducts.push({ id: maxId + 1, name, category, strength, volume, ohm, watts, coilVolume, price, oldPrice, flavors, images });
+    if (editingIdx >= 0) {
+        const p = customProducts[editingIdx];
+        p.name = name;
+        p.category = category;
+        p.strength = strength;
+        p.volume = volume;
+        p.ohm = ohm;
+        p.watts = watts;
+        p.coilVolume = coilVolume;
+        p.price = price;
+        p.oldPrice = oldPrice;
+        p.flavors = flavors;
+        if (images) p.images = images;
+    } else {
+        const maxId = getAllProducts().reduce((max, p) => Math.max(max, p.id), 0);
+        customProducts.push({ id: maxId + 1, name, category, strength, volume, ohm, watts, coilVolume, price, oldPrice, flavors, images: images || [svgPlaceholder(name, '#1a1a2e', '#ff5c00')] });
+    }
+
     saveCustomProducts();
-    renderCatalogAdmin();
-    this.reset();
-    catPhotoData = null;
-    document.getElementById('cat-photo-preview').style.display = 'none';
-    document.getElementById('cat-photo-placeholder').style.display = 'block';
-    document.getElementById('cat-fields-liquid').style.display = 'none';
-    document.getElementById('cat-fields-coil').style.display = 'none';
+    cancelEdit();
 });
 
 // ===== PARALLAX ORBS =====
