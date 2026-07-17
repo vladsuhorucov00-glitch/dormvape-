@@ -32,6 +32,33 @@ document.querySelectorAll('[data-tab]').forEach(el => {
     }
 });
 
+// ===== SWIPE TABS (MOBILE) =====
+const tabOrder = ['home', 'catalog', 'cart'];
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeLocked = false;
+
+document.addEventListener('touchstart', function(e) {
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+    swipeLocked = false;
+}, { passive: true });
+
+document.addEventListener('touchend', function(e) {
+    if (swipeLocked) return;
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    if (Math.abs(dx) < 80 || Math.abs(dy) > Math.abs(dx)) return;
+
+    const idx = tabOrder.indexOf(activeTab);
+    if (dx < 0 && idx < tabOrder.length - 1) {
+        switchTab(tabOrder[idx + 1]);
+    } else if (dx > 0 && idx > 0) {
+        switchTab(tabOrder[idx - 1]);
+    }
+    swipeLocked = true;
+}, { passive: true });
+
 // ===== PRODUCTS DATA =====
 function svgPlaceholder(text, bg, fg) {
     return 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="180"><rect width="200" height="180" rx="10" fill="' + bg + '"/><text x="100" y="90" dominant-baseline="middle" text-anchor="middle" fill="' + fg + '" font-size="14" font-family="Arial">' + text + '</text></svg>');
@@ -229,9 +256,30 @@ function getCartTotal() {
     return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 }
 
+let prevTotal = 0;
+
+function animateNumber(el, from, to, duration, suffix) {
+    const start = performance.now();
+    const diff = to - from;
+    if (diff === 0) return;
+    function frame(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(from + diff * ease);
+        el.textContent = current + (suffix || '');
+        if (progress < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}
+
 function updateCartUI() {
     const count = getCartCount();
-    document.getElementById('cart-total').textContent = getCartTotal() + '\u20BD';
+    const total = getCartTotal();
+
+    const totalEl = document.getElementById('cart-total');
+    animateNumber(totalEl, prevTotal, total, 400, '\u20BD');
+    prevTotal = total;
 
     const badge = document.getElementById('cart-badge-tab');
     if (count > 0) {
@@ -271,7 +319,7 @@ function renderProducts(filter) {
         <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
             ${totalQty > 0 ? `<div class="cart-badge">${totalQty}</div>` : ''}
             <div class="product-thumb">
-                <img src="${p.images[0]}" alt="${p.name}">
+                <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onload="this.parentElement.style.animation='none';this.parentElement.style.background='none'">
             </div>
             <h4>${p.name}</h4>
             ${specs ? `<div class="product-specs">${specs}</div>` : ''}
@@ -804,3 +852,15 @@ const productsObserver = new MutationObserver(() => observeCards());
 const grid = document.getElementById('products-grid');
 if (grid) productsObserver.observe(grid, { childList: true });
 observeCards();
+
+// ===== PARALLAX ORBS =====
+const orb1 = document.querySelector('.orb-1');
+const orb2 = document.querySelector('.orb-2');
+const orb3 = document.querySelector('.orb-3');
+
+window.addEventListener('scroll', function() {
+    const y = window.scrollY;
+    if (orb1) orb1.style.transform = 'translate(' + (-y * 0.03) + 'px, ' + (y * 0.08) + 'px)';
+    if (orb2) orb2.style.transform = 'translate(' + (y * 0.05) + 'px, ' + (-y * 0.04) + 'px)';
+    if (orb3) orb3.style.transform = 'translate(' + (-y * 0.02) + 'px, ' + (y * 0.06) + 'px)';
+}, { passive: true });

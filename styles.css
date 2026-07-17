@@ -77,24 +77,14 @@ body::after {
     background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
 }
 
-@keyframes orbFloat1 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-60px, 80px); }
-}
-
-@keyframes orbFloat2 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(80px, -60px); }
-}
-
-@keyframes orbFloat3 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-40px, -50px); }
-}
-
 @keyframes cardAppear {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
 }
 
 @keyframes cartPulse {
@@ -699,7 +689,9 @@ section {
     border-radius: 14px;
     overflow: hidden;
     margin-bottom: 16px;
-    background: #12121c;
+    background: linear-gradient(90deg, #12121c 0%, #1a1a2a 40%, #12121c 80%);
+    background-size: 800px 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
     border: 1px solid rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
@@ -728,7 +720,6 @@ section {
     position: relative;
     overflow: hidden;
     border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     backdrop-filter: blur(20px) saturate(0.8);
     -webkit-backdrop-filter: blur(20px) saturate(0.8);
@@ -736,7 +727,6 @@ section {
 }
 .product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
 }
 
 /* CART BADGE */
@@ -906,10 +896,27 @@ section {
     transition: opacity 0.4s;
 }
 
+@property --border-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@keyframes borderRotate {
+    to { --border-angle: 360deg; }
+}
+
+.product-card {
+    --border-angle: 0deg;
+    border: 1px solid transparent;
+    background:
+        linear-gradient(rgba(30, 30, 50, 0.85), rgba(30, 30, 50, 0.85)) padding-box,
+        conic-gradient(from var(--border-angle), rgba(255,255,255,0.06), rgba(255,92,0,0.15), rgba(100,60,255,0.1), rgba(255,255,255,0.06)) border-box;
+}
+
 .product-card:hover {
-    background: #222240;
-    border-color: rgba(255,255,255,0.15);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    animation: borderRotate 3s linear infinite;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
 }
 
 .product-card:hover::after {
@@ -2613,6 +2620,13 @@ label.save-data-check {
 
 .tab-page.active {
     display: block;
+    animation: tabFadeIn 0.35s ease both;
+}
+
+@keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 }
 
 #tab-home {
@@ -2811,7 +2825,9 @@ label.save-data-check {
     }
 
     .product-card {
-        background: rgba(255,255,255,0.04);
+        background:
+            linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0.04)) padding-box,
+            conic-gradient(from var(--border-angle), rgba(255,255,255,0.06), rgba(255,92,0,0.1), rgba(100,60,255,0.06), rgba(255,255,255,0.06)) border-box;
     }
 
     .categories {
