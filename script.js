@@ -878,9 +878,11 @@ function saveStats() {
 }
 
 function renderStats() {
-    const tbody = document.getElementById('stats-tbody');
-    const empty = document.getElementById('stats-empty');
-    if (!tbody) return;
+    const incomeTbody = document.getElementById('stats-income-tbody');
+    const expenseTbody = document.getElementById('stats-expense-tbody');
+    const incomeEmpty = document.getElementById('stats-income-empty');
+    const expenseEmpty = document.getElementById('stats-expense-empty');
+    if (!incomeTbody || !expenseTbody) return;
 
     let totalIncome = 0;
     let totalExpense = 0;
@@ -894,34 +896,42 @@ function renderStats() {
     document.getElementById('stats-total-expense').textContent = totalExpense + '\u20BD';
     document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '\u20BD';
 
-    if (statsEntries.length === 0) {
-        tbody.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
+    const incomeEntries = [...statsEntries].map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'income').reverse();
+    const expenseEntries = [...statsEntries].map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'expense').reverse();
 
-    empty.style.display = 'none';
+    incomeEmpty.style.display = incomeEntries.length === 0 ? 'block' : 'none';
+    expenseEmpty.style.display = expenseEntries.length === 0 ? 'block' : 'none';
 
-    const sorted = [...statsEntries].reverse();
-    tbody.innerHTML = sorted.map((e, i) => {
-        const realIdx = statsEntries.length - 1 - i;
-        const typeLabel = e.type === 'income' ? 'Доход' : 'Расход';
-        const typeClass = e.type === 'income' ? 'type-income' : 'type-expense';
-        const amountClass = e.type === 'income' ? 'amount-income' : 'amount-expense';
-        return `<tr>
-            <td>${e.date}</td>
-            <td class="${typeClass}">${typeLabel}</td>
-            <td>${e.desc || '—'}</td>
-            <td class="${amountClass}">${e.type === 'expense' ? '-' : ''}${e.amount}\u20BD</td>
-            <td><button class="delete-btn" data-idx="${realIdx}">&times;</button></td>
-        </tr>`;
-    }).join('');
+    incomeTbody.innerHTML = incomeEntries.map(e => `<tr>
+        <td>${e.date}</td>
+        <td>${e.desc || '—'}</td>
+        <td class="amount-income">${e.amount}\u20BD</td>
+        <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
+    </tr>`).join('');
 
-    tbody.querySelectorAll('.delete-btn').forEach(btn => {
+    expenseTbody.innerHTML = expenseEntries.map(e => `<tr>
+        <td>${e.date}</td>
+        <td>${e.desc || '—'}</td>
+        <td class="amount-expense">-${e.amount}\u20BD</td>
+        <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
+    </tr>`).join('');
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             statsEntries.splice(parseInt(this.dataset.idx), 1);
             saveStats();
-            renderStats();
+renderStats();
+
+// ===== STATS FILTER =====
+document.querySelectorAll('.stats-filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.stats-filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const f = this.dataset.statsFilter;
+        document.getElementById('stats-income-wrap').style.display = f === 'income' ? 'block' : 'none';
+        document.getElementById('stats-expense-wrap').style.display = f === 'expense' ? 'block' : 'none';
+    });
+});
         });
     });
 }

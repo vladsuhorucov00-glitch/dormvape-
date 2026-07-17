@@ -254,21 +254,43 @@
                 </form>
             </div>
 
-            <div class="stats-table-wrap">
-                <h3>История</h3>
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>Дата</th>
-                            <th>Тип</th>
-                            <th>Описание</th>
-                            <th>Сумма</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="stats-tbody"></tbody>
-                </table>
-                <div class="stats-empty" id="stats-empty">Нет записей</div>
+            <div class="stats-tables">
+                <div class="stats-filter-bar">
+                    <button class="stats-filter-btn active" data-stats-filter="income">Доходы</button>
+                    <button class="stats-filter-btn" data-stats-filter="expense">Расходы</button>
+                </div>
+
+                <div class="stats-table-wrap" id="stats-income-wrap">
+                    <h3>Доходы</h3>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Описание</th>
+                                <th>Сумма</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-income-tbody"></tbody>
+                    </table>
+                    <div class="stats-empty" id="stats-income-empty">Нет доходов</div>
+                </div>
+
+                <div class="stats-table-wrap" id="stats-expense-wrap" style="display:none">
+                    <h3>Расходы</h3>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Описание</th>
+                                <th>Сумма</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-expense-tbody"></tbody>
+                    </table>
+                    <div class="stats-empty" id="stats-expense-empty">Нет расходов</div>
+                </div>
             </div>
         </div>
     </section>
