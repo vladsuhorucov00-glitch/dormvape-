@@ -234,23 +234,39 @@
             </div>
 
             <div class="stats-form-wrap">
-                <h3>Добавить запись</h3>
-                <form id="stats-form">
-                    <div class="stats-form-row">
-                        <label class="stats-type-toggle">
-                            <input type="radio" name="entry-type" value="income" checked>
-                            <span class="stats-type-btn stats-type-income">Доход</span>
-                        </label>
-                        <label class="stats-type-toggle">
-                            <input type="radio" name="entry-type" value="expense">
-                            <span class="stats-type-btn stats-type-expense">Расход</span>
-                        </label>
+                <div class="stats-form-header" id="stats-form-header">
+                    <h3>Добавить доход</h3>
+                </div>
+
+                <!-- FORM: INCOME -->
+                <form id="stats-income-form" class="stats-form-panel">
+                    <label for="stats-income-amount">Сумма *</label>
+                    <input type="number" id="stats-income-amount" placeholder="0" min="0" required>
+                    <label for="stats-income-desc">Описание</label>
+                    <input type="text" id="stats-income-desc" placeholder="Продажа HSB Mango Ice...">
+                    <button type="submit" class="stats-add-btn">Добавить доход</button>
+                </form>
+
+                <!-- FORM: EXPENSE (ПОСТАВКА) -->
+                <form id="stats-expense-form" class="stats-form-panel" style="display:none">
+                    <label for="stats-invoice">Номер счёта</label>
+                    <input type="text" id="stats-invoice" placeholder="Счёт #1234">
+                    <label>Товары</label>
+                    <div class="delivery-items" id="delivery-items">
+                        <div class="delivery-item">
+                            <input type="text" placeholder="Название" class="di-name" required>
+                            <input type="number" placeholder="Кол-во" class="di-qty" min="1" required>
+                            <input type="number" placeholder="Цена за шт." class="di-price" min="0" step="0.01" required>
+                            <span class="di-total">0₽</span>
+                            <button type="button" class="di-remove">&times;</button>
+                        </div>
                     </div>
-                    <label for="stats-amount">Сумма *</label>
-                    <input type="number" id="stats-amount" placeholder="0" min="0" required>
-                    <label for="stats-desc">Описание</label>
-                    <input type="text" id="stats-desc" placeholder="Продажа HSB Mango Ice, закупка картриджей...">
-                    <button type="submit" class="stats-add-btn">Добавить</button>
+                    <button type="button" class="di-add-btn" id="di-add-btn">+ Добавить товар</button>
+                    <div class="delivery-summary">
+                        <span>Итого:</span>
+                        <span class="delivery-total" id="delivery-total">0₽</span>
+                    </div>
+                    <button type="submit" class="stats-add-btn">Добавить поставку</button>
                 </form>
             </div>
 
@@ -282,7 +298,8 @@
                         <thead>
                             <tr>
                                 <th>Дата</th>
-                                <th>Описание</th>
+                                <th>Счёт</th>
+                                <th>Товары</th>
                                 <th>Сумма</th>
                                 <th></th>
                             </tr>

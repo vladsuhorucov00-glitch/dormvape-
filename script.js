@@ -861,12 +861,11 @@ let logoTaps = 0;
 let logoTapTimer = null;
 
 document.querySelector('.logo-link').addEventListener('click', function(e) {
-    e.preventDefault();
     logoTaps++;
     clearTimeout(logoTapTimer);
     logoTapTimer = setTimeout(() => { logoTaps = 0; }, 1500);
     if (logoTaps >= 5) {
-        logoTaps = 0;
+        e.preventDefault();
         switchTab('stats');
     }
 });
@@ -889,15 +888,15 @@ function renderStats() {
 
     statsEntries.forEach(e => {
         if (e.type === 'income') totalIncome += e.amount;
-        else totalExpense += e.amount;
+        else totalExpense += e.totalAmount || e.amount || 0;
     });
 
     document.getElementById('stats-total-income').textContent = totalIncome + '\u20BD';
     document.getElementById('stats-total-expense').textContent = totalExpense + '\u20BD';
     document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '\u20BD';
 
-    const incomeEntries = [...statsEntries].map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'income').reverse();
-    const expenseEntries = [...statsEntries].map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'expense').reverse();
+    const incomeEntries = statsEntries.map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'income').reverse();
+    const expenseEntries = statsEntries.map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'expense').reverse();
 
     incomeEmpty.style.display = incomeEntries.length === 0 ? 'block' : 'none';
     expenseEmpty.style.display = expenseEntries.length === 0 ? 'block' : 'none';
@@ -909,18 +908,25 @@ function renderStats() {
         <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
     </tr>`).join('');
 
-    expenseTbody.innerHTML = expenseEntries.map(e => `<tr>
-        <td>${e.date}</td>
-        <td>${e.desc || '—'}</td>
-        <td class="amount-expense">-${e.amount}\u20BD</td>
-        <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
-    </tr>`).join('');
+    expenseTbody.innerHTML = expenseEntries.map(e => {
+        const itemsHtml = (e.items || []).map(it => `${it.name} x${it.qty} = ${it.total}\u20BD`).join('<br>');
+        return `<tr>
+            <td>${e.date}</td>
+            <td>${e.invoice || '—'}</td>
+            <td class="expense-items-list">${itemsHtml || e.desc || '—'}</td>
+            <td class="amount-expense">-${e.totalAmount || e.amount || 0}\u20BD</td>
+            <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
+        </tr>`;
+    }).join('');
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             statsEntries.splice(parseInt(this.dataset.idx), 1);
             saveStats();
-renderStats();
+            renderStats();
+        });
+    });
+}
 
 // ===== STATS FILTER =====
 document.querySelectorAll('.stats-filter-btn').forEach(btn => {
@@ -930,28 +936,106 @@ document.querySelectorAll('.stats-filter-btn').forEach(btn => {
         const f = this.dataset.statsFilter;
         document.getElementById('stats-income-wrap').style.display = f === 'income' ? 'block' : 'none';
         document.getElementById('stats-expense-wrap').style.display = f === 'expense' ? 'block' : 'none';
+        document.getElementById('stats-income-form').style.display = f === 'income' ? 'block' : 'none';
+        document.getElementById('stats-expense-form').style.display = f === 'expense' ? 'block' : 'none';
+        document.getElementById('stats-form-header').querySelector('h3').textContent = f === 'income' ? 'Добавить доход' : 'Добавить поставку';
     });
 });
-        });
+
+// ===== INCOME FORM =====
+document.getElementById('stats-income-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('stats-income-amount').value);
+    const desc = document.getElementById('stats-income-desc').value.trim();
+    if (!amount || amount <= 0) return;
+
+    const now = new Date();
+    const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
+    statsEntries.push({ type: 'income', amount, desc, date });
+    saveStats();
+    renderStats();
+    document.getElementById('stats-income-amount').value = '';
+    document.getElementById('stats-income-desc').value = '';
+});
+
+// ===== DELIVERY ITEM ROWS =====
+function calcItemTotal(row) {
+    const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
+    const price = parseFloat(row.querySelector('.di-price').value) || 0;
+    row.querySelector('.di-total').textContent = (qty * price) + '\u20BD';
+    calcDeliveryTotal();
+}
+
+function calcDeliveryTotal() {
+    let sum = 0;
+    document.querySelectorAll('.delivery-item').forEach(row => {
+        const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.di-price').value) || 0;
+        sum += qty * price;
+    });
+    document.getElementById('delivery-total').textContent = sum + '\u20BD';
+}
+
+function addDeliveryItem() {
+    const container = document.getElementById('delivery-items');
+    const tmpl = container.querySelector('.delivery-item');
+    const clone = tmpl.cloneNode(true);
+    clone.querySelectorAll('input').forEach(i => i.value = '');
+    clone.querySelector('.di-total').textContent = '0₽';
+    container.appendChild(clone);
+    bindItemEvents(clone);
+}
+
+function bindItemEvents(row) {
+    row.querySelector('.di-qty').addEventListener('input', function() { calcItemTotal(row); });
+    row.querySelector('.di-price').addEventListener('input', function() { calcItemTotal(row); });
+    row.querySelector('.di-remove').addEventListener('click', function() {
+        if (document.querySelectorAll('.delivery-item').length > 1) {
+            row.remove();
+            calcDeliveryTotal();
+        }
     });
 }
 
-document.getElementById('stats-form').addEventListener('submit', function(e) {
+document.getElementById('di-add-btn').addEventListener('click', addDeliveryItem);
+bindItemEvents(document.querySelector('.delivery-item'));
+
+// ===== EXPENSE FORM =====
+document.getElementById('stats-expense-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const type = document.querySelector('input[name="entry-type"]:checked').value;
-    const amount = parseFloat(document.getElementById('stats-amount').value);
-    const desc = document.getElementById('stats-desc').value.trim();
+    const invoice = document.getElementById('stats-invoice').value.trim();
+    const items = [];
+    let totalAmount = 0;
+
+    document.querySelectorAll('.delivery-item').forEach(row => {
+        const name = row.querySelector('.di-name').value.trim();
+        const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.di-price').value) || 0;
+        const total = qty * price;
+        if (name && qty > 0 && price > 0) {
+            items.push({ name, qty, price, total });
+            totalAmount += total;
+        }
+    });
+
+    if (items.length === 0) return;
+
     const now = new Date();
     const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-
-    if (!amount || amount <= 0) return;
-
-    statsEntries.push({ type, amount, desc, date });
+    statsEntries.push({ type: 'expense', invoice, items, totalAmount, date });
     saveStats();
     renderStats();
 
-    document.getElementById('stats-amount').value = '';
-    document.getElementById('stats-desc').value = '';
+    this.reset();
+    document.getElementById('delivery-items').innerHTML = `<div class="delivery-item">
+        <input type="text" placeholder="Название" class="di-name" required>
+        <input type="number" placeholder="Кол-во" class="di-qty" min="1" required>
+        <input type="number" placeholder="Цена за шт." class="di-price" min="0" step="0.01" required>
+        <span class="di-total">0₽</span>
+        <button type="button" class="di-remove">&times;</button>
+    </div>`;
+    bindItemEvents(document.querySelector('.delivery-item'));
+    document.getElementById('delivery-total').textContent = '0₽';
 });
 
 renderStats();

@@ -1218,66 +1218,6 @@ footer p {
     margin-bottom: 16px;
 }
 
-.stats-type-toggle input {
-    display: none;
-}
-
-.stats-type-btn {
-    display: inline-block;
-    padding: 10px 24px;
-    border-radius: 100px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.4);
-    font-family: inherit;
-}
-
-.stats-type-toggle input:checked + .stats-type-income {
-    background: rgba(76,175,80,0.25);
-    border-color: rgba(76,175,80,0.5);
-    color: #4caf50;
-}
-
-.stats-type-toggle input:checked + .stats-type-expense {
-    background: rgba(244,67,54,0.25);
-    border-color: rgba(244,67,54,0.5);
-    color: #f44336;
-}
-
-.stats-form-wrap label {
-    display: block;
-    color: rgba(255,255,255,0.5);
-    font-size: 12px;
-    margin-bottom: 6px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stats-form-wrap input[type="number"],
-.stats-form-wrap input[type="text"] {
-    width: 100%;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    color: #ffffff;
-    font-size: 15px;
-    outline: none;
-    transition: all 0.3s;
-    font-family: inherit;
-}
-
-.stats-form-wrap input:focus {
-    border-color: rgba(255,255,255,0.25);
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%);
-}
-
 .stats-add-btn {
     width: 100%;
     padding: 14px;
@@ -1295,6 +1235,142 @@ footer p {
 .stats-add-btn:hover {
     background: rgba(255,92,0,0.35);
     border-color: rgba(255,92,0,0.6);
+}
+
+/* DELIVERY ITEM FORM */
+.delivery-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.delivery-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.delivery-item input {
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.delivery-item input:focus {
+    border-color: rgba(255,255,255,0.25);
+}
+
+.delivery-item input.di-name {
+    flex: 2;
+}
+
+.delivery-item input.di-qty,
+.delivery-item input.di-price {
+    flex: 1;
+}
+
+.di-total {
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: right;
+}
+
+.di-remove {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    transition: color 0.3s;
+    flex-shrink: 0;
+}
+
+.di-remove:hover {
+    color: #f44336;
+}
+
+.di-add-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: rgba(255,255,255,0.4);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+    margin-bottom: 16px;
+}
+
+.di-add-btn:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.08);
+}
+
+.delivery-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.delivery-total {
+    font-size: 22px;
+}
+
+.stats-form-panel label {
+    display: block;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    margin-bottom: 6px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stats-form-panel input[type="number"],
+.stats-form-panel input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    color: #ffffff;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.stats-form-panel input:focus {
+    border-color: rgba(255,255,255,0.25);
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%);
+}
+
+/* EXPENSE TABLE ITEMS */
+.expense-items-list {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.6;
 }
 
 .stats-table-wrap {
