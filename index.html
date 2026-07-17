@@ -212,6 +212,68 @@
     </section>
 </div>
 
+<!-- TAB: СТАТИСТИКА (СЕКРЕТНАЯ) -->
+<div class="tab-page" id="tab-stats">
+    <section>
+        <div class="container">
+            <h2 class="section-title">Статистика продаж</h2>
+
+            <div class="stats-summary">
+                <div class="stats-card stats-income">
+                    <div class="stats-label">Доходы</div>
+                    <div class="stats-value" id="stats-total-income">0₽</div>
+                </div>
+                <div class="stats-card stats-expense">
+                    <div class="stats-label">Расходы</div>
+                    <div class="stats-value" id="stats-total-expense">0₽</div>
+                </div>
+                <div class="stats-card stats-profit">
+                    <div class="stats-label">Прибыль</div>
+                    <div class="stats-value" id="stats-total-profit">0₽</div>
+                </div>
+            </div>
+
+            <div class="stats-form-wrap">
+                <h3>Добавить запись</h3>
+                <form id="stats-form">
+                    <div class="stats-form-row">
+                        <label class="stats-type-toggle">
+                            <input type="radio" name="entry-type" value="income" checked>
+                            <span class="stats-type-btn stats-type-income">Доход</span>
+                        </label>
+                        <label class="stats-type-toggle">
+                            <input type="radio" name="entry-type" value="expense">
+                            <span class="stats-type-btn stats-type-expense">Расход</span>
+                        </label>
+                    </div>
+                    <label for="stats-amount">Сумма *</label>
+                    <input type="number" id="stats-amount" placeholder="0" min="0" required>
+                    <label for="stats-desc">Описание</label>
+                    <input type="text" id="stats-desc" placeholder="Продажа HSB Mango Ice, закупка картриджей...">
+                    <button type="submit" class="stats-add-btn">Добавить</button>
+                </form>
+            </div>
+
+            <div class="stats-table-wrap">
+                <h3>История</h3>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Тип</th>
+                            <th>Описание</th>
+                            <th>Сумма</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-tbody"></tbody>
+                </table>
+                <div class="stats-empty" id="stats-empty">Нет записей</div>
+            </div>
+        </div>
+    </section>
+</div>
+
 <!-- BOTTOM NAVIGATION -->
 <nav class="bottom-nav">
     <button class="bottom-tab active" data-tab="home">
@@ -275,6 +337,8 @@
                 <input type="text" id="checkout-name" placeholder="Ваше имя" required>
                 <label for="checkout-phone">Телефон *</label>
                 <input type="tel" id="checkout-phone" placeholder="+7 (999) 123-45-67" required>
+                <label for="checkout-telegram">Telegram</label>
+                <input type="text" id="checkout-telegram" placeholder="@username">
                 <label for="checkout-address">Адрес *</label>
                 <input type="text" id="checkout-address" placeholder="ул. Садовая, 12Б" required>
                 <label for="checkout-flat">Квартира / Подъезд</label>

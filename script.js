@@ -748,6 +748,7 @@ function openCheckoutModal() {
     if (saved) {
         document.getElementById('checkout-name').value = saved.name || '';
         document.getElementById('checkout-phone').value = saved.phone || '';
+        document.getElementById('checkout-telegram').value = saved.telegram || '';
         document.getElementById('checkout-address').value = saved.address || '';
         document.getElementById('checkout-flat').value = saved.flat || '';
     }
@@ -779,6 +780,7 @@ checkoutForm.addEventListener('submit', function(e) {
     checkoutData = {
         name: document.getElementById('checkout-name').value.trim(),
         phone: document.getElementById('checkout-phone').value.trim(),
+        telegram: document.getElementById('checkout-telegram').value.trim(),
         address: document.getElementById('checkout-address').value.trim(),
         flat: document.getElementById('checkout-flat').value.trim(),
         comment: document.getElementById('checkout-comment').value.trim()
@@ -793,6 +795,7 @@ checkoutForm.addEventListener('submit', function(e) {
               `\uD83D\uDC64 *Покупатель:*\n` +
               `  Имя: ${checkoutData.name}\n` +
               `  Телефон: ${checkoutData.phone}\n` +
+              `${checkoutData.telegram ? '  Telegram: ' + checkoutData.telegram + '\n' : ''}` +
               `  Адрес: ${checkoutData.address}${checkoutData.flat ? '\n  Кв/под: ' + checkoutData.flat : ''}` +
               `${checkoutData.comment ? '\n  Комментарий: ' + checkoutData.comment : ''}`;
 
@@ -852,6 +855,96 @@ const productsObserver = new MutationObserver(() => observeCards());
 const grid = document.getElementById('products-grid');
 if (grid) productsObserver.observe(grid, { childList: true });
 observeCards();
+
+// ===== STATS (SECRET) =====
+let logoTaps = 0;
+let logoTapTimer = null;
+
+document.querySelector('.logo-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    logoTaps++;
+    clearTimeout(logoTapTimer);
+    logoTapTimer = setTimeout(() => { logoTaps = 0; }, 1500);
+    if (logoTaps >= 5) {
+        logoTaps = 0;
+        switchTab('stats');
+    }
+});
+
+let statsEntries = JSON.parse(localStorage.getItem('dormvape_stats') || '[]');
+
+function saveStats() {
+    localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
+}
+
+function renderStats() {
+    const tbody = document.getElementById('stats-tbody');
+    const empty = document.getElementById('stats-empty');
+    if (!tbody) return;
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    statsEntries.forEach(e => {
+        if (e.type === 'income') totalIncome += e.amount;
+        else totalExpense += e.amount;
+    });
+
+    document.getElementById('stats-total-income').textContent = totalIncome + '\u20BD';
+    document.getElementById('stats-total-expense').textContent = totalExpense + '\u20BD';
+    document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '\u20BD';
+
+    if (statsEntries.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+
+    const sorted = [...statsEntries].reverse();
+    tbody.innerHTML = sorted.map((e, i) => {
+        const realIdx = statsEntries.length - 1 - i;
+        const typeLabel = e.type === 'income' ? 'Доход' : 'Расход';
+        const typeClass = e.type === 'income' ? 'type-income' : 'type-expense';
+        const amountClass = e.type === 'income' ? 'amount-income' : 'amount-expense';
+        return `<tr>
+            <td>${e.date}</td>
+            <td class="${typeClass}">${typeLabel}</td>
+            <td>${e.desc || '—'}</td>
+            <td class="${amountClass}">${e.type === 'expense' ? '-' : ''}${e.amount}\u20BD</td>
+            <td><button class="delete-btn" data-idx="${realIdx}">&times;</button></td>
+        </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            statsEntries.splice(parseInt(this.dataset.idx), 1);
+            saveStats();
+            renderStats();
+        });
+    });
+}
+
+document.getElementById('stats-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const type = document.querySelector('input[name="entry-type"]:checked').value;
+    const amount = parseFloat(document.getElementById('stats-amount').value);
+    const desc = document.getElementById('stats-desc').value.trim();
+    const now = new Date();
+    const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
+
+    if (!amount || amount <= 0) return;
+
+    statsEntries.push({ type, amount, desc, date });
+    saveStats();
+    renderStats();
+
+    document.getElementById('stats-amount').value = '';
+    document.getElementById('stats-desc').value = '';
+});
+
+renderStats();
 
 // ===== PARALLAX ORBS =====
 const orb1 = document.querySelector('.orb-1');
