@@ -58,7 +58,7 @@ body::after {
     height: 600px;
     top: -200px;
     right: -150px;
-    background: radial-gradient(circle, rgba(255, 92, 0, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
 }
 
 .orb-2 {
@@ -66,7 +66,7 @@ body::after {
     height: 500px;
     bottom: 10%;
     left: -200px;
-    background: radial-gradient(circle, rgba(255, 92, 0, 0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
 }
 
 .orb-3 {
@@ -264,7 +264,7 @@ header .container {
     transform: translateX(-50%);
     width: 1000px;
     height: 1000px;
-    background: radial-gradient(circle, rgba(255, 92, 0, 0.12) 0%, rgba(255, 92, 0, 0.03) 35%, transparent 65%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 35%, transparent 65%);
     pointer-events: none;
 }
 
@@ -454,7 +454,7 @@ section {
     white-space: nowrap;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background: linear-gradient(135deg, rgba(255, 92, 0, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
     padding: 18px 0;
     position: relative;
     z-index: 1;
@@ -476,7 +476,7 @@ section {
 }
 
 .marquee-dot {
-    color: #ff5c00 !important;
+    color: #666 !important;
     font-size: 10px !important;
     opacity: 0.6;
 }
@@ -497,8 +497,8 @@ section {
 }
 
 .section-title span {
-    color: #ff5c00;
-    text-shadow: 0 0 40px rgba(255, 92, 0, 0.4);
+    color: #b0b0c0;
+    text-shadow: 0 0 40px rgba(176, 176, 192, 0.2);
 }
 
 /* ===== CATEGORIES ===== */
@@ -668,8 +668,8 @@ section {
     transition: all 0.2s;
 }
 .flavor-picker-btn:hover {
-    background: rgba(255, 92, 0, 0.25);
-    border-color: rgba(255,92,0,0.4);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255,255,255,0.2);
     color: #fff;
 }
 
@@ -710,6 +710,11 @@ section {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-thumb img {
+    transform: scale(1.08);
 }
 
 .product-card {
@@ -731,7 +736,7 @@ section {
 }
 .product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,92,0,0.1);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
 }
 
 /* CART BADGE */
@@ -760,7 +765,7 @@ section {
 /* PRODUCT SPECS (brand · strength · ml) */
 .product-specs {
     font-size: 11px;
-    color: #ff5c00;
+    color: #999;
     font-weight: 600;
     letter-spacing: 0.5px;
     margin-bottom: 6px;
@@ -775,7 +780,7 @@ section {
     gap: 0;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid rgba(255,92,0,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
     margin: 0 auto;
     animation: qtySlideIn 0.3s ease;
 }
@@ -784,8 +789,8 @@ section {
     100% { opacity: 1; transform: scale(1); }
 }
 .card-qty-btn {
-    background: rgba(255,92,0,0.15);
-    color: #ff5c00;
+    background: rgba(255,255,255,0.08);
+    color: #ccc;
     border: none;
     width: 36px;
     height: 36px;
@@ -827,9 +832,9 @@ section {
 }
 .card-flavor-tag {
     font-size: 10px;
-    color: rgba(255,255,255,0.6);
-    background: rgba(255,92,0,0.12);
-    border: 1px solid rgba(255,92,0,0.2);
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
     padding: 2px 8px;
     border-radius: 10px;
     white-space: nowrap;
@@ -861,8 +866,8 @@ section {
     transition: all 0.25s;
 }
 .flavor-btn:hover {
-    background: rgba(255,92,0,0.15);
-    border-color: rgba(255,92,0,0.3);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
     color: #fff;
 }
 .flavor-btn.active {
@@ -903,7 +908,7 @@ section {
 
 .product-card:hover {
     background: #222240;
-    border-color: rgba(255,92,0,0.3);
+    border-color: rgba(255,255,255,0.15);
     box-shadow: 0 8px 40px rgba(0,0,0,0.5);
 }
 
@@ -1218,10 +1223,10 @@ footer p {
 
 .review-stars {
     font-size: 16px;
-    color: #ff5c00;
+    color: #e0d090;
     margin-bottom: 16px;
     letter-spacing: 2px;
-    text-shadow: 0 0 15px rgba(255, 92, 0, 0.4);
+    text-shadow: 0 0 15px rgba(224, 208, 144, 0.3);
     position: relative;
     z-index: 1;
 }
@@ -1248,14 +1253,14 @@ footer p {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255, 92, 0, 0.3), rgba(255, 92, 0, 0.1));
-    border: 1px solid rgba(255, 92, 0, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     font-weight: 700;
-    color: #ff5c00;
+    color: #ccc;
     flex-shrink: 0;
 }
 
@@ -1665,8 +1670,8 @@ footer p {
 }
 
 .delivery-link h3 {
-    color: #ff5c00 !important;
-    text-shadow: 0 0 25px rgba(255, 92, 0, 0.4);
+    color: #ffffff !important;
+    text-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
 }
 
 .delivery-icon {
@@ -1931,9 +1936,9 @@ label.save-data-check {
     flex-shrink: 0;
 }
 .save-data-check input:checked + .save-data-mark {
-    background: rgba(255, 92, 0, 0.3);
-    border-color: rgba(255,92,0,0.5);
-    color: #ff5c00;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
 }
 
 .modal .submit-btn {
@@ -2101,8 +2106,8 @@ label.save-data-check {
 
 .review-rating .star:hover,
 .review-rating .star.active {
-    color: #ff5c00;
-    text-shadow: 0 0 20px rgba(255, 92, 0, 0.5);
+    color: #e0d090;
+    text-shadow: 0 0 20px rgba(224, 208, 144, 0.4);
     transform: scale(1.15);
 }
 
@@ -2612,10 +2617,11 @@ label.save-data-check {
 
 #tab-home {
     background:
-        radial-gradient(ellipse 800px 600px at 50% 0%, rgba(255, 92, 0, 0.08) 0%, transparent 70%),
-        radial-gradient(ellipse 600px 500px at 10% 40%, rgba(255, 92, 0, 0.05) 0%, transparent 70%),
-        radial-gradient(ellipse 500px 600px at 90% 70%, rgba(100, 60, 255, 0.04) 0%, transparent 70%),
-        radial-gradient(ellipse 700px 500px at 30% 90%, rgba(255, 92, 0, 0.06) 0%, transparent 70%);
+        radial-gradient(ellipse 800px 600px at 50% 0%, rgba(255, 255, 255, 0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 600px 500px at 10% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 600px at 90% 70%, rgba(100, 60, 255, 0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 700px 500px at 30% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 500px at 50% 5%, rgba(255, 92, 0, 0.25) 0%, transparent 70%);
 }
 
 /* ===== BOTTOM NAVIGATION ===== */
