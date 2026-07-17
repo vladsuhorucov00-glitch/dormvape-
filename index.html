@@ -8,6 +8,57 @@
 </head>
 <body>
 
+<!-- WELCOME MODAL -->
+<div class="welcome-overlay" id="welcome-overlay" style="display:none">
+    <div class="welcome-modal">
+        <div class="welcome-logo">💨</div>
+        <h2>DormVape</h2>
+        <p class="welcome-sub">Вейп-шоп прямо в твоём общежитии</p>
+
+        <div class="welcome-features">
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon">⚡</div>
+                <div class="welcome-feature-text">
+                    <strong>Быстрая доставка</strong>
+                    <span>Привезём прямо в общагу или в Титаник за минуты</span>
+                </div>
+            </div>
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon">💰</div>
+                <div class="welcome-feature-text">
+                    <strong>Лучшие цены</strong>
+                    <span>Жидкости от 450₽, испарители от 380₽</span>
+                </div>
+            </div>
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon">🆓</div>
+                <div class="welcome-feature-text">
+                    <strong>Бесплатная доставка</strong>
+                    <span>По общежитию и в Титаник — бесплатно</span>
+                </div>
+            </div>
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon">🛡</div>
+                <div class="welcome-feature-text">
+                    <strong>Оригинал</strong>
+                    <span>Только оригинальные жидкости и устройства</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="welcome-info">
+            <span>📍 п. Майский, ул. Садовая, 12Б, к.410а</span>
+            <span>Telegram: <a href="https://t.me/HIFONER" target="_blank">@HIFONER</a></span>
+        </div>
+
+        <div class="welcome-dontshow">
+            <input type="checkbox" id="welcome-dontshow-cb">
+            <label for="welcome-dontshow-cb">Больше не показывать</label>
+        </div>
+        <button class="welcome-btn" id="welcome-close">Перейти в каталог →</button>
+    </div>
+</div>
+
 <!-- BACKGROUND ORBS -->
 <div class="orb-wrap">
     <div class="orb orb-1"></div>
@@ -329,6 +380,66 @@
                     <div class="stats-empty" id="stats-stock-empty">Нет товаров</div>
                 </div>
             </div>
+        </div>
+    </section>
+</div>
+
+<!-- TAB: CATALOG ADMIN (SECRET) -->
+<div class="tab-page" id="tab-catalog-admin">
+    <section>
+        <div class="container">
+            <h2 class="section-title">Управление товарами</h2>
+            <form id="catalog-add-form" class="stats-form-panel">
+                <label>Категория *</label>
+                <select id="cat-category" required>
+                    <option value="">Выбери категорию</option>
+                    <option value="liquid">Жидкость</option>
+                    <option value="device">Вейп</option>
+                    <option value="coil">Испаритель/Картридж</option>
+                </select>
+                <label>Название *</label>
+                <input type="text" id="cat-name" placeholder="HSB Mango Ice" required>
+                <div id="cat-fields-liquid" style="display:none">
+                    <label>Крепость</label>
+                    <input type="number" id="cat-strength" placeholder="3">
+                    <label>Объём</label>
+                    <input type="number" id="cat-volume" placeholder="60">
+                    <label>Вкусы (через запятую)</label>
+                    <input type="text" id="cat-flavors" placeholder="Манго, Манго-лёд">
+                </div>
+                <div id="cat-fields-coil" style="display:none">
+                    <label>Сопротивление</label>
+                    <select id="cat-ohm">
+                        <option value="0.15Ω">0.15Ω</option>
+                        <option value="0.2Ω">0.2Ω</option>
+                        <option value="0.4Ω">0.4Ω</option>
+                        <option value="0.6Ω">0.6Ω</option>
+                        <option value="0.8Ω" selected>0.8Ω</option>
+                        <option value="1.0Ω">1.0Ω</option>
+                        <option value="1.2Ω">1.2Ω</option>
+                        <option value="1.4Ω">1.4Ω</option>
+                        <option value="1.6Ω">1.6Ω</option>
+                        <option value="1.8Ω">1.8Ω</option>
+                    </select>
+                    <label>Ватты (необязательно)</label>
+                    <input type="text" id="cat-watts" placeholder="15-25Вт">
+                    <label>Объём картриджа</label>
+                    <input type="number" id="cat-coil-volume" placeholder="2" step="0.1" min="0">
+                </div>
+                <label>Цена *</label>
+                <input type="number" id="cat-price" placeholder="690" min="0" required>
+                <label>Старая цена</label>
+                <input type="number" id="cat-old-price" placeholder="860" min="0">
+                <label>Фото</label>
+                <div class="cat-photo-upload" id="cat-photo-upload">
+                    <input type="file" id="cat-image-file" accept="image/*" capture="environment" style="display:none">
+                    <div class="cat-photo-placeholder" id="cat-photo-placeholder">📸 Нажми чтобы выбрать фото</div>
+                    <img id="cat-photo-preview" class="cat-photo-preview" style="display:none">
+                </div>
+                <button type="submit" class="stats-add-btn">Добавить товар</button>
+            </form>
+            <div class="catalog-admin-list" id="catalog-admin-list"></div>
+            <div class="stats-empty" id="catalog-admin-empty">Нет добавленных товаров</div>
         </div>
     </section>
 </div>

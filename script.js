@@ -34,30 +34,6 @@ document.querySelectorAll('[data-tab]').forEach(el => {
 
 // ===== SWIPE TABS (MOBILE) =====
 const tabOrder = ['home', 'catalog', 'cart'];
-let swipeStartX = 0;
-let swipeStartY = 0;
-let swipeLocked = false;
-
-document.addEventListener('touchstart', function(e) {
-    swipeStartX = e.touches[0].clientX;
-    swipeStartY = e.touches[0].clientY;
-    swipeLocked = false;
-}, { passive: true });
-
-document.addEventListener('touchend', function(e) {
-    if (swipeLocked) return;
-    const dx = e.changedTouches[0].clientX - swipeStartX;
-    const dy = e.changedTouches[0].clientY - swipeStartY;
-    if (Math.abs(dx) < 80 || Math.abs(dy) > Math.abs(dx)) return;
-
-    const idx = tabOrder.indexOf(activeTab);
-    if (dx < 0 && idx < tabOrder.length - 1) {
-        switchTab(tabOrder[idx + 1]);
-    } else if (dx > 0 && idx > 0) {
-        switchTab(tabOrder[idx - 1]);
-    }
-    swipeLocked = true;
-}, { passive: true });
 
 // ===== PRODUCTS DATA =====
 function svgPlaceholder(text, bg, fg) {
@@ -65,6 +41,16 @@ function svgPlaceholder(text, bg, fg) {
 }
 function svgMulti(text, colors) {
     return colors.map((c, i) => svgPlaceholder(text + ' #' + (i + 1), c.bg, c.fg));
+}
+
+let customProducts = JSON.parse(localStorage.getItem('dormvape_custom_products') || '[]');
+
+function saveCustomProducts() {
+    localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
+}
+
+function getAllProducts() {
+    return [...products, ...customProducts];
 }
 
 const products = [
@@ -206,7 +192,7 @@ const products = [
     },
     {
         id: 18, name: 'Испаритель 1', category: 'coil',
-        brand: '—', strength: null, volume: null,
+        brand: '—', strength: null, volume: null, ohm: '1.0Ω', coilVolume: null,
         desc: 'Ждём данные от тебя',
         price: 490, oldPrice: null,
         flavors: null,
@@ -214,7 +200,7 @@ const products = [
     },
     {
         id: 19, name: 'Испаритель 2', category: 'coil',
-        brand: '—', strength: null, volume: null,
+        brand: '—', strength: null, volume: null, ohm: '0.8Ω', coilVolume: null,
         desc: 'Ждём данные от тебя',
         price: 540, oldPrice: null,
         flavors: null,
@@ -222,7 +208,7 @@ const products = [
     },
     {
         id: 20, name: 'Картридж 1', category: 'coil',
-        brand: '—', strength: null, volume: null,
+        brand: '—', strength: null, volume: null, ohm: '1.2Ω', coilVolume: '2мл',
         desc: 'Ждём данные от тебя',
         price: 380, oldPrice: null,
         flavors: null,
@@ -230,7 +216,7 @@ const products = [
     },
     {
         id: 21, name: 'Картридж 2', category: 'coil',
-        brand: '—', strength: null, volume: null,
+        brand: '—', strength: null, volume: null, ohm: '1.0ом', coilVolume: '2мл',
         desc: 'Ждём данные от тебя',
         price: 380, oldPrice: null,
         flavors: null,
@@ -298,13 +284,16 @@ function updateCartUI() {
 function renderProducts(filter) {
     const grid = document.getElementById('products-grid');
     if (!grid) return;
+    const all = getAllProducts();
     const filtered = filter && filter !== 'all'
-        ? products.filter(p => p.category === filter)
-        : products;
+        ? all.filter(p => p.category === filter)
+        : all;
 
     grid.innerHTML = filtered.map(p => {
         const totalQty = cart.filter(c => c.id === p.id).reduce((s, c) => s + c.qty, 0);
-        const specs = [p.brand, p.strength, p.volume].filter(Boolean).join(' · ');
+        const specs = p.category === 'coil'
+            ? [p.ohm, p.watts, p.coilVolume].filter(s => s && s !== '—').join(' · ')
+            : [p.strength, p.volume].filter(s => s && s !== '—').join(' · ');
         const flavorsHtml = p.flavors && p.flavors.length
             ? `<div class="card-flavors">${p.flavors.map(f => `<span class="card-flavor-tag">${f}</span>`).join('')}</div>`
             : '';
@@ -324,7 +313,6 @@ function renderProducts(filter) {
             <h4>${p.name}</h4>
             ${specs ? `<div class="product-specs">${specs}</div>` : ''}
             ${flavorsHtml}
-            <div class="desc">${p.desc}</div>
             <div class="price">
                 ${p.price}\u20BD
                 ${p.oldPrice ? `<span class="old-price">${p.oldPrice}\u20BD</span>` : ''}
@@ -337,7 +325,7 @@ function renderProducts(filter) {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
-            const product = products.find(p => p.id === id);
+            const product = getAllProducts().find(p => p.id === id);
             if (!product) return;
             const card = this.closest('.product-card');
             if (card) {
@@ -358,7 +346,7 @@ function renderProducts(filter) {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
-            const product = products.find(p => p.id === id);
+            const product = getAllProducts().find(p => p.id === id);
             if (product) {
                 addToCart(product);
                 renderProducts(currentFilter);
@@ -387,7 +375,7 @@ function renderProducts(filter) {
         card.addEventListener('click', function(e) {
             if (e.target.closest('.add-to-cart') || e.target.closest('.card-qty-control') || e.target.closest('.carousel')) return;
             const id = parseInt(this.dataset.productId);
-            const product = products.find(p => p.id === id);
+            const product = getAllProducts().find(p => p.id === id);
             if (product) openProductModal(product);
         });
     });
@@ -607,8 +595,10 @@ function openProductModal(product) {
     ).join('');
 
     document.getElementById('product-modal-name').textContent = product.name;
-    const specs = [product.brand, product.strength, product.volume].filter(Boolean).join(' · ');
-    document.getElementById('product-modal-desc').textContent = specs ? specs + ' · ' + product.desc : product.desc;
+    const specs = product.category === 'coil'
+        ? [product.ohm, product.watts, product.coilVolume].filter(s => s && s !== '—').join(' · ')
+        : [product.strength, product.volume].filter(s => s && s !== '—').join(' · ');
+    document.getElementById('product-modal-desc').textContent = specs || '';
     document.getElementById('product-modal-price').textContent = product.price + '\u20BD';
     const oldPriceEl = document.getElementById('product-modal-old-price');
     if (product.oldPrice) {
@@ -859,6 +849,7 @@ observeCards();
 // ===== STATS (SECRET) =====
 let logoTaps = 0;
 let logoTapTimer = null;
+let passwordTarget = 'stats';
 
 document.querySelector('.logo-link').addEventListener('click', function(e) {
     logoTaps++;
@@ -867,6 +858,7 @@ document.querySelector('.logo-link').addEventListener('click', function(e) {
     if (logoTaps >= 5) {
         e.preventDefault();
         logoTaps = 0;
+        passwordTarget = 'stats';
         document.getElementById('password-overlay').style.display = 'flex';
         const input = document.getElementById('password-input');
         input.value = '';
@@ -875,11 +867,36 @@ document.querySelector('.logo-link').addEventListener('click', function(e) {
     }
 });
 
+let catalogTaps = 0;
+let catalogTapTimer = null;
+
+document.querySelector('.bottom-tab[data-tab="catalog"]').addEventListener('click', function(e) {
+    catalogTaps++;
+    clearTimeout(catalogTapTimer);
+    catalogTapTimer = setTimeout(() => { catalogTaps = 0; }, 1500);
+    if (catalogTaps >= 5) {
+        e.stopImmediatePropagation();
+        catalogTaps = 0;
+        passwordTarget = 'catalog';
+        document.getElementById('password-overlay').style.display = 'flex';
+        const input = document.getElementById('password-input');
+        input.value = '';
+        document.getElementById('password-error').classList.remove('visible');
+        setTimeout(() => input.focus(), 100);
+        return;
+    }
+}, true);
+
 document.getElementById('password-ok').addEventListener('click', function() {
     const val = document.getElementById('password-input').value;
     if (val === '1234') {
         document.getElementById('password-overlay').style.display = 'none';
-        switchTab('stats');
+        if (passwordTarget === 'catalog') {
+            switchTab('catalog-admin');
+            renderCatalogAdmin();
+        } else {
+            switchTab('stats');
+        }
     } else {
         document.getElementById('password-error').classList.add('visible');
         document.getElementById('password-input').value = '';
@@ -1181,6 +1198,111 @@ document.getElementById('stock-add-btn').addEventListener('click', function() {
     document.getElementById('stock-product-qty').value = '';
 });
 
+// ===== CATALOG ADMIN =====
+function renderCatalogAdmin() {
+    const list = document.getElementById('catalog-admin-list');
+    const empty = document.getElementById('catalog-admin-empty');
+    if (!list) return;
+
+    if (customProducts.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+    list.innerHTML = customProducts.map((p, i) => {
+        const thumb = p.images && p.images[0] ? `<img class="catalog-admin-thumb" src="${p.images[0]}" alt="">` : `<div class="catalog-admin-thumb"></div>`;
+        const cat = { liquid: 'Жидкость', device: 'Вейп', coil: 'Испаритель' }[p.category] || p.category;
+        return `<div class="catalog-admin-item">
+            ${thumb}
+            <div class="catalog-admin-info">
+                <div class="catalog-admin-name">${p.name}</div>
+                <div class="catalog-admin-meta">${cat}</div>
+            </div>
+            <div class="catalog-admin-price">${p.price}\u20BD</div>
+            <button class="stock-item-del" data-idx="${i}">&times;</button>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.stock-item-del').forEach(btn => {
+        btn.addEventListener('click', function() {
+            customProducts.splice(parseInt(this.dataset.idx), 1);
+            saveCustomProducts();
+            renderCatalogAdmin();
+        });
+    });
+}
+
+// ===== CATALOG PHOTO UPLOAD =====
+let catPhotoData = null;
+
+document.getElementById('cat-photo-upload').addEventListener('click', function() {
+    document.getElementById('cat-image-file').click();
+});
+
+document.getElementById('cat-image-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const max = 600;
+            let w = img.width, h = img.height;
+            if (w > max || h > max) {
+                if (w > h) { h = Math.round(h * max / w); w = max; }
+                else { w = Math.round(w * max / h); h = max; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            catPhotoData = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('cat-photo-preview').src = catPhotoData;
+            document.getElementById('cat-photo-preview').style.display = 'block';
+            document.getElementById('cat-photo-placeholder').style.display = 'none';
+        };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('cat-category').addEventListener('change', function() {
+    document.getElementById('cat-fields-liquid').style.display = this.value === 'liquid' ? 'block' : 'none';
+    document.getElementById('cat-fields-coil').style.display = this.value === 'coil' ? 'block' : 'none';
+});
+
+document.getElementById('catalog-add-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('cat-name').value.trim();
+    const price = parseInt(document.getElementById('cat-price').value);
+    if (!name || !price) return;
+
+    const category = document.getElementById('cat-category').value;
+    const strength = document.getElementById('cat-strength').value ? document.getElementById('cat-strength').value + 'мг' : null;
+    const volume = document.getElementById('cat-volume').value ? document.getElementById('cat-volume').value + 'мл' : null;
+    const ohm = category === 'coil' ? document.getElementById('cat-ohm').value : null;
+    const watts = category === 'coil' && document.getElementById('cat-watts').value.trim() ? document.getElementById('cat-watts').value.trim() + 'W' : null;
+    const coilVolume = category === 'coil' && document.getElementById('cat-coil-volume').value ? document.getElementById('cat-coil-volume').value + 'мл' : null;
+    const oldPrice = parseInt(document.getElementById('cat-old-price').value) || null;
+    const flavorsStr = document.getElementById('cat-flavors').value.trim();
+    const flavors = flavorsStr ? flavorsStr.split(',').map(f => f.trim()).filter(Boolean) : null;
+
+    const maxId = getAllProducts().reduce((max, p) => Math.max(max, p.id), 0);
+    const images = catPhotoData ? [catPhotoData] : [svgPlaceholder(name, '#1a1a2e', '#ff5c00')];
+
+    customProducts.push({ id: maxId + 1, name, category, strength, volume, ohm, watts, coilVolume, price, oldPrice, flavors, images });
+    saveCustomProducts();
+    renderCatalogAdmin();
+    this.reset();
+    catPhotoData = null;
+    document.getElementById('cat-photo-preview').style.display = 'none';
+    document.getElementById('cat-photo-placeholder').style.display = 'block';
+    document.getElementById('cat-fields-liquid').style.display = 'none';
+    document.getElementById('cat-fields-coil').style.display = 'none';
+});
+
 // ===== PARALLAX ORBS =====
 const orb1 = document.querySelector('.orb-1');
 const orb2 = document.querySelector('.orb-2');
@@ -1192,3 +1314,16 @@ window.addEventListener('scroll', function() {
     if (orb2) orb2.style.transform = 'translate(' + (y * 0.05) + 'px, ' + (-y * 0.04) + 'px)';
     if (orb3) orb3.style.transform = 'translate(' + (-y * 0.02) + 'px, ' + (y * 0.06) + 'px)';
 }, { passive: true });
+
+// ===== WELCOME MODAL =====
+if (!localStorage.getItem('dormvape_welcomed')) {
+    document.getElementById('welcome-overlay').style.display = 'flex';
+}
+
+document.getElementById('welcome-close').addEventListener('click', function() {
+    if (document.getElementById('welcome-dontshow-cb').checked) {
+        localStorage.setItem('dormvape_welcomed', '1');
+    }
+    document.getElementById('welcome-overlay').style.display = 'none';
+    switchTab('catalog');
+});
