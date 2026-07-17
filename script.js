@@ -43,19 +43,79 @@ function svgMulti(text, colors) {
     return colors.map((c, i) => svgPlaceholder(text + ' #' + (i + 1), c.bg, c.fg));
 }
 
-let customProducts = JSON.parse(localStorage.getItem('dormvape_custom_products') || '[]');
+// ===== FIREBASE =====
+const firebaseConfig = {
+    apiKey: "AIzaSyAnLgTaXAicW0Vs5JVm8iLoWxpG-yh-CiI",
+    authDomain: "dormvape.firebaseapp.com",
+    databaseURL: "https://dormvape-default-rtdb.firebaseio.com",
+    projectId: "dormvape",
+    storageBucket: "dormvape.firebasestorage.app",
+    messagingSenderId: "1062625355142",
+    appId: "1:1062625355142:web:3e09dda523f38a4641b807"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-fetch('products.json').then(r => r.json()).then(data => {
-    if (Array.isArray(data) && data.length > 0) {
-        customProducts = data;
-        localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
-        renderProducts(currentFilter);
-    }
-}).catch(() => {});
+function firebaseLoad(callback) {
+    db.ref('data').once('value').then(snap => {
+        const val = snap.val();
+        if (val) callback(val);
+    }).catch(() => {});
+}
+
+function firebaseSave(path, value) {
+    db.ref('data/' + path).set(value).then(() => {
+        console.log('Firebase saved:', path);
+    }).catch(err => {
+        console.error('Firebase error:', path, err);
+    });
+}
+
+let statsEntries = [];
+let stockProducts = [];
+let customProducts = [];
+
+function saveStats() {
+    localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
+    firebaseSave('stats', statsEntries);
+}
+
+function saveStock() {
+    localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
+    firebaseSave('stock', stockProducts);
+}
 
 function saveCustomProducts() {
     localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
+    firebaseSave('products', customProducts);
 }
+
+firebaseLoad(function(d) {
+    if (d.stats) { statsEntries = d.stats; localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries)); renderStats(); }
+    if (d.stock) { stockProducts = d.stock; localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts)); renderStock(); }
+    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter); }
+});
+
+db.ref('data').on('value', function(snap) {
+    const val = snap.val();
+    console.log('Firebase listener fired, data:', val);
+    if (!val) return;
+    if (val.stats && JSON.stringify(val.stats) !== JSON.stringify(statsEntries)) {
+        statsEntries = val.stats;
+        localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
+        renderStats();
+    }
+    if (val.stock && JSON.stringify(val.stock) !== JSON.stringify(stockProducts)) {
+        stockProducts = val.stock;
+        localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
+        renderStock();
+    }
+    if (val.products && JSON.stringify(val.products) !== JSON.stringify(customProducts)) {
+        customProducts = val.products;
+        localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
+        renderProducts(currentFilter);
+    }
+});
 
 function getAllProducts() {
     return [...products, ...customProducts];
@@ -920,17 +980,6 @@ document.getElementById('password-input').addEventListener('keydown', function(e
     if (e.key === 'Enter') document.getElementById('password-ok').click();
 });
 
-let statsEntries = JSON.parse(localStorage.getItem('dormvape_stats') || '[]');
-let stockProducts = JSON.parse(localStorage.getItem('dormvape_stock') || '[]');
-
-function saveStats() {
-    localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
-}
-
-function saveStock() {
-    localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
-}
-
 function stockAddProduct(name, qty) {
     const existing = stockProducts.find(p => p.name.toLowerCase() === name.toLowerCase());
     if (existing) {
@@ -1198,12 +1247,16 @@ renderStock();
 
 // ===== EXPORT / IMPORT =====
 document.getElementById('stats-export-btn').addEventListener('click', function() {
-    const data = JSON.stringify(customProducts, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
+    const data = {
+        stats: statsEntries,
+        stock: stockProducts,
+        products: customProducts
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'products.json';
+    a.download = 'dormvape-stats.json';
     a.click();
     URL.revokeObjectURL(url);
 });
@@ -1219,15 +1272,12 @@ document.getElementById('stats-import-file').addEventListener('change', function
     reader.onload = function(ev) {
         try {
             const data = JSON.parse(ev.target.result);
-            if (Array.isArray(data)) {
-                customProducts = data;
-                saveCustomProducts();
-                renderCatalogAdmin();
-                renderProducts(currentFilter);
-                alert('Карточки загружены! Не забудь запушить products.json на GitHub.');
-            } else {
-                alert('Неверный формат файла');
-            }
+            if (data.stats) { statsEntries = data.stats; saveStats(); }
+            if (data.stock) { stockProducts = data.stock; saveStock(); }
+            if (data.products) { customProducts = data.products; saveCustomProducts(); }
+            renderStats();
+            renderStock();
+            alert('Данные загружены!');
         } catch(err) {
             alert('Ошибка: файл повреждён');
         }

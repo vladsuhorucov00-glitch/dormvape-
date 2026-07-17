@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DormVape</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -298,8 +300,8 @@
             </div>
 
             <div class="stats-sync-bar">
-                <button class="stats-sync-btn" id="stats-export-btn">📤 Скачать products.json</button>
-                <button class="stats-sync-btn" id="stats-import-btn">📥 Загрузить products.json</button>
+                <button class="stats-sync-btn" id="stats-export-btn">📤 Экспорт данных</button>
+                <button class="stats-sync-btn" id="stats-import-btn">📥 Импорт данных</button>
                 <input type="file" id="stats-import-file" accept=".json" style="display:none">
             </div>
 
@@ -550,6 +552,6 @@
     <div class="flavor-picker-list" id="flavor-picker-list"></div>
 </div>
 
-<script src="script.js"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>
