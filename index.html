@@ -212,6 +212,19 @@
     </section>
 </div>
 
+<!-- PASSWORD MODAL -->
+<div class="password-overlay" id="password-overlay" style="display:none">
+    <div class="password-modal">
+        <h3>Введите пароль</h3>
+        <input type="password" id="password-input" placeholder="****" maxlength="8">
+        <div class="password-error" id="password-error">Неверный пароль</div>
+        <div class="password-actions">
+            <button class="password-btn password-cancel" id="password-cancel">Отмена</button>
+            <button class="password-btn password-ok" id="password-ok">Войти</button>
+        </div>
+    </div>
+</div>
+
 <!-- TAB: СТАТИСТИКА (СЕКРЕТНАЯ) -->
 <div class="tab-page" id="tab-stats">
     <section>
@@ -242,8 +255,12 @@
                 <form id="stats-income-form" class="stats-form-panel">
                     <label for="stats-income-amount">Сумма *</label>
                     <input type="number" id="stats-income-amount" placeholder="0" min="0" required>
-                    <label for="stats-income-desc">Описание</label>
-                    <input type="text" id="stats-income-desc" placeholder="Продажа HSB Mango Ice...">
+                    <label for="stats-income-who">Кому</label>
+                    <input type="text" id="stats-income-who" placeholder="Имя покупателя">
+                    <label for="stats-income-desc">Что</label>
+                    <input type="text" id="stats-income-desc" placeholder="HSB Mango Ice">
+                    <label for="stats-income-qty">Кол-во</label>
+                    <input type="number" id="stats-income-qty" placeholder="1" min="1" value="1">
                     <button type="submit" class="stats-add-btn">Добавить доход</button>
                 </form>
 
@@ -274,6 +291,7 @@
                 <div class="stats-filter-bar">
                     <button class="stats-filter-btn active" data-stats-filter="income">Доходы</button>
                     <button class="stats-filter-btn" data-stats-filter="expense">Расходы</button>
+                    <button class="stats-filter-btn" data-stats-filter="stock">Остатки</button>
                 </div>
 
                 <div class="stats-table-wrap" id="stats-income-wrap">
@@ -282,7 +300,9 @@
                         <thead>
                             <tr>
                                 <th>Дата</th>
-                                <th>Описание</th>
+                                <th>Кому</th>
+                                <th>Что</th>
+                                <th>Шт</th>
                                 <th>Сумма</th>
                                 <th></th>
                             </tr>
@@ -294,19 +314,19 @@
 
                 <div class="stats-table-wrap" id="stats-expense-wrap" style="display:none">
                     <h3>Расходы</h3>
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>Дата</th>
-                                <th>Счёт</th>
-                                <th>Товары</th>
-                                <th>Сумма</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="stats-expense-tbody"></tbody>
-                    </table>
+                    <div class="expense-list" id="stats-expense-tbody"></div>
                     <div class="stats-empty" id="stats-expense-empty">Нет расходов</div>
+                </div>
+
+                <div class="stats-table-wrap" id="stats-stock-wrap" style="display:none">
+                    <h3>Остатки</h3>
+                    <div class="stock-add-form">
+                        <input type="text" id="stock-product-name" placeholder="Название товара">
+                        <input type="number" id="stock-product-qty" placeholder="Кол-во" min="0">
+                        <button type="button" class="stats-add-btn" id="stock-add-btn">Добавить</button>
+                    </div>
+                    <div class="stock-list" id="stats-stock-list"></div>
+                    <div class="stats-empty" id="stats-stock-empty">Нет товаров</div>
                 </div>
             </div>
         </div>

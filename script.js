@@ -866,14 +866,106 @@ document.querySelector('.logo-link').addEventListener('click', function(e) {
     logoTapTimer = setTimeout(() => { logoTaps = 0; }, 1500);
     if (logoTaps >= 5) {
         e.preventDefault();
-        switchTab('stats');
+        logoTaps = 0;
+        document.getElementById('password-overlay').style.display = 'flex';
+        const input = document.getElementById('password-input');
+        input.value = '';
+        document.getElementById('password-error').classList.remove('visible');
+        setTimeout(() => input.focus(), 100);
     }
 });
 
+document.getElementById('password-ok').addEventListener('click', function() {
+    const val = document.getElementById('password-input').value;
+    if (val === '1234') {
+        document.getElementById('password-overlay').style.display = 'none';
+        switchTab('stats');
+    } else {
+        document.getElementById('password-error').classList.add('visible');
+        document.getElementById('password-input').value = '';
+        document.getElementById('password-input').focus();
+    }
+});
+
+document.getElementById('password-cancel').addEventListener('click', function() {
+    document.getElementById('password-overlay').style.display = 'none';
+});
+
+document.getElementById('password-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('password-ok').click();
+});
+
 let statsEntries = JSON.parse(localStorage.getItem('dormvape_stats') || '[]');
+let stockProducts = JSON.parse(localStorage.getItem('dormvape_stock') || '[]');
 
 function saveStats() {
     localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
+}
+
+function saveStock() {
+    localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
+}
+
+function stockAddProduct(name, qty) {
+    const existing = stockProducts.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+        existing.qty += qty;
+    } else {
+        stockProducts.push({ name, qty });
+    }
+    saveStock();
+    renderStock();
+}
+
+function stockRemoveProduct(name) {
+    stockProducts = stockProducts.filter(p => p.name.toLowerCase() !== name.toLowerCase());
+    saveStock();
+    renderStock();
+}
+
+function renderStock() {
+    const list = document.getElementById('stats-stock-list');
+    const empty = document.getElementById('stats-stock-empty');
+    if (!list) return;
+
+    stockProducts = stockProducts.filter(p => p.qty > 0);
+    saveStock();
+
+    if (stockProducts.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+    list.innerHTML = stockProducts.map((p, i) => {
+        let qtyClass = 'stock-item-qty';
+        if (p.qty === 0) qtyClass += ' stock-qty-zero';
+        else if (p.qty <= 5) qtyClass += ' stock-qty-low';
+        return `<div class="stock-item">
+            <span class="stock-item-name">${p.name}</span>
+            <button class="stock-item-btn stock-minus" data-action="minus" data-idx="${i}">&minus;</button>
+            <span class="${qtyClass}">${p.qty}</span>
+            <button class="stock-item-btn stock-plus" data-action="plus" data-idx="${i}">+</button>
+            <button class="stock-item-del" data-idx="${i}">&times;</button>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idx = parseInt(this.dataset.idx);
+            if (this.dataset.action === 'plus') stockProducts[idx].qty++;
+            else if (this.dataset.action === 'minus' && stockProducts[idx].qty > 0) stockProducts[idx].qty--;
+            saveStock();
+            renderStock();
+        });
+    });
+
+    list.querySelectorAll('.stock-item-del').forEach(btn => {
+        btn.addEventListener('click', function() {
+            stockRemoveProduct(stockProducts[parseInt(this.dataset.idx)].name);
+        });
+    });
 }
 
 function renderStats() {
@@ -903,24 +995,42 @@ function renderStats() {
 
     incomeTbody.innerHTML = incomeEntries.map(e => `<tr>
         <td>${e.date}</td>
+        <td>${e.who || '—'}</td>
         <td>${e.desc || '—'}</td>
+        <td>${e.qty || 1}</td>
         <td class="amount-income">${e.amount}\u20BD</td>
         <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
     </tr>`).join('');
 
     expenseTbody.innerHTML = expenseEntries.map(e => {
-        const itemsHtml = (e.items || []).map(it => `${it.name} x${it.qty} = ${it.total}\u20BD`).join('<br>');
-        return `<tr>
-            <td>${e.date}</td>
-            <td>${e.invoice || '—'}</td>
-            <td class="expense-items-list">${itemsHtml || e.desc || '—'}</td>
-            <td class="amount-expense">-${e.totalAmount || e.amount || 0}\u20BD</td>
-            <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
-        </tr>`;
+        const rows = (e.items || []).map(it => `<tr>
+            <td>${it.name}</td>
+            <td>x${it.qty}</td>
+            <td>${it.price}\u20BD</td>
+            <td>${it.total}\u20BD</td>
+        </tr>`).join('');
+        return `<div class="expense-card" data-idx="${e.realIdx}">
+            <div class="expense-card-header" onclick="this.parentElement.classList.toggle('open')">
+                <span class="expense-card-date">${e.date}</span>
+                <span class="expense-card-invoice">${e.invoice || 'Без номера'}</span>
+                <span class="expense-card-total">-${e.totalAmount || e.amount || 0}\u20BD</span>
+                <span class="expense-card-chevron">\u25BC</span>
+            </div>
+            <div class="expense-card-body">
+                <div class="expense-card-items">
+                    <table><thead><tr><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead>
+                    <tbody>${rows}</tbody></table>
+                </div>
+                <div class="expense-card-footer">
+                    <button class="delete-btn" data-idx="${e.realIdx}">Удалить</button>
+                </div>
+            </div>
+        </div>`;
     }).join('');
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
             statsEntries.splice(parseInt(this.dataset.idx), 1);
             saveStats();
             renderStats();
@@ -936,9 +1046,13 @@ document.querySelectorAll('.stats-filter-btn').forEach(btn => {
         const f = this.dataset.statsFilter;
         document.getElementById('stats-income-wrap').style.display = f === 'income' ? 'block' : 'none';
         document.getElementById('stats-expense-wrap').style.display = f === 'expense' ? 'block' : 'none';
+        document.getElementById('stats-stock-wrap').style.display = f === 'stock' ? 'block' : 'none';
         document.getElementById('stats-income-form').style.display = f === 'income' ? 'block' : 'none';
         document.getElementById('stats-expense-form').style.display = f === 'expense' ? 'block' : 'none';
-        document.getElementById('stats-form-header').querySelector('h3').textContent = f === 'income' ? 'Добавить доход' : 'Добавить поставку';
+        document.getElementById('stats-form-header').style.display = f === 'stock' ? 'none' : 'block';
+        const headers = { income: 'Добавить доход', expense: 'Добавить поставку' };
+        document.getElementById('stats-form-header').querySelector('h3').textContent = headers[f] || '';
+        if (f === 'stock') renderStock();
     });
 });
 
@@ -946,16 +1060,30 @@ document.querySelectorAll('.stats-filter-btn').forEach(btn => {
 document.getElementById('stats-income-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const amount = parseFloat(document.getElementById('stats-income-amount').value);
+    const who = document.getElementById('stats-income-who').value.trim();
     const desc = document.getElementById('stats-income-desc').value.trim();
+    const qty = parseInt(document.getElementById('stats-income-qty').value) || 1;
     if (!amount || amount <= 0) return;
 
     const now = new Date();
     const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-    statsEntries.push({ type: 'income', amount, desc, date });
+    statsEntries.push({ type: 'income', amount, who, desc, qty, date });
     saveStats();
     renderStats();
+
+    if (desc) {
+        const match = stockProducts.find(p => p.name.toLowerCase() === desc.toLowerCase());
+        if (match) {
+            match.qty = Math.max(0, match.qty - qty);
+            saveStock();
+            renderStock();
+        }
+    }
+
     document.getElementById('stats-income-amount').value = '';
+    document.getElementById('stats-income-who').value = '';
     document.getElementById('stats-income-desc').value = '';
+    document.getElementById('stats-income-qty').value = '1';
 });
 
 // ===== DELIVERY ITEM ROWS =====
@@ -1026,6 +1154,8 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
     saveStats();
     renderStats();
 
+    items.forEach(it => stockAddProduct(it.name, it.qty));
+
     this.reset();
     document.getElementById('delivery-items').innerHTML = `<div class="delivery-item">
         <input type="text" placeholder="Название" class="di-name" required>
@@ -1039,6 +1169,17 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
 });
 
 renderStats();
+renderStock();
+
+// ===== STOCK ADD =====
+document.getElementById('stock-add-btn').addEventListener('click', function() {
+    const name = document.getElementById('stock-product-name').value.trim();
+    const qty = parseInt(document.getElementById('stock-product-qty').value) || 0;
+    if (!name || qty < 0) return;
+    stockAddProduct(name, qty);
+    document.getElementById('stock-product-name').value = '';
+    document.getElementById('stock-product-qty').value = '';
+});
 
 // ===== PARALLAX ORBS =====
 const orb1 = document.querySelector('.orb-1');
