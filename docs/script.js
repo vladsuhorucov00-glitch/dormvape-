@@ -32,9 +32,6 @@ document.querySelectorAll('[data-tab]').forEach(el => {
     }
 });
 
-// ===== SWIPE TABS (MOBILE) =====
-const tabOrder = ['home', 'catalog', 'cart'];
-
 // ===== PRODUCTS DATA =====
 function svgPlaceholder(text, bg, fg) {
     return 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="180"><rect width="200" height="180" rx="10" fill="' + bg + '"/><text x="100" y="90" dominant-baseline="middle" text-anchor="middle" fill="' + fg + '" font-size="14" font-family="Arial">' + text + '</text></svg>');
@@ -93,12 +90,11 @@ function saveCustomProducts() {
 firebaseLoad(function(d) {
     if (d.stats) { statsEntries = d.stats; localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries)); renderStats(); }
     if (d.stock) { stockProducts = d.stock; localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts)); renderStock(); }
-    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter); }
+    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter || 'all'); }
 });
 
 db.ref('data').on('value', function(snap) {
     const val = snap.val();
-    console.log('Firebase listener fired, data:', val);
     if (!val) return;
     if (val.stats && JSON.stringify(val.stats) !== JSON.stringify(statsEntries)) {
         statsEntries = val.stats;
@@ -284,7 +280,15 @@ const products = [
     },
     {
         id: 21, name: 'Картридж 2', category: 'coil',
-        brand: '—', strength: null, volume: null, ohm: '1.0ом', coilVolume: '2мл',
+        brand: '—', strength: null, volume: null, ohm: '1.0Ω', coilVolume: '2мл',
+        desc: 'Ждём данные от тебя',
+        price: 380, oldPrice: null,
+        flavors: null,
+        images: ['img/c4_1.jpg']
+    },
+    {
+        id: 22, name: 'Испаритель на Aegis', category: 'coil',
+        brand: '—', strength: null, volume: null, ohm: '0.6Ω', coilVolume: null,
         desc: 'Ждём данные от тебя',
         price: 380, oldPrice: null,
         flavors: null,
@@ -297,6 +301,26 @@ let cart = JSON.parse(localStorage.getItem('dormvape_cart') || '[]');
 let currentFilter = 'all';
 let currentModalProduct = null;
 let modalCarouselIdx = 0;
+
+const notFoundMessage = `<div class="not-found-msg">
+    <div class="not-found-icon">🔍</div>
+    <div class="not-found-title">Ничего не найдено</div>
+    <div class="not-found-text">В категории «Поды и одноразки» товаров пока нет</div>
+    <div class="not-found-links">
+        <a href="https://t.me/HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
+        <a href="https://t.me/senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
+    </div>
+</div>`;
+
+const TELEGRAM_LINKS = `<div class="pod-message">
+    <div class="pod-message-icon">💨</div>
+    <div class="pod-message-title">Поды и одноразки</div>
+    <div class="pod-message-text">Разнообразные поды и одноразки можно заказать через Telegram:</div>
+    <div class="pod-message-links">
+        <a href="https://t.me/HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
+        <a href="https://t.me/senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
+    </div>
+</div>`;
 
 function saveCart() {
     localStorage.setItem('dormvape_cart', JSON.stringify(cart));
@@ -332,7 +356,7 @@ function updateCartUI() {
     const total = getCartTotal();
 
     const totalEl = document.getElementById('cart-total');
-    animateNumber(totalEl, prevTotal, total, 400, '\u20BD');
+    animateNumber(totalEl, prevTotal, total, 400, '₽');
     prevTotal = total;
 
     const badge = document.getElementById('cart-badge-tab');
@@ -344,6 +368,10 @@ function updateCartUI() {
     } else {
         badge.classList.remove('show');
     }
+
+    // Header cart count
+    const headerCount = document.getElementById('cart-count');
+    if (headerCount) headerCount.textContent = count + ' товар' + (count === 1 ? '' : count < 5 ? 'а' : 'ов');
 
     renderCartItems();
 }
@@ -357,39 +385,49 @@ function renderProducts(filter) {
         ? all.filter(p => p.category === filter)
         : all;
 
-    grid.innerHTML = filtered.map(p => {
-        const totalQty = cart.filter(c => c.id === p.id).reduce((s, c) => s + c.qty, 0);
+    let extraHtml = '';
+    if (filter === 'device') {
+        extraHtml = TELEGRAM_LINKS;
+    }
+
+const filteredHtml = filtered.map(p => {
+        const items = cart.filter(c => c.id === p.id);
+        const totalQty = items.reduce((s, c) => s + c.qty, 0);
         const specs = p.category === 'coil'
-            ? [p.ohm, p.watts, p.coilVolume].filter(s => s && s !== '—').join(' · ')
+            ? [p.ohm, p.coilVolume].filter(s => s && s !== '—').join(' · ')
             : [p.strength, p.volume].filter(s => s && s !== '—').join(' · ');
         const flavorsHtml = p.flavors && p.flavors.length
-            ? `<div class="card-flavors">${p.flavors.map(f => `<span class="card-flavor-tag">${f}</span>`).join('')}</div>`
+            ? `<div class="product-flavors">${p.flavors.map(f => `<span class="flavor-tag">${f}</span>`).join('')}</div>`
             : '';
         const qtyControl = totalQty > 0
-            ? `<div class="card-qty-control">
-                <button class="card-qty-btn card-qty-decr" data-id="${p.id}">-</button>
-                <span class="card-qty-num">${totalQty}</span>
-                <button class="card-qty-btn card-qty-incr" data-id="${p.id}">+</button>
+            ? `<div class="qty-control">
+                <button class="qty-btn card-qty-decr" data-id="${p.id}" aria-label="Уменьшить"></button>
+                <span class="qty-value">${totalQty}</span>
+                <button class="qty-btn card-qty-incr" data-id="${p.id}" aria-label="Увеличить"></button>
                </div>`
-            : `<button class="add-to-cart" data-id="${p.id}">+ Добавить в корзину</button>`;
+            : `<button class="btn-add" data-id="${p.id}">+ Добавить в корзину</button>`;
         return `
         <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
             ${totalQty > 0 ? `<div class="cart-badge">${totalQty}</div>` : ''}
-            <div class="product-thumb">
-                <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onload="this.parentElement.style.animation='none';this.parentElement.style.background='none'">
+            <div class="product-media">
+                <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#666;font-size:40px\'>📷</div>'" onload="this.parentElement.style.animation='none';this.parentElement.style.background='none'">
             </div>
-            <h4>${p.name}</h4>
-            ${specs ? `<div class="product-specs">${specs}</div>` : ''}
-            ${flavorsHtml}
-            <div class="price">
-                ${p.price}\u20BD
-                ${p.oldPrice ? `<span class="old-price">${p.oldPrice}\u20BD</span>` : ''}
+            <div class="product-info">
+                ${specs ? `<div class="product-meta"><span class="product-spec">${specs}</span></div>` : ''}
+                <h4 class="product-name">${p.name}</h4>
+                ${flavorsHtml}
+                <p class="product-desc">${p.desc}</p>
+                <div class="product-footer">
+                    <div class="product-price">${p.price}₽${p.oldPrice ? `<span class="product-old">${p.oldPrice}₽</span>` : ''}</div>
+                    ${qtyControl}
+                </div>
             </div>
-            ${qtyControl}
         </div>
     `}).join('');
 
-    grid.querySelectorAll('.add-to-cart').forEach(btn => {
+    grid.innerHTML = extraHtml + filteredHtml + (filtered.length === 0 && filter !== 'all' ? notFoundMessage : '');
+
+    grid.querySelectorAll('.btn-add').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
@@ -415,10 +453,20 @@ function renderProducts(filter) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
             const product = getAllProducts().find(p => p.id === id);
-            if (product) {
+            if (!product) return;
+            // If product has flavors and no flavor selected yet, open picker
+            if (product.flavors && product.flavors.length > 0) {
+                const existing = cart.find(c => c.id === id);
+                if (!existing) {
+                    openFlavorPicker(product, this);
+                    return;
+                }
+                // If already in cart with a flavor, add to that flavor
+                addToCart(product, existing.flavor);
+            } else {
                 addToCart(product);
-                renderProducts(currentFilter);
             }
+            renderProducts(currentFilter);
         });
     });
 
@@ -426,11 +474,12 @@ function renderProducts(filter) {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const id = parseInt(this.dataset.id);
+            // Find cart item - prefer the first one if multiple flavors
             const item = cart.find(c => c.id === id);
             if (item) {
                 item.qty--;
                 if (item.qty <= 0) {
-                    cart = cart.filter(c => c.id !== id);
+                    cart = cart.filter(c => !(c.id === id && c.flavor === item.flavor));
                 }
                 saveCart();
                 updateCartUI();
@@ -441,7 +490,7 @@ function renderProducts(filter) {
 
     grid.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', function(e) {
-            if (e.target.closest('.add-to-cart') || e.target.closest('.card-qty-control') || e.target.closest('.carousel')) return;
+            if (e.target.closest('.btn-add') || e.target.closest('.qty-control') || e.target.closest('.carousel')) return;
             const id = parseInt(this.dataset.productId);
             const product = getAllProducts().find(p => p.id === id);
             if (product) openProductModal(product);
@@ -468,9 +517,14 @@ function addToCart(product, flavor) {
     updateCartUI();
 
     const notif = document.getElementById('cart-notification');
-    notif.textContent = '\u201C' + product.name + (flavor ? ' (' + flavor + ')' : '') + '\u201D добавлен в корзину!';
+    notif.textContent = '"' + product.name + (flavor ? ' (' + flavor + ')' : '') + '" добавлен в корзину!';
+    notif.classList.remove('hide');
     notif.classList.add('show');
-    setTimeout(() => notif.classList.remove('show'), 2500);
+    setTimeout(() => {
+        notif.classList.remove('show');
+        notif.classList.add('hide');
+        setTimeout(() => notif.classList.remove('hide'), 500);
+    }, 2500);
 }
 
 function removeFromCart(id, flavor) {
@@ -482,45 +536,44 @@ function removeFromCart(id, flavor) {
 
 function renderCartItems() {
     const container = document.getElementById('cart-items');
-    const totalRow = document.getElementById('cart-total-row');
-    const actions = document.querySelector('.cart-actions');
     if (!container) return;
 
     if (cart.length === 0) {
-        container.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">\uD83D\uDED2</div>Корзина пуста<br><a href="#" class="cart-empty-link" data-tab="catalog">Перейти в каталог</a></div>';
-        totalRow.style.display = 'none';
-        actions.style.display = 'none';
+        container.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div>Корзина пуста<br><a href="#" class="cart-empty-link" data-tab="catalog">Перейти в каталог</a></div>';
+        document.querySelector('.cart-footer').style.display = 'none';
         container.querySelector('[data-tab]') && container.querySelector('[data-tab]').addEventListener('click', function(e) {
             e.preventDefault();
             switchTab('catalog');
         });
         return;
     }
-    totalRow.style.display = 'flex';
-    actions.style.display = 'flex';
+    document.querySelector('.cart-footer').style.display = 'flex';
 
     container.innerHTML = cart.map(item => {
+        const flavorAttr = item.flavor ? item.flavor : '';
         return `
         <div class="cart-item">
             <div class="item-info">
                 <div class="item-name">${item.name}${item.flavor ? ' — ' + item.flavor : ''}</div>
-                <div class="item-price">${item.price}\u20BD</div>
+                <div class="item-price">${item.price}₽</div>
             </div>
             <div class="item-qty">
-                <button class="qty-btn" data-id="${item.id}" data-flavor="${item.flavor || ''}" data-action="decr">-</button>
-                <span>${item.qty}</span>
-                <button class="qty-btn" data-id="${item.id}" data-flavor="${item.flavor || ''}" data-action="incr">+</button>
+                <button class="qty-btn" data-id="${item.id}" data-flavor="${flavorAttr}" data-action="decr" aria-label="Уменьшить"></button>
+                <span class="qty-value">${item.qty}</span>
+                <button class="qty-btn" data-id="${item.id}" data-flavor="${flavorAttr}" data-action="incr" aria-label="Увеличить"></button>
             </div>
-            <button class="remove-item" data-id="${item.id}" data-flavor="${item.flavor || ''}">&times;</button>
+            <button class="remove-item" data-id="${item.id}" data-flavor="${flavorAttr}">&times;</button>
         </div>
     `}).join('');
 
-    container.querySelectorAll('.qty-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = parseInt(this.dataset.id);
-            const fv = this.dataset.flavor || null;
-            const action = this.dataset.action;
-            const item = cart.find(i => i.id === id && i.flavor === fv);
+    // Event delegation for qty buttons
+    container.onclick = function(e) {
+        const qtyBtn = e.target.closest('.qty-btn');
+        if (qtyBtn) {
+            const id = parseInt(qtyBtn.dataset.id);
+            const fv = qtyBtn.dataset.flavor || null;
+            const action = qtyBtn.dataset.action;
+            const item = cart.find(i => i.id === id && (i.flavor || null) === fv);
             if (!item) return;
             if (action === 'incr') {
                 item.qty++;
@@ -533,56 +586,13 @@ function renderCartItems() {
             }
             saveCart();
             updateCartUI();
-        });
-    });
-
-    container.querySelectorAll('.remove-item').forEach(btn => {
-        btn.addEventListener('click', function() {
-            removeFromCart(parseInt(this.dataset.id), this.dataset.flavor || null);
-        });
-    });
-}
-
-// ===== CAROUSEL =====
-function initCarousel(carousel) {
-    const slides = carousel.querySelectorAll('.carousel-slide');
-    const dots = carousel.querySelectorAll('.dot');
-    if (slides.length === 0) return;
-    let idx = 0;
-    let startX = 0;
-
-    function goTo(i) {
-        slides[idx].classList.remove('active');
-        dots[idx].classList.remove('active');
-        idx = (i + slides.length) % slides.length;
-        slides[idx].classList.add('active');
-        dots[idx].classList.add('active');
-    }
-
-    carousel.querySelector('.carousel-arrow.left').addEventListener('click', function(e) {
-        e.stopPropagation();
-        goTo(idx - 1);
-    });
-    carousel.querySelector('.carousel-arrow.right').addEventListener('click', function(e) {
-        e.stopPropagation();
-        goTo(idx + 1);
-    });
-    dots.forEach(dot => {
-        dot.addEventListener('click', function(e) {
-            e.stopPropagation();
-            goTo(parseInt(this.dataset.idx));
-        });
-    });
-
-    carousel.addEventListener('touchstart', function(e) {
-        startX = e.touches[0].clientX;
-    }, { passive: true });
-    carousel.addEventListener('touchend', function(e) {
-        const diff = startX - e.changedTouches[0].clientX;
-        if (Math.abs(diff) > 40) {
-            goTo(diff > 0 ? idx + 1 : idx - 1);
+            return;
         }
-    }, { passive: true });
+        const removeBtn = e.target.closest('.remove-item');
+        if (removeBtn) {
+            removeFromCart(parseInt(removeBtn.dataset.id), removeBtn.dataset.flavor || null);
+        }
+    };
 }
 
 // ===== FILTER BUTTONS =====
@@ -593,7 +603,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // ===== CATEGORY CARDS =====
-document.querySelectorAll('.category-card').forEach(card => {
+document.querySelectorAll('.category-card[data-category]').forEach(card => {
     card.addEventListener('click', function() {
         const cat = this.dataset.category;
         switchTab('catalog');
@@ -627,19 +637,22 @@ function openFlavorPicker(product, anchor) {
         popup.style.top = (rect.bottom + 8) + 'px';
     }
 
-    list.querySelectorAll('.flavor-picker-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
+    // Event delegation to avoid memory leaks
+    list.onclick = function(e) {
+        const btn = e.target.closest('.flavor-picker-btn');
+        if (btn) {
             e.stopPropagation();
-            addToCart(product, this.dataset.flavor);
+            addToCart(product, btn.dataset.flavor);
             popup.style.display = 'none';
             renderProducts(currentFilter);
-        });
-    });
+        }
+    };
 
     function closePicker(e) {
         if (!popup.contains(e.target)) {
             popup.style.display = 'none';
             document.removeEventListener('click', closePicker);
+            list.onclick = null;
         }
     }
     setTimeout(() => document.addEventListener('click', closePicker), 10);
@@ -664,17 +677,21 @@ function openProductModal(product) {
 
     document.getElementById('product-modal-name').textContent = product.name;
     const specs = product.category === 'coil'
-        ? [product.ohm, product.watts, product.coilVolume].filter(s => s && s !== '—').join(' · ')
+        ? [product.ohm, product.coilVolume].filter(s => s && s !== '—').join(' · ')
         : [product.strength, product.volume].filter(s => s && s !== '—').join(' · ');
-    document.getElementById('product-modal-desc').textContent = specs || '';
-    document.getElementById('product-modal-price').textContent = product.price + '\u20BD';
+    document.getElementById('product-modal-meta').innerHTML = specs
+        ? `<span class="product-spec">${specs}</span>`
+        : '';
+    document.getElementById('product-modal-price').textContent = product.price + '₽';
     const oldPriceEl = document.getElementById('product-modal-old-price');
     if (product.oldPrice) {
-        oldPriceEl.textContent = product.oldPrice + '\u20BD';
+        oldPriceEl.textContent = product.oldPrice + '₽';
         oldPriceEl.style.display = 'inline';
     } else {
         oldPriceEl.style.display = 'none';
     }
+
+    document.getElementById('product-modal-desc').textContent = product.desc || '';
 
     const flavorWrap = document.getElementById('product-modal-flavors');
     if (product.flavors && product.flavors.length > 0) {
@@ -683,14 +700,17 @@ function openProductModal(product) {
             product.flavors.map((f, i) =>
                 `<button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor="${f}">${f}</button>`
             ).join('') + '</div>';
-        flavorWrap.querySelectorAll('.flavor-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+        // Event delegation instead of per-button listeners
+        flavorWrap.onclick = function(e) {
+            const btn = e.target.closest('.flavor-btn');
+            if (btn) {
                 flavorWrap.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
+                btn.classList.add('active');
+            }
+        };
     } else {
         flavorWrap.style.display = 'none';
+        flavorWrap.onclick = null;
     }
 
     productModalOverlay.classList.add('active');
@@ -698,9 +718,11 @@ function openProductModal(product) {
 }
 
 function closeProductModal() {
-    productModalOverlay.classList.remove('active');
-    currentModalProduct = null;
-    renderProducts(currentFilter);
+    productModalOverlay.classList.add('closing');
+    setTimeout(() => {
+        productModalOverlay.classList.remove('active', 'closing');
+        currentModalProduct = null;
+    }, 350);
 }
 
 productModalClose.addEventListener('click', closeProductModal);
@@ -713,6 +735,7 @@ function modalGoTo(i) {
     const dots = document.getElementById('modal-carousel-dots');
     const slides = track.querySelectorAll('.carousel-slide');
     const allDots = dots.querySelectorAll('.dot');
+    if (slides.length === 0) return;
     slides[modalCarouselIdx].classList.remove('active');
     allDots[modalCarouselIdx].classList.remove('active');
     modalCarouselIdx = (i + slides.length) % slides.length;
@@ -736,15 +759,18 @@ document.getElementById('modal-carousel-dots').addEventListener('click', functio
 });
 
 let modalStartX = 0;
-document.getElementById('modal-carousel').addEventListener('touchstart', function(e) {
-    modalStartX = e.touches[0].clientX;
-}, { passive: true });
-document.getElementById('modal-carousel').addEventListener('touchend', function(e) {
-    const diff = modalStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 40) {
-        modalGoTo(modalCarouselIdx + (diff > 0 ? 1 : -1));
-    }
-}, { passive: true });
+const modalCarousel = document.getElementById('modal-carousel');
+if (modalCarousel) {
+    modalCarousel.addEventListener('touchstart', function(e) {
+        modalStartX = e.touches[0].clientX;
+    }, { passive: true });
+    modalCarousel.addEventListener('touchend', function(e) {
+        const diff = modalStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 40) {
+            modalGoTo(modalCarouselIdx + (diff > 0 ? 1 : -1));
+        }
+    }, { passive: true });
+}
 
 document.getElementById('product-modal-add').addEventListener('click', function() {
     if (currentModalProduct) {
@@ -753,6 +779,7 @@ document.getElementById('product-modal-add').addEventListener('click', function(
         const flavor = activeFlavor ? activeFlavor.dataset.flavor : null;
         addToCart(currentModalProduct, flavor);
         closeProductModal();
+        renderProducts(currentFilter);
     }
 });
 
@@ -813,10 +840,10 @@ function openCheckoutModal() {
 
     const summary = document.getElementById('modal-summary');
     let itemsHtml = cart.map(item =>
-        `<div class="summary-item"><span>${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty}</span><span>${item.price * item.qty}\u20BD</span></div>`
+        `<div class="checkout-summary-row"><span>${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty}</span><span>${item.price * item.qty}₽</span></div>`
     ).join('');
     let total = getCartTotal();
-    summary.innerHTML = itemsHtml + `<div class="summary-total"><span>Итого:</span><span>${total}\u20BD</span></div>`;
+    summary.innerHTML = itemsHtml + `<div class="checkout-summary-row"><span>Итого:</span><span>${total}₽</span></div>`;
 
     checkoutModal.classList.add('active');
     history.pushState({ modal: 'checkout' }, '');
@@ -832,6 +859,8 @@ checkoutModal.addEventListener('click', function(e) {
     if (e.target === checkoutModal) closeCheckoutModal();
 });
 
+document.getElementById('payment-close').addEventListener('click', closeCheckoutModal);
+
 checkoutForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -844,13 +873,13 @@ checkoutForm.addEventListener('submit', function(e) {
         comment: document.getElementById('checkout-comment').value.trim()
     };
 
-    let itemsList = cart.map(item => `  \u2022 ${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty} \u2014 ${item.price * item.qty}\u20BD`).join('\n');
+    let itemsList = cart.map(item => `  • ${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty} — ${item.price * item.qty}₽`).join('\n');
     let total = getCartTotal();
 
-    let msg = `\uD83D\uDED2 *Новый заказ DormVape*\n\n` +
+    let msg = `🛒 *Новый заказ DormVape*\n\n` +
               `*Товары:*\n${itemsList}\n\n` +
-              `*Итого: ${total}\u20BD*\n\n` +
-              `\uD83D\uDC64 *Покупатель:*\n` +
+              `*Итого: ${total}₽*\n\n` +
+              `👤 *Покупатель:*\n` +
               `  Имя: ${checkoutData.name}\n` +
               `  Телефон: ${checkoutData.phone}\n` +
               `${checkoutData.telegram ? '  Telegram: ' + checkoutData.telegram + '\n' : ''}` +
@@ -867,16 +896,24 @@ checkoutForm.addEventListener('submit', function(e) {
 
     checkoutStepForm.style.display = 'none';
     checkoutStepPayment.style.display = 'block';
-    document.getElementById('payment-amount').textContent = getCartTotal() + '\u20BD';
+    document.getElementById('payment-amount').textContent = getCartTotal() + '₽';
 });
 
-document.getElementById('payment-confirm-btn').addEventListener('click', function() {
+function confirmOrder() {
     cart = [];
     saveCart();
     updateCartUI();
     closeCheckoutModal();
     switchTab('home');
     alert('Спасибо за покупку!');
+}
+
+document.getElementById('payment-confirm-btn').addEventListener('click', confirmOrder);
+
+document.getElementById('payment-cash-btn').addEventListener('click', function() {
+    if (confirm('Оплата наличными при получении. Подтвердить заказ?')) {
+        confirmOrder();
+    }
 });
 
 document.getElementById('checkout-btn').addEventListener('click', openCheckoutModal);
@@ -903,8 +940,7 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 
 function observeCards() {
-    document.querySelectorAll('.product-card').forEach(card => {
-        card.classList.remove('visible');
+    document.querySelectorAll('.product-card:not(.visible)').forEach(card => {
         observer.observe(card);
     });
 }
@@ -927,7 +963,7 @@ document.querySelector('.logo-link').addEventListener('click', function(e) {
         e.preventDefault();
         logoTaps = 0;
         passwordTarget = 'stats';
-        document.getElementById('password-overlay').style.display = 'flex';
+        document.getElementById('password-overlay').classList.add('active');
         const input = document.getElementById('password-input');
         input.value = '';
         document.getElementById('password-error').classList.remove('visible');
@@ -935,36 +971,11 @@ document.querySelector('.logo-link').addEventListener('click', function(e) {
     }
 });
 
-let catalogTaps = 0;
-let catalogTapTimer = null;
-
-document.querySelector('.bottom-tab[data-tab="catalog"]').addEventListener('click', function(e) {
-    catalogTaps++;
-    clearTimeout(catalogTapTimer);
-    catalogTapTimer = setTimeout(() => { catalogTaps = 0; }, 1500);
-    if (catalogTaps >= 5) {
-        e.stopImmediatePropagation();
-        catalogTaps = 0;
-        passwordTarget = 'catalog';
-        document.getElementById('password-overlay').style.display = 'flex';
-        const input = document.getElementById('password-input');
-        input.value = '';
-        document.getElementById('password-error').classList.remove('visible');
-        setTimeout(() => input.focus(), 100);
-        return;
-    }
-}, true);
-
 document.getElementById('password-ok').addEventListener('click', function() {
     const val = document.getElementById('password-input').value;
     if (val === '1234') {
-        document.getElementById('password-overlay').style.display = 'none';
-        if (passwordTarget === 'catalog') {
-            switchTab('catalog-admin');
-            renderCatalogAdmin();
-        } else {
-            switchTab('stats');
-        }
+        document.getElementById('password-overlay').classList.remove('active');
+        switchTab('stats');
     } else {
         document.getElementById('password-error').classList.add('visible');
         document.getElementById('password-input').value = '';
@@ -973,7 +984,7 @@ document.getElementById('password-ok').addEventListener('click', function() {
 });
 
 document.getElementById('password-cancel').addEventListener('click', function() {
-    document.getElementById('password-overlay').style.display = 'none';
+    document.getElementById('password-overlay').classList.remove('active');
 });
 
 document.getElementById('password-input').addEventListener('keydown', function(e) {
@@ -1002,10 +1013,9 @@ function renderStock() {
     const empty = document.getElementById('stats-stock-empty');
     if (!list) return;
 
-    stockProducts = stockProducts.filter(p => p.qty > 0);
-    saveStock();
+    const visibleStock = stockProducts.filter(p => p.qty > 0);
 
-    if (stockProducts.length === 0) {
+    if (visibleStock.length === 0) {
         list.innerHTML = '';
         empty.style.display = 'block';
         return;
@@ -1013,33 +1023,34 @@ function renderStock() {
 
     empty.style.display = 'none';
     list.innerHTML = stockProducts.map((p, i) => {
-        let qtyClass = 'stock-item-qty';
-        if (p.qty === 0) qtyClass += ' stock-qty-zero';
-        else if (p.qty <= 5) qtyClass += ' stock-qty-low';
+        let qtyClass = 'stock-qty';
+        if (p.qty === 0) qtyClass += ' zero';
+        else if (p.qty <= 5) qtyClass += ' low';
         return `<div class="stock-item">
             <span class="stock-item-name">${p.name}</span>
-            <button class="stock-item-btn stock-minus" data-action="minus" data-idx="${i}">&minus;</button>
+            <button class="stock-btn minus" data-action="minus" data-idx="${i}">&minus;</button>
             <span class="${qtyClass}">${p.qty}</span>
-            <button class="stock-item-btn stock-plus" data-action="plus" data-idx="${i}">+</button>
-            <button class="stock-item-del" data-idx="${i}">&times;</button>
+            <button class="stock-btn plus" data-action="plus" data-idx="${i}">+</button>
+            <button class="stock-del" data-idx="${i}">&times;</button>
         </div>`;
     }).join('');
 
-    list.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const idx = parseInt(this.dataset.idx);
-            if (this.dataset.action === 'plus') stockProducts[idx].qty++;
-            else if (this.dataset.action === 'minus' && stockProducts[idx].qty > 0) stockProducts[idx].qty--;
+    // Event delegation to avoid memory leaks
+    list.onclick = function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (btn) {
+            const idx = parseInt(btn.dataset.idx);
+            if (btn.dataset.action === 'plus') stockProducts[idx].qty++;
+            else if (btn.dataset.action === 'minus' && stockProducts[idx].qty > 0) stockProducts[idx].qty--;
             saveStock();
             renderStock();
-        });
-    });
-
-    list.querySelectorAll('.stock-item-del').forEach(btn => {
-        btn.addEventListener('click', function() {
-            stockRemoveProduct(stockProducts[parseInt(this.dataset.idx)].name);
-        });
-    });
+            return;
+        }
+        const delBtn = e.target.closest('.stock-del');
+        if (delBtn) {
+            stockRemoveProduct(stockProducts[parseInt(delBtn.dataset.idx)].name);
+        }
+    };
 }
 
 function renderStats() {
@@ -1057,9 +1068,9 @@ function renderStats() {
         else totalExpense += e.totalAmount || e.amount || 0;
     });
 
-    document.getElementById('stats-total-income').textContent = totalIncome + '\u20BD';
-    document.getElementById('stats-total-expense').textContent = totalExpense + '\u20BD';
-    document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '\u20BD';
+    document.getElementById('stats-total-income').textContent = totalIncome + '₽';
+    document.getElementById('stats-total-expense').textContent = totalExpense + '₽';
+    document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '₽';
 
     const incomeEntries = statsEntries.map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'income').reverse();
     const expenseEntries = statsEntries.map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'expense').reverse();
@@ -1072,7 +1083,7 @@ function renderStats() {
         <td>${e.who || '—'}</td>
         <td>${e.desc || '—'}</td>
         <td>${e.qty || 1}</td>
-        <td class="amount-income">${e.amount}\u20BD</td>
+        <td class="amount-income">${e.amount}₽</td>
         <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
     </tr>`).join('');
 
@@ -1080,15 +1091,15 @@ function renderStats() {
         const rows = (e.items || []).map(it => `<tr>
             <td>${it.name}</td>
             <td>x${it.qty}</td>
-            <td>${it.price}\u20BD</td>
-            <td>${it.total}\u20BD</td>
+            <td>${it.price}₽</td>
+            <td>${it.total}₽</td>
         </tr>`).join('');
         return `<div class="expense-card" data-idx="${e.realIdx}">
-            <div class="expense-card-header" onclick="this.parentElement.classList.toggle('open')">
+            <div class="expense-card-header">
                 <span class="expense-card-date">${e.date}</span>
                 <span class="expense-card-invoice">${e.invoice || 'Без номера'}</span>
-                <span class="expense-card-total">-${e.totalAmount || e.amount || 0}\u20BD</span>
-                <span class="expense-card-chevron">\u25BC</span>
+                <span class="expense-card-total">-${e.totalAmount || e.amount || 0}₽</span>
+                <span class="expense-card-chevron">▼</span>
             </div>
             <div class="expense-card-body">
                 <div class="expense-card-items">
@@ -1102,14 +1113,24 @@ function renderStats() {
         </div>`;
     }).join('');
 
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            statsEntries.splice(parseInt(this.dataset.idx), 1);
-            saveStats();
-            renderStats();
-        });
-    });
+    // Event delegation for delete buttons (income + expense)
+    const wrap = document.getElementById('stats-income-wrap');
+    if (wrap) {
+        wrap.onclick = function(e) {
+            const btn = e.target.closest('.delete-btn');
+            if (btn) {
+                e.stopPropagation();
+                statsEntries.splice(parseInt(btn.dataset.idx), 1);
+                saveStats();
+                renderStats();
+                return;
+            }
+            const header = e.target.closest('.expense-card-header');
+            if (header) {
+                header.parentElement.classList.toggle('open');
+            }
+        };
+    }
 }
 
 // ===== STATS FILTER =====
@@ -1164,7 +1185,7 @@ document.getElementById('stats-income-form').addEventListener('submit', function
 function calcItemTotal(row) {
     const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
     const price = parseFloat(row.querySelector('.di-price').value) || 0;
-    row.querySelector('.di-total').textContent = (qty * price) + '\u20BD';
+    row.querySelector('.di-total').textContent = (qty * price) + '₽';
     calcDeliveryTotal();
 }
 
@@ -1175,7 +1196,7 @@ function calcDeliveryTotal() {
         const price = parseFloat(row.querySelector('.di-price').value) || 0;
         sum += qty * price;
     });
-    document.getElementById('delivery-total').textContent = sum + '\u20BD';
+    document.getElementById('delivery-total').textContent = sum + '₽';
 }
 
 function addDeliveryItem() {
@@ -1232,9 +1253,9 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
 
     this.reset();
     document.getElementById('delivery-items').innerHTML = `<div class="delivery-item">
-        <input type="text" placeholder="Название" class="di-name" required>
-        <input type="number" placeholder="Кол-во" class="di-qty" min="1" required>
-        <input type="number" placeholder="Цена за шт." class="di-price" min="0" step="0.01" required>
+        <input type="text" placeholder="Название" class="input di-name" required>
+        <input type="number" placeholder="Кол-во" class="input di-qty" min="1" required>
+        <input type="number" placeholder="Цена за шт." class="input di-price" min="0" step="0.01" required>
         <span class="di-total">0₽</span>
         <button type="button" class="di-remove">&times;</button>
     </div>`;
@@ -1296,199 +1317,34 @@ document.getElementById('stock-add-btn').addEventListener('click', function() {
     document.getElementById('stock-product-qty').value = '';
 });
 
-// ===== CATALOG ADMIN =====
-let editingIdx = -1;
-
-function renderCatalogAdmin() {
-    const list = document.getElementById('catalog-admin-list');
-    const empty = document.getElementById('catalog-admin-empty');
-    if (!list) return;
-
-    if (customProducts.length === 0) {
-        list.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-
-    empty.style.display = 'none';
-    list.innerHTML = customProducts.map((p, i) => {
-        const thumb = p.images && p.images[0] ? `<img class="catalog-admin-thumb" src="${p.images[0]}" alt="">` : `<div class="catalog-admin-thumb"></div>`;
-        const cat = { liquid: 'Жидкость', device: 'Вейп', coil: 'Испаритель' }[p.category] || p.category;
-        const isEditing = i === editingIdx;
-        return `<div class="catalog-admin-item${isEditing ? ' editing' : ''}">
-            ${thumb}
-            <div class="catalog-admin-info">
-                <div class="catalog-admin-name">${p.name}</div>
-                <div class="catalog-admin-meta">${cat}</div>
-            </div>
-            <div class="catalog-admin-price">${p.price}\u20BD</div>
-            <button class="stock-item-edit" data-idx="${i}">&#9998;</button>
-            <button class="stock-item-del" data-idx="${i}">&times;</button>
-        </div>`;
-    }).join('');
-
-    list.querySelectorAll('.stock-item-del').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const idx = parseInt(this.dataset.idx);
-            customProducts.splice(idx, 1);
-            if (editingIdx === idx) cancelEdit();
-            else if (editingIdx > idx) editingIdx--;
-            saveCustomProducts();
-            renderCatalogAdmin();
-        });
-    });
-
-    list.querySelectorAll('.stock-item-edit').forEach(btn => {
-        btn.addEventListener('click', function() {
-            startEdit(parseInt(this.dataset.idx));
-        });
-    });
-}
-
-function startEdit(idx) {
-    editingIdx = idx;
-    const p = customProducts[idx];
-
-    document.getElementById('cat-category').value = p.category || '';
-    document.getElementById('cat-category').dispatchEvent(new Event('change'));
-    document.getElementById('cat-name').value = p.name || '';
-    document.getElementById('cat-strength').value = p.strength ? parseInt(p.strength) : '';
-    document.getElementById('cat-volume').value = p.volume ? parseInt(p.volume) : '';
-    document.getElementById('cat-flavors').value = p.flavors ? p.flavors.join(', ') : '';
-    document.getElementById('cat-ohm').value = p.ohm || '0.8Ω';
-    document.getElementById('cat-watts').value = p.watts ? p.watts.replace('W', '') : '';
-    document.getElementById('cat-coil-volume').value = p.coilVolume ? parseFloat(p.coilVolume) : '';
-    document.getElementById('cat-price').value = p.price || '';
-    document.getElementById('cat-old-price').value = p.oldPrice || '';
-
-    if (p.images && p.images[0] && !p.images[0].startsWith('data:image/svg')) {
-        catPhotoData = p.images[0];
-        document.getElementById('cat-photo-preview').src = catPhotoData;
-        document.getElementById('cat-photo-preview').style.display = 'block';
-        document.getElementById('cat-photo-placeholder').style.display = 'none';
-    }
-
-    document.getElementById('catalog-submit-btn').textContent = 'Сохранить';
-    document.getElementById('catalog-cancel-btn').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    renderCatalogAdmin();
-}
-
-function cancelEdit() {
-    editingIdx = -1;
-    document.getElementById('catalog-add-form').reset();
-    document.getElementById('catalog-submit-btn').textContent = 'Добавить товар';
-    document.getElementById('catalog-cancel-btn').style.display = 'none';
-    document.getElementById('cat-photo-preview').style.display = 'none';
-    document.getElementById('cat-photo-placeholder').style.display = 'block';
-    document.getElementById('cat-fields-liquid').style.display = 'none';
-    document.getElementById('cat-fields-coil').style.display = 'none';
-    catPhotoData = null;
-    renderCatalogAdmin();
-}
-
-// ===== CATALOG PHOTO UPLOAD =====
-let catPhotoData = null;
-
-document.getElementById('cat-photo-upload').addEventListener('click', function() {
-    document.getElementById('cat-image-file').click();
-});
-
-document.getElementById('cat-image-file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const max = 600;
-            let w = img.width, h = img.height;
-            if (w > max || h > max) {
-                if (w > h) { h = Math.round(h * max / w); w = max; }
-                else { w = Math.round(w * max / h); h = max; }
-            }
-            canvas.width = w;
-            canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            catPhotoData = canvas.toDataURL('image/jpeg', 0.7);
-            document.getElementById('cat-photo-preview').src = catPhotoData;
-            document.getElementById('cat-photo-preview').style.display = 'block';
-            document.getElementById('cat-photo-placeholder').style.display = 'none';
-        };
-        img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-});
-
-document.getElementById('cat-category').addEventListener('change', function() {
-    document.getElementById('cat-fields-liquid').style.display = this.value === 'liquid' ? 'block' : 'none';
-    document.getElementById('cat-fields-coil').style.display = this.value === 'coil' ? 'block' : 'none';
-});
-
-document.getElementById('catalog-cancel-btn').addEventListener('click', cancelEdit);
-
-document.getElementById('catalog-add-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('cat-name').value.trim();
-    const price = parseInt(document.getElementById('cat-price').value);
-    if (!name || !price) return;
-
-    const category = document.getElementById('cat-category').value;
-    const strength = document.getElementById('cat-strength').value ? document.getElementById('cat-strength').value + 'мг' : null;
-    const volume = document.getElementById('cat-volume').value ? document.getElementById('cat-volume').value + 'мл' : null;
-    const ohm = category === 'coil' ? document.getElementById('cat-ohm').value : null;
-    const watts = category === 'coil' && document.getElementById('cat-watts').value.trim() ? document.getElementById('cat-watts').value.trim() + 'W' : null;
-    const coilVolume = category === 'coil' && document.getElementById('cat-coil-volume').value ? document.getElementById('cat-coil-volume').value + 'мл' : null;
-    const oldPrice = parseInt(document.getElementById('cat-old-price').value) || null;
-    const flavorsStr = document.getElementById('cat-flavors').value.trim();
-    const flavors = flavorsStr ? flavorsStr.split(',').map(f => f.trim()).filter(Boolean) : null;
-
-    const images = catPhotoData ? [catPhotoData] : null;
-
-    if (editingIdx >= 0) {
-        const p = customProducts[editingIdx];
-        p.name = name;
-        p.category = category;
-        p.strength = strength;
-        p.volume = volume;
-        p.ohm = ohm;
-        p.watts = watts;
-        p.coilVolume = coilVolume;
-        p.price = price;
-        p.oldPrice = oldPrice;
-        p.flavors = flavors;
-        if (images) p.images = images;
-    } else {
-        const maxId = getAllProducts().reduce((max, p) => Math.max(max, p.id), 0);
-        customProducts.push({ id: maxId + 1, name, category, strength, volume, ohm, watts, coilVolume, price, oldPrice, flavors, images: images || [svgPlaceholder(name, '#1a1a2e', '#ff5c00')] });
-    }
-
-    saveCustomProducts();
-    cancelEdit();
-});
-
 // ===== PARALLAX ORBS =====
 const orb1 = document.querySelector('.orb-1');
 const orb2 = document.querySelector('.orb-2');
 const orb3 = document.querySelector('.orb-3');
 
+let orbTicking = false;
 window.addEventListener('scroll', function() {
-    const y = window.scrollY;
-    if (orb1) orb1.style.transform = 'translate(' + (-y * 0.03) + 'px, ' + (y * 0.08) + 'px)';
-    if (orb2) orb2.style.transform = 'translate(' + (y * 0.05) + 'px, ' + (-y * 0.04) + 'px)';
-    if (orb3) orb3.style.transform = 'translate(' + (-y * 0.02) + 'px, ' + (y * 0.06) + 'px)';
+    if (!orbTicking) {
+        requestAnimationFrame(function() {
+            const y = window.scrollY;
+            if (orb1) orb1.style.transform = 'translate(' + (-y * 0.03) + 'px, ' + (y * 0.08) + 'px)';
+            if (orb2) orb2.style.transform = 'translate(' + (y * 0.05) + 'px, ' + (-y * 0.04) + 'px)';
+            if (orb3) orb3.style.transform = 'translate(' + (-y * 0.02) + 'px, ' + (y * 0.06) + 'px)';
+            orbTicking = false;
+        });
+        orbTicking = true;
+    }
 }, { passive: true });
 
 // ===== WELCOME MODAL =====
 if (!localStorage.getItem('dormvape_welcomed')) {
-    document.getElementById('welcome-overlay').style.display = 'flex';
+    document.getElementById('welcome-overlay').classList.add('active');
 }
 
 document.getElementById('welcome-close').addEventListener('click', function() {
     if (document.getElementById('welcome-dontshow-cb').checked) {
         localStorage.setItem('dormvape_welcomed', '1');
     }
-    document.getElementById('welcome-overlay').style.display = 'none';
+    document.getElementById('welcome-overlay').classList.remove('active');
     switchTab('catalog');
 });
