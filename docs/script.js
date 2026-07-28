@@ -604,7 +604,9 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 // ===== CATEGORY CARDS =====
 document.querySelectorAll('.category-card[data-category]').forEach(card => {
-    card.addEventListener('click', function() {
+    card.addEventListener('click', function(e) {
+        // Ignore clicks on links/buttons inside the card
+        if (e.target.closest('a, button')) return;
         const cat = this.dataset.category;
         switchTab('catalog');
         setTimeout(() => filterCategory(cat), 50);
