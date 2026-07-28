@@ -307,8 +307,8 @@ const notFoundMessage = `<div class="not-found-msg">
     <div class="not-found-title">Ничего не найдено</div>
     <div class="not-found-text">В категории «Поды и одноразки» товаров пока нет</div>
     <div class="not-found-links">
-        <a href="https://t.me/HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
-        <a href="https://t.me/senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
+        <a href="tg://resolve?domain=HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
+        <a href="tg://resolve?domain=senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
     </div>
 </div>`;
 
@@ -317,8 +317,8 @@ const TELEGRAM_LINKS = `<div class="pod-message">
     <div class="pod-message-title">Поды и одноразки</div>
     <div class="pod-message-text">Разнообразные поды и одноразки можно заказать через Telegram:</div>
     <div class="pod-message-links">
-        <a href="https://t.me/HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
-        <a href="https://t.me/senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
+        <a href="tg://resolve?domain=HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
+        <a href="tg://resolve?domain=senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
     </div>
 </div>`;
 
