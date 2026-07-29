@@ -218,7 +218,6 @@ function renderProducts(filter) {
             ? '<div class="qty-control"><button class="qty-btn" onclick="event.stopPropagation();cartQty(' + p.id + ',-1)">−</button><span class="qty-value">' + totalQty + '</span><button class="qty-btn" onclick="event.stopPropagation();cartQty(' + p.id + ',1)">+</button></div>'
             : '<button class="btn-add" onclick="event.stopPropagation();productAdd(' + p.id + ',this)">+ Добавить</button>';
         return '<div class="product-card" data-pid="' + p.id + '">' +
-            (totalQty > 0 ? '<div class="cart-badge">' + totalQty + '</div>' : '') +
             '<div class="product-media"><img src="' + p.images[0] + '" alt="' + p.name + '" loading="lazy" onerror="this.outerHTML=\'<div style=padding:40px;text-align:center;color:#444;font-size:32px>📷</div>\'"></div>' +
             '<div class="product-info">' +
             (specs ? '<div class="product-spec">' + specs + '</div>' : '') +
