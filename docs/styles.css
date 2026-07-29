@@ -37,9 +37,9 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
-    margin: 12px 12px 0;
-    border-radius: 16px;
+    padding: 10px 12px;
+    margin: 10px 10px 0;
+    border-radius: 12px;
     background: rgba(255,255,255,0.04);
     backdrop-filter: blur(24px);
     border: 1px solid rgba(255,255,255,0.06);
@@ -192,7 +192,7 @@ header {
 }
 
 .section {
-    padding: 0 16px 32px;
+    padding: 12px 10px 32px;
 }
 
 .section h2 {
@@ -356,15 +356,15 @@ header {
 .products {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
 }
 
 .product-card {
     background: rgba(255,255,255,0.03);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 14px;
-    padding: 10px;
+    border-radius: 10px;
+    padding: 8px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
@@ -395,9 +395,9 @@ header {
 .product-media {
     width: 100%;
     aspect-ratio: 3/4;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     background: #141414;
 }
 
@@ -1256,6 +1256,24 @@ header {
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 400px) {
+    .section { padding: 10px 8px 24px; }
+    header { padding: 8px 10px; margin: 8px 8px 0; border-radius: 10px; }
+    .nav-btn { font-size: 12px; padding: 6px 8px; }
+    .products { gap: 6px; }
+    .product-card { padding: 6px; border-radius: 8px; }
+    .product-name { font-size: 12px; }
+    .product-price { font-size: 14px; }
+    .product-desc { font-size: 10px; }
+    .product-spec { font-size: 10px; }
+    .btn-add { font-size: 11px; padding: 6px 8px; }
+    .qty-btn { width: 28px; height: 28px; font-size: 14px; }
+    .qty-value { font-size: 13px; min-width: 24px; }
+    .product-media { border-radius: 6px; margin-bottom: 4px; }
+    .product-flavors { gap: 2px; }
+    .flavor-tag { font-size: 9px; padding: 1px 4px; }
+}
+
 @media (min-width: 600px) {
     .products { grid-template-columns: repeat(3, 1fr); }
     .info-grid { flex-direction: row; }
