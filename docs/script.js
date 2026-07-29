@@ -1,45 +1,3 @@
-// ===== TAB NAVIGATION =====
-let activeTab = 'home';
-
-function switchTab(tab) {
-    activeTab = tab;
-    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
-
-    const page = document.getElementById('tab-' + tab);
-    const btn = document.querySelector('.bottom-tab[data-tab="' + tab + '"]');
-    if (page) page.classList.add('active');
-    if (btn) btn.classList.add('active');
-
-    window.scrollTo({ top: 0, behavior: 'instant' });
-
-    if (tab === 'catalog') renderProducts(currentFilter);
-    if (tab === 'cart') renderCartItems();
-}
-
-document.querySelectorAll('.bottom-tab').forEach(btn => {
-    btn.addEventListener('click', function() {
-        switchTab(this.dataset.tab);
-    });
-});
-
-document.querySelectorAll('[data-tab]').forEach(el => {
-    if (!el.classList.contains('bottom-tab')) {
-        el.addEventListener('click', function(e) {
-            e.preventDefault();
-            switchTab(this.dataset.tab);
-        });
-    }
-});
-
-// ===== PRODUCTS DATA =====
-function svgPlaceholder(text, bg, fg) {
-    return 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="180"><rect width="200" height="180" rx="10" fill="' + bg + '"/><text x="100" y="90" dominant-baseline="middle" text-anchor="middle" fill="' + fg + '" font-size="14" font-family="Arial">' + text + '</text></svg>');
-}
-function svgMulti(text, colors) {
-    return colors.map((c, i) => svgPlaceholder(text + ' #' + (i + 1), c.bg, c.fg));
-}
-
 // ===== FIREBASE =====
 const firebaseConfig = {
     apiKey: "AIzaSyAnLgTaXAicW0Vs5JVm8iLoWxpG-yh-CiI",
@@ -53,24 +11,56 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-function firebaseLoad(callback) {
-    db.ref('data').once('value').then(snap => {
-        const val = snap.val();
-        if (val) callback(val);
-    }).catch(() => {});
+// ===== TELEGRAM =====
+const TG_BOT_TOKEN = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
+const TG_CHAT_ID = '1951895339';
+
+function sendTelegram(text) {
+    fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TG_CHAT_ID, text: text, parse_mode: 'HTML' })
+    }).catch(function() {});
 }
 
-function firebaseSave(path, value) {
-    db.ref('data/' + path).set(value).then(() => {
-        console.log('Firebase saved:', path);
-    }).catch(err => {
-        console.error('Firebase error:', path, err);
-    });
+// ===== PRODUCTS =====
+var products = [
+    { id: 1, name: 'HSB Mango Ice', category: 'liquid', brand: 'HSB', strength: '3мг', volume: '60мл', desc: 'Сочное манго с ментоловой свежестью', price: 690, oldPrice: 860, flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'], images: ['img/1_1.jpg', 'img/1_2.jpg', 'img/1_3.jpg'] },
+    { id: 2, name: 'Pink Lemonade', category: 'liquid', brand: 'Pod Juice', strength: '6мг', volume: '60мл', desc: 'Розовый лимонад с кислинкой', price: 590, oldPrice: 740, flavors: ['Классический', 'Мятный', 'Малиновый'], images: ['img/2_1.jpg', 'img/2_2.jpg'] },
+    { id: 3, name: 'Blueberry Salt', category: 'liquid', brand: 'Salty Fish', strength: '20мг', volume: '30мл', desc: 'Черника со льдом', price: 450, oldPrice: null, flavors: ['Черника', 'Черника-лёд'], images: ['img/3_1.jpg', 'img/3_2.jpg'] },
+    { id: 4, name: 'Strawberry Cream', category: 'liquid', brand: 'HSB', strength: '3мг', volume: '60мл', desc: 'Клубника со сливками', price: 640, oldPrice: 800, flavors: ['Клубника', 'Клубника-сливки', 'Клубника-мёд'], images: ['img/4_1.jpg', 'img/4_2.jpg', 'img/4_3.jpg', 'img/4_4.jpg'] },
+    { id: 5, name: 'Жидкость 5', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/5_1.jpg', 'img/5_2.jpg', 'img/5_3.jpg', 'img/5_4.jpg'] },
+    { id: 6, name: 'Жидкость 6', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/6_1.jpg', 'img/6_2.jpg'] },
+    { id: 7, name: 'Жидкость 7', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/7_1.jpg', 'img/7_2.jpg', 'img/7_3.jpg'] },
+    { id: 8, name: 'Жидкость 8', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/8_1.jpg', 'img/8_2.jpg'] },
+    { id: 9, name: 'Вейп 1', category: 'device', brand: '—', desc: 'Ждём данные', price: 490, oldPrice: null, flavors: [], images: ['img/v1_1.jpg', 'img/v1_2.jpg', 'img/v1_3.jpg'] },
+    { id: 10, name: 'Вейп 2', category: 'device', brand: '—', desc: 'Ждём данные', price: 540, oldPrice: null, flavors: [], images: ['img/v2_1.jpg', 'img/v2_2.jpg', 'img/v2_3.jpg'] },
+    { id: 11, name: 'Вейп 3', category: 'device', brand: '—', desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/v3_1.jpg', 'img/v3_2.jpg', 'img/v3_3.jpg', 'img/v3_4.jpg'] },
+    { id: 12, name: 'Вейп 4', category: 'device', brand: '—', desc: 'Ждём данные', price: 2490, oldPrice: null, flavors: [], images: ['img/v4_1.jpg', 'img/v4_2.jpg', 'img/v4_3.jpg'] },
+    { id: 13, name: 'Вейп 5', category: 'device', brand: '—', desc: 'Ждём данные', price: 3890, oldPrice: null, flavors: [], images: ['img/v5_1.jpg', 'img/v5_2.jpg', 'img/v5_3.jpg', 'img/v5_4.jpg'] },
+    { id: 14, name: 'Вейп 6', category: 'device', brand: '—', desc: 'Ждём данные', price: 2190, oldPrice: null, flavors: [], images: ['img/v6_1.jpg', 'img/v6_2.jpg', 'img/v6_3.jpg', 'img/v6_4.jpg'] },
+    { id: 15, name: 'Вейп 7', category: 'device', brand: '—', desc: 'Ждём данные', price: 1990, oldPrice: null, flavors: [], images: ['img/v7_1.jpg', 'img/v7_2.jpg', 'img/v7_3.jpg'] },
+    { id: 16, name: 'Вейп 8', category: 'device', brand: '—', desc: 'Ждём данные', price: 1990, oldPrice: null, flavors: [], images: ['img/v8_1.jpg'] },
+    { id: 17, name: 'Вейп 9', category: 'device', brand: '—', desc: 'Ждём данные', price: 1990, oldPrice: null, flavors: [], images: ['img/v9_1.jpg'] },
+    { id: 18, name: 'Испаритель 1', category: 'coil', desc: 'Ждём данные', price: 490, oldPrice: null, flavors: [], images: ['img/c1_1.jpg'], ohm: '1.0Ω', coilVolume: null },
+    { id: 19, name: 'Испаритель 2', category: 'coil', desc: 'Ждём данные', price: 540, oldPrice: null, flavors: [], images: ['img/c2_1.jpg'], ohm: '0.8Ω', coilVolume: null },
+    { id: 20, name: 'Картридж 1', category: 'coil', desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/c3_1.jpg'], ohm: '1.2Ω', coilVolume: '2мл' },
+    { id: 21, name: 'Картридж 2', category: 'coil', desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/c4_1.jpg'], ohm: '1.0Ω', coilVolume: '2мл' },
+    { id: 22, name: 'Испаритель на Aegis', category: 'coil', desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/c4_1.jpg'], ohm: '0.6Ω', coilVolume: null }
+];
+
+var customProducts = [];
+var statsEntries = [];
+var stockProducts = [];
+
+function getAllProducts() {
+    return products.concat(customProducts);
 }
 
-let statsEntries = [];
-let stockProducts = [];
-let customProducts = [];
+// ===== FIREBASE LOAD / SAVE =====
+function firebaseSave(path, val) {
+    db.ref('data/' + path).set(val).catch(function(err) { console.error('FB err:', err); });
+}
 
 function saveStats() {
     localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
@@ -87,427 +77,73 @@ function saveCustomProducts() {
     firebaseSave('products', customProducts);
 }
 
-firebaseLoad(function(d) {
+firebase.database().ref('data').once('value').then(function(snap) {
+    var d = snap.val();
+    if (!d) return;
     if (d.stats) { statsEntries = d.stats; localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries)); renderStats(); }
     if (d.stock) { stockProducts = d.stock; localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts)); renderStock(); }
-    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter || 'all'); }
+    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter); }
 });
 
-db.ref('data').on('value', function(snap) {
-    const val = snap.val();
-    if (!val) return;
-    if (val.stats && JSON.stringify(val.stats) !== JSON.stringify(statsEntries)) {
-        statsEntries = val.stats;
+firebase.database().ref('data').on('value', function(snap) {
+    var d = snap.val();
+    if (!d) return;
+    if (d.stats && JSON.stringify(d.stats) !== JSON.stringify(statsEntries)) {
+        statsEntries = d.stats;
         localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
         renderStats();
     }
-    if (val.stock && JSON.stringify(val.stock) !== JSON.stringify(stockProducts)) {
-        stockProducts = val.stock;
+    if (d.stock && JSON.stringify(d.stock) !== JSON.stringify(stockProducts)) {
+        stockProducts = d.stock;
         localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
         renderStock();
     }
-    if (val.products && JSON.stringify(val.products) !== JSON.stringify(customProducts)) {
-        customProducts = val.products;
+    if (d.products && JSON.stringify(d.products) !== JSON.stringify(customProducts)) {
+        customProducts = d.products;
         localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
         renderProducts(currentFilter);
     }
 });
 
-function getAllProducts() {
-    return [...products, ...customProducts];
+// ===== NAVIGATION =====
+function switchPage(page) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    var target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+    var btn = document.querySelector('.nav-btn[data-page="' + page + '"]');
+    if (btn) btn.classList.add('active');
+    window.scrollTo(0, 0);
+    if (page === 'catalog') renderProducts(currentFilter);
+    if (page === 'cart') renderCartItems();
 }
 
-const products = [
-    {
-        id: 1, name: 'HSB Mango Ice', category: 'liquid',
-        brand: 'HSB', strength: '3мг', volume: '60мл',
-        desc: 'Сочное манго с ментоловой свежестью',
-        price: 690, oldPrice: 860,
-        flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'],
-        images: ['img/1_1.jpg', 'img/1_2.jpg', 'img/1_3.jpg']
-    },
-    {
-        id: 2, name: 'Pink Lemonade', category: 'liquid',
-        brand: 'Pod Juice', strength: '6мг', volume: '60мл',
-        desc: 'Розовый лимонад с кислинкой',
-        price: 590, oldPrice: 740,
-        flavors: ['Классический', 'Мятный', 'Малиновый'],
-        images: ['img/2_1.jpg', 'img/2_2.jpg']
-    },
-    {
-        id: 3, name: 'Blueberry Salt', category: 'liquid',
-        brand: 'Salty Fish', strength: '20мг', volume: '30мл',
-        desc: 'Черника со льдом',
-        price: 450, oldPrice: null,
-        flavors: ['Черника', 'Черника-лёд'],
-        images: ['img/3_1.jpg', 'img/3_2.jpg']
-    },
-    {
-        id: 4, name: 'Strawberry Cream', category: 'liquid',
-        brand: 'HSB', strength: '3мг', volume: '60мл',
-        desc: 'Клубника со сливками',
-        price: 640, oldPrice: 800,
-        flavors: ['Клубника', 'Клубника-сливки', 'Клубника-мёд'],
-        images: ['img/4_1.jpg', 'img/4_2.jpg', 'img/4_3.jpg', 'img/4_4.jpg']
-    },
-    {
-        id: 5, name: 'Жидкость 5', category: 'liquid',
-        brand: '—', strength: '—', volume: '—',
-        desc: 'Ждём данные от тебя',
-        price: 550, oldPrice: null,
-        flavors: ['Вкус 1', 'Вкус 2'],
-        images: ['img/5_1.jpg', 'img/5_2.jpg', 'img/5_3.jpg', 'img/5_4.jpg']
-    },
-    {
-        id: 6, name: 'Жидкость 6', category: 'liquid',
-        brand: '—', strength: '—', volume: '—',
-        desc: 'Ждём данные от тебя',
-        price: 550, oldPrice: null,
-        flavors: ['Вкус 1', 'Вкус 2'],
-        images: ['img/6_1.jpg', 'img/6_2.jpg']
-    },
-    {
-        id: 7, name: 'Жидкость 7', category: 'liquid',
-        brand: '—', strength: '—', volume: '—',
-        desc: 'Ждём данные от тебя',
-        price: 550, oldPrice: null,
-        flavors: ['Вкус 1', 'Вкус 2'],
-        images: ['img/7_1.jpg', 'img/7_2.jpg', 'img/7_3.jpg']
-    },
-    {
-        id: 8, name: 'Жидкость 8', category: 'liquid',
-        brand: '—', strength: '—', volume: '—',
-        desc: 'Ждём данные от тебя',
-        price: 550, oldPrice: null,
-        flavors: ['Вкус 1', 'Вкус 2'],
-        images: ['img/8_1.jpg', 'img/8_2.jpg']
-    },
-    {
-        id: 9, name: 'Вейп 1', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 490, oldPrice: null,
-        flavors: null,
-        images: ['img/v1_1.jpg', 'img/v1_2.jpg', 'img/v1_3.jpg']
-    },
-    {
-        id: 10, name: 'Вейп 2', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 540, oldPrice: null,
-        flavors: null,
-        images: ['img/v2_1.jpg', 'img/v2_2.jpg', 'img/v2_3.jpg']
-    },
-    {
-        id: 11, name: 'Вейп 3', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 380, oldPrice: null,
-        flavors: null,
-        images: ['img/v3_1.jpg', 'img/v3_2.jpg', 'img/v3_3.jpg', 'img/v3_4.jpg']
-    },
-    {
-        id: 12, name: 'Вейп 4', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 2490, oldPrice: null,
-        flavors: null,
-        images: ['img/v4_1.jpg', 'img/v4_2.jpg', 'img/v4_3.jpg']
-    },
-    {
-        id: 13, name: 'Вейп 5', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 3890, oldPrice: null,
-        flavors: null,
-        images: ['img/v5_1.jpg', 'img/v5_2.jpg', 'img/v5_3.jpg', 'img/v5_4.jpg']
-    },
-    {
-        id: 14, name: 'Вейп 6', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 2190, oldPrice: null,
-        flavors: null,
-        images: ['img/v6_1.jpg', 'img/v6_2.jpg', 'img/v6_3.jpg', 'img/v6_4.jpg']
-    },
-    {
-        id: 15, name: 'Вейп 7', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 1990, oldPrice: null,
-        flavors: null,
-        images: ['img/v7_1.jpg', 'img/v7_2.jpg', 'img/v7_3.jpg']
-    },
-    {
-        id: 16, name: 'Вейп 8', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 1990, oldPrice: null,
-        flavors: null,
-        images: ['img/v8_1.jpg']
-    },
-    {
-        id: 17, name: 'Вейп 9', category: 'device',
-        brand: '—', strength: null, volume: null,
-        desc: 'Ждём данные от тебя',
-        price: 1990, oldPrice: null,
-        flavors: null,
-        images: ['img/v9_1.jpg']
-    },
-    {
-        id: 18, name: 'Испаритель 1', category: 'coil',
-        brand: '—', strength: null, volume: null, ohm: '1.0Ω', coilVolume: null,
-        desc: 'Ждём данные от тебя',
-        price: 490, oldPrice: null,
-        flavors: null,
-        images: ['img/c1_1.jpg']
-    },
-    {
-        id: 19, name: 'Испаритель 2', category: 'coil',
-        brand: '—', strength: null, volume: null, ohm: '0.8Ω', coilVolume: null,
-        desc: 'Ждём данные от тебя',
-        price: 540, oldPrice: null,
-        flavors: null,
-        images: ['img/c2_1.jpg']
-    },
-    {
-        id: 20, name: 'Картридж 1', category: 'coil',
-        brand: '—', strength: null, volume: null, ohm: '1.2Ω', coilVolume: '2мл',
-        desc: 'Ждём данные от тебя',
-        price: 380, oldPrice: null,
-        flavors: null,
-        images: ['img/c3_1.jpg']
-    },
-    {
-        id: 21, name: 'Картридж 2', category: 'coil',
-        brand: '—', strength: null, volume: null, ohm: '1.0Ω', coilVolume: '2мл',
-        desc: 'Ждём данные от тебя',
-        price: 380, oldPrice: null,
-        flavors: null,
-        images: ['img/c4_1.jpg']
-    },
-    {
-        id: 22, name: 'Испаритель на Aegis', category: 'coil',
-        brand: '—', strength: null, volume: null, ohm: '0.6Ω', coilVolume: null,
-        desc: 'Ждём данные от тебя',
-        price: 380, oldPrice: null,
-        flavors: null,
-        images: ['img/c4_1.jpg']
-    }
-];
+document.querySelectorAll('.nav-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchPage(this.dataset.page); });
+});
 
 // ===== CART =====
-let cart = JSON.parse(localStorage.getItem('dormvape_cart') || '[]');
-let currentFilter = 'all';
-let currentModalProduct = null;
-let modalCarouselIdx = 0;
-
-const notFoundMessage = `<div class="not-found-msg">
-    <div class="not-found-icon">🔍</div>
-    <div class="not-found-title">Ничего не найдено</div>
-    <div class="not-found-text">В категории «Поды и одноразки» товаров пока нет</div>
-    <div class="not-found-links">
-        <a href="tg://resolve?domain=HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
-        <a href="tg://resolve?domain=senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
-    </div>
-</div>`;
-
-const TELEGRAM_LINKS = `<div class="pod-message">
-    <div class="pod-message-icon">💨</div>
-    <div class="pod-message-title">Поды и одноразки</div>
-    <div class="pod-message-text">Разнообразные поды и одноразки можно заказать через Telegram:</div>
-    <div class="pod-message-links">
-        <a href="tg://resolve?domain=HIFONER" target="_blank" class="tg-link-btn">✈️ @HIFONER</a>
-        <a href="tg://resolve?domain=senyyxx" target="_blank" class="tg-link-btn">✈️ @senyyxx</a>
-    </div>
-</div>`;
+var cart = JSON.parse(localStorage.getItem('dormvape_cart') || '[]');
+var currentFilter = 'all';
 
 function saveCart() {
     localStorage.setItem('dormvape_cart', JSON.stringify(cart));
 }
 
 function getCartCount() {
-    return cart.reduce((sum, item) => sum + item.qty, 0);
+    return cart.reduce(function(s, i) { return s + i.qty; }, 0);
 }
 
 function getCartTotal() {
-    return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-}
-
-let prevTotal = 0;
-
-function animateNumber(el, from, to, duration, suffix) {
-    const start = performance.now();
-    const diff = to - from;
-    if (diff === 0) return;
-    function frame(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(from + diff * ease);
-        el.textContent = current + (suffix || '');
-        if (progress < 1) requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    return cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
 }
 
 function updateCartUI() {
-    const count = getCartCount();
-    const total = getCartTotal();
-
-    const totalEl = document.getElementById('cart-total');
-    animateNumber(totalEl, prevTotal, total, 400, '₽');
-    prevTotal = total;
-
-    const badge = document.getElementById('cart-badge-tab');
-    if (count > 0) {
-        badge.textContent = count;
-        badge.classList.remove('show');
-        void badge.offsetWidth;
-        badge.classList.add('show');
-    } else {
-        badge.classList.remove('show');
-    }
-
-    // Header cart count
-    const headerCount = document.getElementById('cart-count');
-    if (headerCount) headerCount.textContent = count + ' товар' + (count === 1 ? '' : count < 5 ? 'а' : 'ов');
-
-    renderCartItems();
-}
-
-// ===== PRODUCTS =====
-function renderProducts(filter) {
-    const grid = document.getElementById('products-grid');
-    if (!grid) return;
-    const all = getAllProducts();
-    const filtered = filter && filter !== 'all'
-        ? all.filter(p => p.category === filter)
-        : all;
-
-    let extraHtml = '';
-    if (filter === 'device') {
-        extraHtml = TELEGRAM_LINKS;
-    }
-
-const filteredHtml = filtered.map(p => {
-        const items = cart.filter(c => c.id === p.id);
-        const totalQty = items.reduce((s, c) => s + c.qty, 0);
-        const specs = p.category === 'coil'
-            ? [p.ohm, p.coilVolume].filter(s => s && s !== '—').join(' · ')
-            : [p.strength, p.volume].filter(s => s && s !== '—').join(' · ');
-        const flavorsHtml = p.flavors && p.flavors.length
-            ? `<div class="product-flavors">${p.flavors.map(f => `<span class="flavor-tag">${f}</span>`).join('')}</div>`
-            : '';
-        const qtyControl = totalQty > 0
-            ? `<div class="qty-control">
-                <button class="qty-btn card-qty-decr" data-id="${p.id}" aria-label="Уменьшить"></button>
-                <span class="qty-value">${totalQty}</span>
-                <button class="qty-btn card-qty-incr" data-id="${p.id}" aria-label="Увеличить"></button>
-               </div>`
-            : `<button class="btn-add" data-id="${p.id}">+ Добавить в корзину</button>`;
-        return `
-        <div class="product-card" data-product-id="${p.id}" style="cursor:pointer">
-            ${totalQty > 0 ? `<div class="cart-badge">${totalQty}</div>` : ''}
-            <div class="product-media">
-                <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;color:#666;font-size:40px\'>📷</div>'" onload="this.parentElement.style.animation='none';this.parentElement.style.background='none'">
-            </div>
-            <div class="product-info">
-                ${specs ? `<div class="product-meta"><span class="product-spec">${specs}</span></div>` : ''}
-                <h4 class="product-name">${p.name}</h4>
-                ${flavorsHtml}
-                <p class="product-desc">${p.desc}</p>
-                <div class="product-footer">
-                    <div class="product-price">${p.price}₽${p.oldPrice ? `<span class="product-old">${p.oldPrice}₽</span>` : ''}</div>
-                    ${qtyControl}
-                </div>
-            </div>
-        </div>
-    `}).join('');
-
-    grid.innerHTML = extraHtml + filteredHtml + (filtered.length === 0 && filter !== 'all' ? notFoundMessage : '');
-
-    grid.querySelectorAll('.btn-add').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const id = parseInt(this.dataset.id);
-            const product = getAllProducts().find(p => p.id === id);
-            if (!product) return;
-            const card = this.closest('.product-card');
-            if (card) {
-                card.classList.remove('card-bounce');
-                void card.offsetWidth;
-                card.classList.add('card-bounce');
-            }
-            if (product.flavors && product.flavors.length > 0) {
-                openFlavorPicker(product, this);
-            } else {
-                addToCart(product);
-                renderProducts(currentFilter);
-            }
-        });
-    });
-
-    grid.querySelectorAll('.card-qty-incr').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const id = parseInt(this.dataset.id);
-            const product = getAllProducts().find(p => p.id === id);
-            if (!product) return;
-            // If product has flavors and no flavor selected yet, open picker
-            if (product.flavors && product.flavors.length > 0) {
-                const existing = cart.find(c => c.id === id);
-                if (!existing) {
-                    openFlavorPicker(product, this);
-                    return;
-                }
-                // If already in cart with a flavor, add to that flavor
-                addToCart(product, existing.flavor);
-            } else {
-                addToCart(product);
-            }
-            renderProducts(currentFilter);
-        });
-    });
-
-    grid.querySelectorAll('.card-qty-decr').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const id = parseInt(this.dataset.id);
-            // Find cart item - prefer the first one if multiple flavors
-            const item = cart.find(c => c.id === id);
-            if (item) {
-                item.qty--;
-                if (item.qty <= 0) {
-                    cart = cart.filter(c => !(c.id === id && c.flavor === item.flavor));
-                }
-                saveCart();
-                updateCartUI();
-                renderProducts(currentFilter);
-            }
-        });
-    });
-
-    grid.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.btn-add') || e.target.closest('.qty-control') || e.target.closest('.carousel')) return;
-            const id = parseInt(this.dataset.productId);
-            const product = getAllProducts().find(p => p.id === id);
-            if (product) openProductModal(product);
-        });
-    });
-}
-
-function filterCategory(cat) {
-    currentFilter = cat;
-    renderProducts(cat);
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === cat);
-    });
+    document.getElementById('cart-count').textContent = getCartCount();
 }
 
 function addToCart(product, flavor) {
-    const existing = cart.find(item => item.id === product.id && item.flavor === (flavor || null));
+    var existing = cart.find(function(i) { return i.id === product.id && i.flavor === (flavor || null); });
     if (existing) {
         existing.qty++;
     } else {
@@ -515,133 +151,128 @@ function addToCart(product, flavor) {
     }
     saveCart();
     updateCartUI();
-
-    const notif = document.getElementById('cart-notification');
-    notif.textContent = '"' + product.name + (flavor ? ' (' + flavor + ')' : '') + '" добавлен в корзину!';
-    notif.classList.remove('hide');
+    var notif = document.getElementById('cart-notification');
+    notif.textContent = product.name + (flavor ? ' (' + flavor + ')' : '') + ' — в корзине!';
     notif.classList.add('show');
-    setTimeout(() => {
-        notif.classList.remove('show');
-        notif.classList.add('hide');
-        setTimeout(() => notif.classList.remove('hide'), 500);
-    }, 2500);
+    setTimeout(function() { notif.classList.remove('show'); }, 2500);
 }
 
 function removeFromCart(id, flavor) {
-    const fv = flavor || null;
-    cart = cart.filter(item => !(item.id === id && item.flavor === fv));
+    var fv = flavor || null;
+    cart = cart.filter(function(i) { return !(i.id === id && i.flavor === fv); });
     saveCart();
     updateCartUI();
 }
 
-function renderCartItems() {
-    const container = document.getElementById('cart-items');
-    if (!container) return;
-
-    if (cart.length === 0) {
-        container.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div>Корзина пуста<br><a href="#" class="cart-empty-link" data-tab="catalog">Перейти в каталог</a></div>';
-        document.querySelector('.cart-footer').style.display = 'none';
-        container.querySelector('[data-tab]') && container.querySelector('[data-tab]').addEventListener('click', function(e) {
-            e.preventDefault();
-            switchTab('catalog');
-        });
-        return;
-    }
-    document.querySelector('.cart-footer').style.display = 'flex';
-
-    container.innerHTML = cart.map(item => {
-        const flavorAttr = item.flavor ? item.flavor : '';
-        return `
-        <div class="cart-item">
-            <div class="item-info">
-                <div class="item-name">${item.name}${item.flavor ? ' — ' + item.flavor : ''}</div>
-                <div class="item-price">${item.price}₽</div>
-            </div>
-            <div class="item-qty">
-                <button class="qty-btn" data-id="${item.id}" data-flavor="${flavorAttr}" data-action="decr" aria-label="Уменьшить"></button>
-                <span class="qty-value">${item.qty}</span>
-                <button class="qty-btn" data-id="${item.id}" data-flavor="${flavorAttr}" data-action="incr" aria-label="Увеличить"></button>
-            </div>
-            <button class="remove-item" data-id="${item.id}" data-flavor="${flavorAttr}">&times;</button>
-        </div>
-    `}).join('');
-
-    // Event delegation for qty buttons
-    container.onclick = function(e) {
-        const qtyBtn = e.target.closest('.qty-btn');
-        if (qtyBtn) {
-            const id = parseInt(qtyBtn.dataset.id);
-            const fv = qtyBtn.dataset.flavor || null;
-            const action = qtyBtn.dataset.action;
-            const item = cart.find(i => i.id === id && (i.flavor || null) === fv);
-            if (!item) return;
-            if (action === 'incr') {
-                item.qty++;
-            } else {
-                item.qty--;
-                if (item.qty <= 0) {
-                    removeFromCart(id, fv);
-                    return;
-                }
-            }
-            saveCart();
-            updateCartUI();
-            return;
-        }
-        const removeBtn = e.target.closest('.remove-item');
-        if (removeBtn) {
-            removeFromCart(parseInt(removeBtn.dataset.id), removeBtn.dataset.flavor || null);
-        }
-    };
+function clearCart() {
+    if (cart.length === 0) return;
+    cart = [];
+    saveCart();
+    updateCartUI();
+    renderCartItems();
 }
 
-// ===== FILTER BUTTONS =====
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        filterCategory(this.dataset.filter);
+// ===== CATALOG =====
+function filterProducts(filter) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.filter === filter);
     });
+    renderProducts(filter);
+}
+
+document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { filterProducts(this.dataset.filter); });
 });
 
-// ===== CATEGORY CARDS =====
-document.querySelectorAll('.category-card[data-category]').forEach(card => {
-    card.addEventListener('click', function(e) {
-        // Ignore clicks on links/buttons inside the card
-        if (e.target.closest('a, button')) return;
-        const cat = this.dataset.category;
-        switchTab('catalog');
-        setTimeout(() => filterCategory(cat), 50);
+function renderProducts(filter) {
+    var grid = document.getElementById('products-grid');
+    if (!grid) return;
+    var all = getAllProducts();
+    var filtered = filter && filter !== 'all' ? all.filter(function(p) { return p.category === filter; }) : all;
+
+    grid.innerHTML = filtered.map(function(p) {
+        var cartItems = cart.filter(function(c) { return c.id === p.id; });
+        var totalQty = cartItems.reduce(function(s, c) { return s + c.qty; }, 0);
+        var specs = p.category === 'coil'
+            ? [p.ohm, p.coilVolume].filter(function(s) { return s && s !== '—'; }).join(' · ')
+            : [p.strength, p.volume].filter(function(s) { return s && s !== '—'; }).join(' · ');
+        var flavorsHtml = p.flavors && p.flavors.length
+            ? '<div class="product-flavors">' + p.flavors.map(function(f) { return '<span class="flavor-tag">' + f + '</span>'; }).join('') + '</div>'
+            : '';
+        var qtyControl = totalQty > 0
+            ? '<div class="qty-control"><button class="qty-btn" onclick="event.stopPropagation();cartQty(' + p.id + ',-1)">−</button><span class="qty-value">' + totalQty + '</span><button class="qty-btn" onclick="event.stopPropagation();cartQty(' + p.id + ',1)">+</button></div>'
+            : '<button class="btn-add" onclick="event.stopPropagation();productAdd(' + p.id + ',this)">+ Добавить</button>';
+        return '<div class="product-card" data-pid="' + p.id + '">' +
+            (totalQty > 0 ? '<div class="cart-badge">' + totalQty + '</div>' : '') +
+            '<div class="product-media"><img src="' + p.images[0] + '" alt="' + p.name + '" loading="lazy" onerror="this.outerHTML=\'<div style=padding:40px;text-align:center;color:#444;font-size:32px>📷</div>\'"></div>' +
+            '<div class="product-info">' +
+            (specs ? '<div class="product-spec">' + specs + '</div>' : '') +
+            '<div class="product-name">' + p.name + '</div>' +
+            flavorsHtml +
+            '<p class="product-desc">' + p.desc + '</p>' +
+            '<div class="product-footer">' +
+            '<div class="product-price">' + p.price + '₽' + (p.oldPrice ? '<span class="product-old">' + p.oldPrice + '₽</span>' : '') + '</div>' +
+            qtyControl + '</div></div></div>';
+    }).join('');
+
+    grid.querySelectorAll('.product-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-add') || e.target.closest('.qty-control')) return;
+            var id = parseInt(this.dataset.pid);
+            var p = getAllProducts().find(function(x) { return x.id === id; });
+            if (p) openProductModal(p);
+        });
     });
-    card.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            const cat = this.dataset.category;
-            switchTab('catalog');
-            setTimeout(() => filterCategory(cat), 50);
+}
+
+function productAdd(id, btn) {
+    var p = getAllProducts().find(function(x) { return x.id === id; });
+    if (!p) return;
+    if (p.flavors && p.flavors.length > 0) {
+        openFlavorPicker(p, btn);
+    } else {
+        addToCart(p);
+        renderProducts(currentFilter);
+    }
+}
+
+function cartQty(id, delta) {
+    var item = cart.find(function(c) { return c.id === id; });
+    if (!item) return;
+    if (delta > 0) {
+        addToCart(getAllProducts().find(function(p) { return p.id === id; }));
+        renderProducts(currentFilter);
+    } else {
+        item.qty--;
+        if (item.qty <= 0) {
+            cart = cart.filter(function(c) { return !(c.id === id && c.flavor === item.flavor); });
         }
-    });
-});
+        saveCart();
+        updateCartUI();
+        renderProducts(currentFilter);
+    }
+}
 
 // ===== FLAVOR PICKER =====
 function openFlavorPicker(product, anchor) {
-    const popup = document.getElementById('flavor-picker-popup');
-    const list = document.getElementById('flavor-picker-list');
-    list.innerHTML = product.flavors.map(f =>
-        `<button class="flavor-picker-btn" data-flavor="${f}">${f}</button>`
-    ).join('');
+    var popup = document.getElementById('flavor-picker-popup');
+    var list = document.getElementById('flavor-picker-list');
+    list.innerHTML = product.flavors.map(function(f) {
+        return '<button class="flavor-picker-btn" data-flavor="' + f + '">' + f + '</button>';
+    }).join('');
 
-    const rect = anchor.getBoundingClientRect();
+    var rect = anchor.getBoundingClientRect();
     popup.style.display = 'block';
     popup.style.position = 'fixed';
-    popup.style.bottom = 'auto';
     popup.style.left = Math.max(10, Math.min(rect.left, window.innerWidth - popup.offsetWidth - 10)) + 'px';
     popup.style.top = (rect.top - popup.offsetHeight - 8) + 'px';
     if (popup.getBoundingClientRect().top < 80) {
         popup.style.top = (rect.bottom + 8) + 'px';
     }
 
-    // Event delegation to avoid memory leaks
     list.onclick = function(e) {
-        const btn = e.target.closest('.flavor-picker-btn');
+        var btn = e.target.closest('.flavor-picker-btn');
         if (btn) {
             e.stopPropagation();
             addToCart(product, btn.dataset.flavor);
@@ -657,35 +288,42 @@ function openFlavorPicker(product, anchor) {
             list.onclick = null;
         }
     }
-    setTimeout(() => document.addEventListener('click', closePicker), 10);
+    setTimeout(function() { document.addEventListener('click', closePicker); }, 10);
 }
 
-// ===== PRODUCT DETAIL MODAL =====
-const productModalOverlay = document.getElementById('product-modal-overlay');
-const productModalClose = document.getElementById('product-modal-close');
+// ===== PRODUCT MODAL =====
+var currentModalProduct = null;
+var modalCarouselIdx = 0;
 
 function openProductModal(product) {
     currentModalProduct = product;
     modalCarouselIdx = 0;
 
-    const track = document.getElementById('modal-carousel-track');
-    const dots = document.getElementById('modal-carousel-dots');
-    track.innerHTML = product.images.map((img, i) =>
-        `<img src="${img}" alt="${product.name}" class="carousel-slide${i === 0 ? ' active' : ''}">`
-    ).join('');
-    dots.innerHTML = product.images.map((_, i) =>
-        `<span class="dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`
-    ).join('');
+    var track = document.getElementById('modal-carousel-track');
+    var dots = document.getElementById('modal-carousel-dots');
+    var images = product.images && product.images.length > 0 ? product.images : [];
+    if (images.length === 0) {
+        track.innerHTML = '<div class="carousel-slide" style="display:flex;align-items:center;justify-content:center;font-size:64px;color:#333">📷</div>';
+        dots.innerHTML = '<span class="dot active"></span>';
+    } else {
+        track.innerHTML = images.map(function(img, i) {
+            return '<img src="' + img + '" class="carousel-slide" onerror="this.outerHTML=\'<div class=carousel-slide style=display:flex;align-items:center;justify-content:center;font-size:48px;color:#333>📷</div>\'">';
+        }).join('');
+        dots.innerHTML = images.map(function(_, i) {
+            return '<span class="dot' + (i === 0 ? ' active' : '') + '" onclick="modalGoTo(' + (i - modalCarouselIdx) + ')"></span>';
+        }).join('');
+    }
+    track.style.transform = 'translateX(0)';
 
     document.getElementById('product-modal-name').textContent = product.name;
-    const specs = product.category === 'coil'
-        ? [product.ohm, product.coilVolume].filter(s => s && s !== '—').join(' · ')
-        : [product.strength, product.volume].filter(s => s && s !== '—').join(' · ');
-    document.getElementById('product-modal-meta').innerHTML = specs
-        ? `<span class="product-spec">${specs}</span>`
-        : '';
+
+    var specs = product.category === 'coil'
+        ? [product.ohm, product.coilVolume].filter(function(s) { return s && s !== '—'; }).join(' · ')
+        : [product.strength, product.volume].filter(function(s) { return s && s !== '—'; }).join(' · ');
+    document.getElementById('product-modal-desc').innerHTML = (specs ? '<span class="product-spec">' + specs + '</span> ' : '') + (product.desc || '');
+
     document.getElementById('product-modal-price').textContent = product.price + '₽';
-    const oldPriceEl = document.getElementById('product-modal-old-price');
+    var oldPriceEl = document.getElementById('product-modal-old-price');
     if (product.oldPrice) {
         oldPriceEl.textContent = product.oldPrice + '₽';
         oldPriceEl.style.display = 'inline';
@@ -693,379 +331,223 @@ function openProductModal(product) {
         oldPriceEl.style.display = 'none';
     }
 
-    document.getElementById('product-modal-desc').textContent = product.desc || '';
-
-    const flavorWrap = document.getElementById('product-modal-flavors');
+    var flavorWrap = document.getElementById('product-modal-flavors');
     if (product.flavors && product.flavors.length > 0) {
         flavorWrap.style.display = 'block';
         flavorWrap.innerHTML = '<div class="flavor-label">Вкус:</div><div class="flavor-options">' +
-            product.flavors.map((f, i) =>
-                `<button class="flavor-btn${i === 0 ? ' active' : ''}" data-flavor="${f}">${f}</button>`
-            ).join('') + '</div>';
-        // Event delegation instead of per-button listeners
+            product.flavors.map(function(f, i) {
+                return '<button class="flavor-btn' + (i === 0 ? ' active' : '') + '" data-flavor="' + f + '">' + f + '</button>';
+            }).join('') + '</div>';
         flavorWrap.onclick = function(e) {
-            const btn = e.target.closest('.flavor-btn');
+            var btn = e.target.closest('.flavor-btn');
             if (btn) {
-                flavorWrap.querySelectorAll('.flavor-btn').forEach(b => b.classList.remove('active'));
+                flavorWrap.querySelectorAll('.flavor-btn').forEach(function(b) { b.classList.remove('active'); });
                 btn.classList.add('active');
             }
         };
     } else {
         flavorWrap.style.display = 'none';
-        flavorWrap.onclick = null;
     }
 
-    productModalOverlay.classList.add('active');
-    history.pushState({ modal: 'product' }, '');
+    document.getElementById('product-modal-add').onclick = function() {
+        var activeFlavor = flavorWrap.querySelector('.flavor-btn.active');
+        var flavor = activeFlavor ? activeFlavor.dataset.flavor : null;
+        addToCart(product, flavor);
+        closeProductModal();
+        renderProducts(currentFilter);
+    };
+
+    document.getElementById('product-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeProductModal() {
-    productModalOverlay.classList.add('closing');
-    setTimeout(() => {
-        productModalOverlay.classList.remove('active', 'closing');
-        currentModalProduct = null;
-    }, 350);
+    document.getElementById('product-modal').classList.remove('show');
+    document.body.style.overflow = '';
+    currentModalProduct = null;
 }
 
-productModalClose.addEventListener('click', closeProductModal);
-productModalOverlay.addEventListener('click', function(e) {
-    if (e.target === productModalOverlay) closeProductModal();
-});
-
-function modalGoTo(i) {
-    const track = document.getElementById('modal-carousel-track');
-    const dots = document.getElementById('modal-carousel-dots');
-    const slides = track.querySelectorAll('.carousel-slide');
-    const allDots = dots.querySelectorAll('.dot');
-    if (slides.length === 0) return;
-    slides[modalCarouselIdx].classList.remove('active');
-    allDots[modalCarouselIdx].classList.remove('active');
-    modalCarouselIdx = (i + slides.length) % slides.length;
-    slides[modalCarouselIdx].classList.add('active');
-    allDots[modalCarouselIdx].classList.add('active');
-}
-
-document.getElementById('modal-arrow-left').addEventListener('click', function(e) {
-    e.stopPropagation();
-    modalGoTo(modalCarouselIdx - 1);
-});
-document.getElementById('modal-arrow-right').addEventListener('click', function(e) {
-    e.stopPropagation();
-    modalGoTo(modalCarouselIdx + 1);
-});
-document.getElementById('modal-carousel-dots').addEventListener('click', function(e) {
-    if (e.target.classList.contains('dot')) {
-        e.stopPropagation();
-        modalGoTo(parseInt(e.target.dataset.idx));
-    }
-});
-
-let modalStartX = 0;
-const modalCarousel = document.getElementById('modal-carousel');
-if (modalCarousel) {
-    modalCarousel.addEventListener('touchstart', function(e) {
-        modalStartX = e.touches[0].clientX;
-    }, { passive: true });
-    modalCarousel.addEventListener('touchend', function(e) {
-        const diff = modalStartX - e.changedTouches[0].clientX;
-        if (Math.abs(diff) > 40) {
-            modalGoTo(modalCarouselIdx + (diff > 0 ? 1 : -1));
-        }
-    }, { passive: true });
-}
-
-document.getElementById('product-modal-add').addEventListener('click', function() {
-    if (currentModalProduct) {
-        const flavorWrap = document.getElementById('product-modal-flavors');
-        const activeFlavor = flavorWrap.querySelector('.flavor-btn.active');
-        const flavor = activeFlavor ? activeFlavor.dataset.flavor : null;
-        addToCart(currentModalProduct, flavor);
-        closeProductModal();
-        renderProducts(currentFilter);
-    }
-});
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeProductModal();
-        closeCheckoutModal();
-    }
-});
-
-window.addEventListener('popstate', function(e) {
-    if (productModalOverlay.classList.contains('active')) {
-        closeProductModal();
-    } else if (checkoutModal.classList.contains('active')) {
-        closeCheckoutModal();
-    }
-});
-
-// ===== TELEGRAM =====
-const TG_BOT_TOKEN = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
-const TG_CHAT_ID = '1951895339';
-
-function sendTelegramMessage(text) {
-    if (TG_BOT_TOKEN === 'YOUR_BOT_TOKEN') return;
-    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TG_CHAT_ID, text: text, parse_mode: 'HTML' })
+function modalGoTo(dir) {
+    var p = currentModalProduct;
+    if (!p) return;
+    var total = (p.images && p.images.length > 0) ? p.images.length : 1;
+    modalCarouselIdx = (modalCarouselIdx + dir + total) % total;
+    var track = document.getElementById('modal-carousel-track');
+    track.style.transform = 'translateX(-' + (modalCarouselIdx * 100) + '%)';
+    document.querySelectorAll('#modal-carousel-dots .dot').forEach(function(d, i) {
+        d.classList.toggle('active', i === modalCarouselIdx);
     });
 }
 
-// ===== CHECKOUT MODAL =====
-const checkoutModal = document.getElementById('checkout-modal');
-const modalClose = document.getElementById('modal-close');
-const checkoutForm = document.getElementById('checkout-form');
-const checkoutStepForm = document.getElementById('checkout-step-form');
-const checkoutStepPayment = document.getElementById('checkout-step-payment');
-
-let checkoutData = {};
-
-function openCheckoutModal() {
-    if (cart.length === 0) {
-        alert('Корзина пуста!');
-        return;
-    }
-
-    checkoutStepForm.style.display = 'block';
-    checkoutStepPayment.style.display = 'none';
-
-    const saved = JSON.parse(localStorage.getItem('dormvape_checkout') || 'null');
-    if (saved) {
-        document.getElementById('checkout-name').value = saved.name || '';
-        document.getElementById('checkout-phone').value = saved.phone || '';
-        document.getElementById('checkout-telegram').value = saved.telegram || '';
-        document.getElementById('checkout-address').value = saved.address || '';
-        document.getElementById('checkout-flat').value = saved.flat || '';
-    }
-
-    const summary = document.getElementById('modal-summary');
-    let itemsHtml = cart.map(item =>
-        `<div class="checkout-summary-row"><span>${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty}</span><span>${item.price * item.qty}₽</span></div>`
-    ).join('');
-    let total = getCartTotal();
-    summary.innerHTML = itemsHtml + `<div class="checkout-summary-row"><span>Итого:</span><span>${total}₽</span></div>`;
-
-    checkoutModal.classList.add('active');
-    history.pushState({ modal: 'checkout' }, '');
-}
-
-function closeCheckoutModal() {
-    checkoutModal.classList.remove('active');
-    checkoutForm.reset();
-}
-
-modalClose.addEventListener('click', closeCheckoutModal);
-checkoutModal.addEventListener('click', function(e) {
-    if (e.target === checkoutModal) closeCheckoutModal();
+document.getElementById('product-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeProductModal();
 });
 
-document.getElementById('payment-close').addEventListener('click', closeCheckoutModal);
+// ===== CART RENDER =====
+function renderCartItems() {
+    var container = document.getElementById('cart-items');
+    if (!container) return;
 
-checkoutForm.addEventListener('submit', function(e) {
+    if (cart.length === 0) {
+        container.innerHTML = '<div class="cart-empty"><p>Корзина пуста</p><a class="cart-empty-link" onclick="switchPage(\'catalog\')">Перейти в каталог</a></div>';
+        document.getElementById('cart-footer').classList.remove('has-items');
+        return;
+    }
+    document.getElementById('cart-footer').classList.add('has-items');
+
+    container.innerHTML = cart.map(function(item) {
+        var flavorAttr = item.flavor || '';
+        return '<div class="cart-item">' +
+            '<div class="item-info">' +
+            '<div class="item-name">' + item.name + (item.flavor ? ' — ' + item.flavor : '') + '</div>' +
+            '<div class="item-price">' + item.price + '₽</div></div>' +
+            '<div class="item-qty">' +
+            '<button class="qty-btn" onclick="cartItemQty(' + item.id + ',\'' + flavorAttr + '\',-1)">−</button>' +
+            '<span class="qty-value">' + item.qty + '</span>' +
+            '<button class="qty-btn" onclick="cartItemQty(' + item.id + ',\'' + flavorAttr + '\',1)">+</button></div>' +
+            '<button class="remove-item" onclick="removeFromCart(' + item.id + ',\'' + flavorAttr + '\')">✕</button></div>';
+    }).join('');
+
+    document.getElementById('cart-total').textContent = getCartTotal() + ' ₽';
+}
+
+function cartItemQty(id, flavor, delta) {
+    var item = cart.find(function(i) { return i.id === id && (i.flavor || '') === flavor; });
+    if (!item) return;
+    if (delta > 0) {
+        item.qty++;
+    } else {
+        item.qty--;
+        if (item.qty <= 0) {
+            removeFromCart(id, flavor);
+            renderCartItems();
+            return;
+        }
+    }
+    saveCart();
+    updateCartUI();
+    renderCartItems();
+}
+
+// ===== CHECKOUT =====
+function openCheckout() {
+    if (cart.length === 0) return;
+    var summary = document.getElementById('modal-summary');
+    summary.innerHTML = cart.map(function(item) {
+        return '<p>• ' + item.name + (item.flavor ? ' (' + item.flavor + ')' : '') + ' × ' + item.qty + ' = ' + (item.price * item.qty) + '₽</p>';
+    }).join('') + '<p style="margin-top:6px;color:#aaa;font-weight:500">Итого: ' + getCartTotal() + ' ₽</p>';
+
+    var saved = JSON.parse(localStorage.getItem('dormvape_checkout') || 'null');
+    if (saved) {
+        ['name','phone','telegram','address','flat'].forEach(function(f) {
+            var el = document.getElementById('checkout-' + f);
+            if (el && saved[f]) el.value = saved[f];
+        });
+    }
+
+    document.getElementById('checkout-step-form').style.display = 'block';
+    document.getElementById('checkout-step-payment').style.display = 'none';
+    document.getElementById('checkout-modal').classList.add('show');
+}
+
+function closeCheckout() {
+    document.getElementById('checkout-modal').classList.remove('show');
+}
+
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
     e.preventDefault();
+    var data = {};
+    ['name','phone','telegram','address','flat'].forEach(function(f) {
+        data[f] = document.getElementById('checkout-' + f).value.trim();
+    });
+    data.comment = document.getElementById('checkout-comment').value.trim();
 
-    checkoutData = {
-        name: document.getElementById('checkout-name').value.trim(),
-        phone: document.getElementById('checkout-phone').value.trim(),
-        telegram: document.getElementById('checkout-telegram').value.trim(),
-        address: document.getElementById('checkout-address').value.trim(),
-        flat: document.getElementById('checkout-flat').value.trim(),
-        comment: document.getElementById('checkout-comment').value.trim()
-    };
+    var itemsStr = cart.map(function(item) {
+        return '  • ' + item.name + (item.flavor ? ' (' + item.flavor + ')' : '') + ' x' + item.qty + ' — ' + (item.price * item.qty) + '₽';
+    }).join('\n');
 
-    let itemsList = cart.map(item => `  • ${item.name}${item.flavor ? ' (' + item.flavor + ')' : ''} x${item.qty} — ${item.price * item.qty}₽`).join('\n');
-    let total = getCartTotal();
+    var msg = '<b>🛒 Новый заказ DormVape!</b>\n\n<b>Товары:</b>\n' + itemsStr +
+        '\n\n<b>Итого: ' + getCartTotal() + '₽</b>\n\n<b>👤 Покупатель:</b>\n  Имя: ' + data.name +
+        '\n  Телефон: ' + data.phone +
+        (data.telegram ? '\n  Telegram: ' + data.telegram : '') +
+        '\n  Адрес: ' + data.address + (data.flat ? '\n  Кв/под: ' + data.flat : '') +
+        (data.comment ? '\n\nКомментарий: ' + data.comment : '');
 
-    let msg = `🛒 *Новый заказ DormVape*\n\n` +
-              `*Товары:*\n${itemsList}\n\n` +
-              `*Итого: ${total}₽*\n\n` +
-              `👤 *Покупатель:*\n` +
-              `  Имя: ${checkoutData.name}\n` +
-              `  Телефон: ${checkoutData.phone}\n` +
-              `${checkoutData.telegram ? '  Telegram: ' + checkoutData.telegram + '\n' : ''}` +
-              `  Адрес: ${checkoutData.address}${checkoutData.flat ? '\n  Кв/под: ' + checkoutData.flat : ''}` +
-              `${checkoutData.comment ? '\n  Комментарий: ' + checkoutData.comment : ''}`;
-
-    sendTelegramMessage(msg);
+    sendTelegram(msg);
 
     if (document.getElementById('checkout-save').checked) {
-        localStorage.setItem('dormvape_checkout', JSON.stringify(checkoutData));
+        localStorage.setItem('dormvape_checkout', JSON.stringify(data));
     } else {
         localStorage.removeItem('dormvape_checkout');
     }
 
-    checkoutStepForm.style.display = 'none';
-    checkoutStepPayment.style.display = 'block';
+    document.getElementById('checkout-step-form').style.display = 'none';
+    document.getElementById('checkout-step-payment').style.display = 'block';
     document.getElementById('payment-amount').textContent = getCartTotal() + '₽';
 });
 
 function confirmOrder() {
+    sendTelegram('✅ Заказ подтверждён — оплата наличными!');
     cart = [];
     saveCart();
     updateCartUI();
-    closeCheckoutModal();
-    switchTab('home');
-    alert('Спасибо за покупку!');
+    renderCartItems();
+    closeCheckout();
+    switchPage('home');
 }
 
-document.getElementById('payment-confirm-btn').addEventListener('click', confirmOrder);
-
-document.getElementById('payment-cash-btn').addEventListener('click', function() {
-    if (confirm('Оплата наличными при получении. Подтвердить заказ?')) {
-        confirmOrder();
-    }
-});
-
-document.getElementById('checkout-btn').addEventListener('click', openCheckoutModal);
-
-document.getElementById('clear-btn').addEventListener('click', function() {
-    if (cart.length === 0) return;
-    if (confirm('Очистить корзину?')) {
-        cart = [];
-        saveCart();
-        updateCartUI();
-    }
-});
-
-// ===== INIT =====
-updateCartUI();
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => entry.target.classList.add('visible'), i * 80);
-            observer.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.1 });
-
-function observeCards() {
-    document.querySelectorAll('.product-card:not(.visible)').forEach(card => {
-        observer.observe(card);
-    });
+// ===== WELCOME =====
+if (!localStorage.getItem('dormvape_welcomed')) {
+    document.getElementById('welcome-overlay').classList.add('show');
 }
 
-const productsObserver = new MutationObserver(() => observeCards());
-const grid = document.getElementById('products-grid');
-if (grid) productsObserver.observe(grid, { childList: true });
-observeCards();
+document.getElementById('welcome-close').addEventListener('click', function() {
+    if (document.getElementById('welcome-dontshow-cb').checked) {
+        localStorage.setItem('dormvape_welcomed', '1');
+    }
+    document.getElementById('welcome-overlay').classList.remove('show');
+});
 
-// ===== STATS (SECRET) =====
-let logoTaps = 0;
-let logoTapTimer = null;
-let passwordTarget = 'stats';
-
-document.querySelector('.logo-link').addEventListener('click', function(e) {
+// ===== PASSWORD / ADMIN =====
+var logoTaps = 0;
+document.getElementById('logo-btn').addEventListener('click', function() {
     logoTaps++;
-    clearTimeout(logoTapTimer);
-    logoTapTimer = setTimeout(() => { logoTaps = 0; }, 1500);
+    clearTimeout(window.logoTapTimer);
+    window.logoTapTimer = setTimeout(function() { logoTaps = 0; }, 1500);
     if (logoTaps >= 5) {
-        e.preventDefault();
         logoTaps = 0;
-        passwordTarget = 'stats';
-        document.getElementById('password-overlay').classList.add('active');
-        const input = document.getElementById('password-input');
-        input.value = '';
+        document.getElementById('password-input').value = '';
         document.getElementById('password-error').classList.remove('visible');
-        setTimeout(() => input.focus(), 100);
+        document.getElementById('password-modal').classList.add('show');
+        setTimeout(function() { document.getElementById('password-input').focus(); }, 100);
     }
 });
 
 document.getElementById('password-ok').addEventListener('click', function() {
-    const val = document.getElementById('password-input').value;
+    var val = document.getElementById('password-input').value;
     if (val === '1234') {
-        document.getElementById('password-overlay').classList.remove('active');
-        switchTab('stats');
+        document.getElementById('password-modal').classList.remove('show');
+        switchPage('stats');
+        renderStats();
+        renderStock();
     } else {
         document.getElementById('password-error').classList.add('visible');
         document.getElementById('password-input').value = '';
-        document.getElementById('password-input').focus();
     }
-});
-
-document.getElementById('password-cancel').addEventListener('click', function() {
-    document.getElementById('password-overlay').classList.remove('active');
 });
 
 document.getElementById('password-input').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') document.getElementById('password-ok').click();
 });
 
-function stockAddProduct(name, qty) {
-    const existing = stockProducts.find(p => p.name.toLowerCase() === name.toLowerCase());
-    if (existing) {
-        existing.qty += qty;
-    } else {
-        stockProducts.push({ name, qty });
-    }
-    saveStock();
-    renderStock();
-}
-
-function stockRemoveProduct(name) {
-    stockProducts = stockProducts.filter(p => p.name.toLowerCase() !== name.toLowerCase());
-    saveStock();
-    renderStock();
-}
-
-function renderStock() {
-    const list = document.getElementById('stats-stock-list');
-    const empty = document.getElementById('stats-stock-empty');
-    if (!list) return;
-
-    const visibleStock = stockProducts.filter(p => p.qty > 0);
-
-    if (visibleStock.length === 0) {
-        list.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-
-    empty.style.display = 'none';
-    list.innerHTML = stockProducts.map((p, i) => {
-        let qtyClass = 'stock-qty';
-        if (p.qty === 0) qtyClass += ' zero';
-        else if (p.qty <= 5) qtyClass += ' low';
-        return `<div class="stock-item">
-            <span class="stock-item-name">${p.name}</span>
-            <button class="stock-btn minus" data-action="minus" data-idx="${i}">&minus;</button>
-            <span class="${qtyClass}">${p.qty}</span>
-            <button class="stock-btn plus" data-action="plus" data-idx="${i}">+</button>
-            <button class="stock-del" data-idx="${i}">&times;</button>
-        </div>`;
-    }).join('');
-
-    // Event delegation to avoid memory leaks
-    list.onclick = function(e) {
-        const btn = e.target.closest('[data-action]');
-        if (btn) {
-            const idx = parseInt(btn.dataset.idx);
-            if (btn.dataset.action === 'plus') stockProducts[idx].qty++;
-            else if (btn.dataset.action === 'minus' && stockProducts[idx].qty > 0) stockProducts[idx].qty--;
-            saveStock();
-            renderStock();
-            return;
-        }
-        const delBtn = e.target.closest('.stock-del');
-        if (delBtn) {
-            stockRemoveProduct(stockProducts[parseInt(delBtn.dataset.idx)].name);
-        }
-    };
-}
-
+// ===== STATS =====
 function renderStats() {
-    const incomeTbody = document.getElementById('stats-income-tbody');
-    const expenseTbody = document.getElementById('stats-expense-tbody');
-    const incomeEmpty = document.getElementById('stats-income-empty');
-    const expenseEmpty = document.getElementById('stats-expense-empty');
+    var incomeTbody = document.getElementById('stats-income-tbody');
+    var expenseTbody = document.getElementById('stats-expense-tbody');
     if (!incomeTbody || !expenseTbody) return;
 
-    let totalIncome = 0;
-    let totalExpense = 0;
-
-    statsEntries.forEach(e => {
+    var totalIncome = 0, totalExpense = 0;
+    statsEntries.forEach(function(e) {
         if (e.type === 'income') totalIncome += e.amount;
         else totalExpense += e.totalAmount || e.amount || 0;
     });
@@ -1074,138 +556,82 @@ function renderStats() {
     document.getElementById('stats-total-expense').textContent = totalExpense + '₽';
     document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '₽';
 
-    const incomeEntries = statsEntries.map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'income').reverse();
-    const expenseEntries = statsEntries.map((e, i) => ({...e, realIdx: i})).filter(e => e.type === 'expense').reverse();
+    var incomeEntries = statsEntries.map(function(e, i) { return { e: e, i: i }; }).filter(function(x) { return x.e.type === 'income'; }).reverse();
+    var expenseEntries = statsEntries.map(function(e, i) { return { e: e, i: i }; }).filter(function(x) { return x.e.type === 'expense'; }).reverse();
 
-    incomeEmpty.style.display = incomeEntries.length === 0 ? 'block' : 'none';
-    expenseEmpty.style.display = expenseEntries.length === 0 ? 'block' : 'none';
+    document.getElementById('stats-income-empty').style.display = incomeEntries.length === 0 ? 'block' : 'none';
+    document.getElementById('stats-expense-empty').style.display = expenseEntries.length === 0 ? 'block' : 'none';
 
-    incomeTbody.innerHTML = incomeEntries.map(e => `<tr>
-        <td>${e.date}</td>
-        <td>${e.who || '—'}</td>
-        <td>${e.desc || '—'}</td>
-        <td>${e.qty || 1}</td>
-        <td class="amount-income">${e.amount}₽</td>
-        <td><button class="delete-btn" data-idx="${e.realIdx}">&times;</button></td>
-    </tr>`).join('');
-
-    expenseTbody.innerHTML = expenseEntries.map(e => {
-        const rows = (e.items || []).map(it => `<tr>
-            <td>${it.name}</td>
-            <td>x${it.qty}</td>
-            <td>${it.price}₽</td>
-            <td>${it.total}₽</td>
-        </tr>`).join('');
-        return `<div class="expense-card" data-idx="${e.realIdx}">
-            <div class="expense-card-header">
-                <span class="expense-card-date">${e.date}</span>
-                <span class="expense-card-invoice">${e.invoice || 'Без номера'}</span>
-                <span class="expense-card-total">-${e.totalAmount || e.amount || 0}₽</span>
-                <span class="expense-card-chevron">▼</span>
-            </div>
-            <div class="expense-card-body">
-                <div class="expense-card-items">
-                    <table><thead><tr><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead>
-                    <tbody>${rows}</tbody></table>
-                </div>
-                <div class="expense-card-footer">
-                    <button class="delete-btn" data-idx="${e.realIdx}">Удалить</button>
-                </div>
-            </div>
-        </div>`;
+    incomeTbody.innerHTML = incomeEntries.map(function(x) {
+        return '<div class="cart-item" style="margin-bottom:4px">' +
+            '<div class="item-info"><div class="item-name">' + (x.e.desc || '—') + '</div>' +
+            '<div class="item-price">' + x.e.date + ' · ' + (x.e.who || '—') + ' · x' + (x.e.qty || 1) + '</div></div>' +
+            '<div style="font-weight:600;color:#4caf50">+' + x.e.amount + '₽</div>' +
+            '<button class="remove-item" onclick="statsDelete(' + x.i + ')">✕</button></div>';
     }).join('');
 
-    // Event delegation for delete buttons (income + expense)
-    const wrap = document.getElementById('stats-income-wrap');
-    if (wrap) {
-        wrap.onclick = function(e) {
-            const btn = e.target.closest('.delete-btn');
-            if (btn) {
-                e.stopPropagation();
-                statsEntries.splice(parseInt(btn.dataset.idx), 1);
-                saveStats();
-                renderStats();
-                return;
-            }
-            const header = e.target.closest('.expense-card-header');
-            if (header) {
-                header.parentElement.classList.toggle('open');
-            }
-        };
-    }
+    expenseTbody.innerHTML = expenseEntries.map(function(x) {
+        return '<div class="cart-item" style="margin-bottom:4px;flex-wrap:wrap">' +
+            '<div class="item-info"><div class="item-name">Поставка ' + (x.e.invoice || 'б/н') + '</div>' +
+            '<div class="item-price">' + x.e.date + '</div></div>' +
+            '<div style="font-weight:600;color:#e74c3c">-' + (x.e.totalAmount || x.e.amount || 0) + '₽</div>' +
+            '<button class="remove-item" onclick="event.stopPropagation();statsDelete(' + x.i + ')">✕</button>' +
+            '<div style="width:100%;font-size:12px;color:#666;padding:4px;display:none">' +
+            ((x.e.items || []).map(function(it) { return it.name + ' x' + it.qty + ' = ' + it.total + '₽'; }).join('<br>')) + '</div></div>';
+    }).join('');
 }
 
-// ===== STATS FILTER =====
-document.querySelectorAll('.stats-filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.stats-filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        const f = this.dataset.statsFilter;
-        document.getElementById('stats-income-wrap').style.display = f === 'income' ? 'block' : 'none';
-        document.getElementById('stats-expense-wrap').style.display = f === 'expense' ? 'block' : 'none';
-        document.getElementById('stats-stock-wrap').style.display = f === 'stock' ? 'block' : 'none';
-        document.getElementById('stats-income-form').style.display = f === 'income' ? 'block' : 'none';
-        document.getElementById('stats-expense-form').style.display = f === 'expense' ? 'block' : 'none';
-        document.getElementById('stats-form-header').style.display = f === 'stock' ? 'none' : 'block';
-        const headers = { income: 'Добавить доход', expense: 'Добавить поставку' };
-        document.getElementById('stats-form-header').querySelector('h3').textContent = headers[f] || '';
-        if (f === 'stock') renderStock();
-    });
-});
-
-// ===== INCOME FORM =====
-document.getElementById('stats-income-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById('stats-income-amount').value);
-    const who = document.getElementById('stats-income-who').value.trim();
-    const desc = document.getElementById('stats-income-desc').value.trim();
-    const qty = parseInt(document.getElementById('stats-income-qty').value) || 1;
-    if (!amount || amount <= 0) return;
-
-    const now = new Date();
-    const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-    statsEntries.push({ type: 'income', amount, who, desc, qty, date });
+function statsDelete(idx) {
+    statsEntries.splice(idx, 1);
     saveStats();
     renderStats();
+}
 
+document.getElementById('stats-income-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var amount = parseFloat(document.getElementById('stats-income-amount').value);
+    var who = document.getElementById('stats-income-who').value.trim();
+    var desc = document.getElementById('stats-income-desc').value.trim();
+    var qty = parseInt(document.getElementById('stats-income-qty').value) || 1;
+    if (!amount || amount <= 0) return;
+    var now = new Date();
+    var date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
+    statsEntries.push({ type: 'income', amount: amount, who: who, desc: desc, qty: qty, date: date });
+    saveStats();
+    renderStats();
     if (desc) {
-        const match = stockProducts.find(p => p.name.toLowerCase() === desc.toLowerCase());
-        if (match) {
-            match.qty = Math.max(0, match.qty - qty);
-            saveStock();
-            renderStock();
-        }
+        var match = stockProducts.find(function(p) { return p.name.toLowerCase() === desc.toLowerCase(); });
+        if (match) { match.qty = Math.max(0, match.qty - qty); saveStock(); renderStock(); }
     }
-
     document.getElementById('stats-income-amount').value = '';
     document.getElementById('stats-income-who').value = '';
     document.getElementById('stats-income-desc').value = '';
     document.getElementById('stats-income-qty').value = '1';
 });
 
-// ===== DELIVERY ITEM ROWS =====
+// ===== DELIVERY ITEMS =====
 function calcItemTotal(row) {
-    const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
-    const price = parseFloat(row.querySelector('.di-price').value) || 0;
+    var qty = parseFloat(row.querySelector('.di-qty').value) || 0;
+    var price = parseFloat(row.querySelector('.di-price').value) || 0;
     row.querySelector('.di-total').textContent = (qty * price) + '₽';
     calcDeliveryTotal();
 }
 
 function calcDeliveryTotal() {
-    let sum = 0;
-    document.querySelectorAll('.delivery-item').forEach(row => {
-        const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
-        const price = parseFloat(row.querySelector('.di-price').value) || 0;
+    var sum = 0;
+    document.querySelectorAll('.delivery-item').forEach(function(row) {
+        var qty = parseFloat(row.querySelector('.di-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.di-price').value) || 0;
         sum += qty * price;
     });
     document.getElementById('delivery-total').textContent = sum + '₽';
 }
 
 function addDeliveryItem() {
-    const container = document.getElementById('delivery-items');
-    const tmpl = container.querySelector('.delivery-item');
-    const clone = tmpl.cloneNode(true);
-    clone.querySelectorAll('input').forEach(i => i.value = '');
+    var container = document.getElementById('delivery-items');
+    var tmpl = container.querySelector('.delivery-item');
+    var clone = tmpl.cloneNode(true);
+    clone.querySelectorAll('input').forEach(function(i) { i.value = ''; });
     clone.querySelector('.di-total').textContent = '0₽';
     container.appendChild(clone);
     bindItemEvents(clone);
@@ -1215,138 +641,140 @@ function bindItemEvents(row) {
     row.querySelector('.di-qty').addEventListener('input', function() { calcItemTotal(row); });
     row.querySelector('.di-price').addEventListener('input', function() { calcItemTotal(row); });
     row.querySelector('.di-remove').addEventListener('click', function() {
-        if (document.querySelectorAll('.delivery-item').length > 1) {
-            row.remove();
-            calcDeliveryTotal();
-        }
+        if (document.querySelectorAll('.delivery-item').length > 1) { row.remove(); calcDeliveryTotal(); }
     });
 }
 
 document.getElementById('di-add-btn').addEventListener('click', addDeliveryItem);
-bindItemEvents(document.querySelector('.delivery-item'));
+var firstItem = document.querySelector('.delivery-item');
+if (firstItem) bindItemEvents(firstItem);
 
-// ===== EXPENSE FORM =====
 document.getElementById('stats-expense-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const invoice = document.getElementById('stats-invoice').value.trim();
-    const items = [];
-    let totalAmount = 0;
-
-    document.querySelectorAll('.delivery-item').forEach(row => {
-        const name = row.querySelector('.di-name').value.trim();
-        const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
-        const price = parseFloat(row.querySelector('.di-price').value) || 0;
-        const total = qty * price;
-        if (name && qty > 0 && price > 0) {
-            items.push({ name, qty, price, total });
-            totalAmount += total;
-        }
+    var invoice = document.getElementById('stats-invoice').value.trim();
+    var items = [];
+    var totalAmount = 0;
+    document.querySelectorAll('.delivery-item').forEach(function(row) {
+        var name = row.querySelector('.di-name').value.trim();
+        var qty = parseFloat(row.querySelector('.di-qty').value) || 0;
+        var price = parseFloat(row.querySelector('.di-price').value) || 0;
+        var total = qty * price;
+        if (name && qty > 0 && price > 0) { items.push({ name: name, qty: qty, price: price, total: total }); totalAmount += total; }
     });
-
     if (items.length === 0) return;
-
-    const now = new Date();
-    const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-    statsEntries.push({ type: 'expense', invoice, items, totalAmount, date });
+    var now = new Date();
+    var date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
+    statsEntries.push({ type: 'expense', invoice: invoice, items: items, totalAmount: totalAmount, date: date });
     saveStats();
     renderStats();
-
-    items.forEach(it => stockAddProduct(it.name, it.qty));
-
+    items.forEach(function(it) {
+        var existing = stockProducts.find(function(p) { return p.name.toLowerCase() === it.name.toLowerCase(); });
+        if (existing) { existing.qty += it.qty; } else { stockProducts.push({ name: it.name, qty: it.qty }); }
+    });
+    saveStock();
+    renderStock();
     this.reset();
-    document.getElementById('delivery-items').innerHTML = `<div class="delivery-item">
-        <input type="text" placeholder="Название" class="input di-name" required>
-        <input type="number" placeholder="Кол-во" class="input di-qty" min="1" required>
-        <input type="number" placeholder="Цена за шт." class="input di-price" min="0" step="0.01" required>
-        <span class="di-total">0₽</span>
-        <button type="button" class="di-remove">&times;</button>
-    </div>`;
-    bindItemEvents(document.querySelector('.delivery-item'));
+    document.getElementById('delivery-items').innerHTML = '<div class="delivery-item">' +
+        '<input type="text" placeholder="Название" class="di-name checkout-input" required>' +
+        '<input type="number" placeholder="Кол-во" class="di-qty checkout-input" min="1" required>' +
+        '<input type="number" placeholder="Цена" class="di-price checkout-input" min="0" step="0.01" required>' +
+        '<span class="di-total">0₽</span>' +
+        '<button type="button" class="di-remove">✕</button></div>';
+    var newFirst = document.querySelector('.delivery-item');
+    if (newFirst) bindItemEvents(newFirst);
     document.getElementById('delivery-total').textContent = '0₽';
 });
 
-renderStats();
-renderStock();
+// ===== STOCK =====
+function renderStock() {
+    var list = document.getElementById('stats-stock-list');
+    var empty = document.getElementById('stats-stock-empty');
+    if (!list) return;
+    var visible = stockProducts.filter(function(p) { return p.qty > 0; });
+    if (visible.length === 0) { list.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    list.innerHTML = stockProducts.map(function(p, i) {
+        var qtyClass = 'stock-qty';
+        if (p.qty === 0) qtyClass += ' zero';
+        else if (p.qty <= 5) qtyClass += ' low';
+        return '<div class="stock-item"><span class="stock-item-name">' + p.name + '</span>' +
+            '<button class="stock-btn" onclick="stockQty(' + i + ',-1)">−</button>' +
+            '<span class="' + qtyClass + '">' + p.qty + '</span>' +
+            '<button class="stock-btn" onclick="stockQty(' + i + ',1)">+</button>' +
+            '<button class="stock-del" onclick="stockRemove(' + i + ')">✕</button></div>';
+    }).join('');
+}
+
+function stockAdd() {
+    var name = document.getElementById('stock-product-name').value.trim();
+    var qty = parseInt(document.getElementById('stock-product-qty').value) || 0;
+    if (!name && qty < 0) return;
+    var existing = stockProducts.find(function(p) { return p.name.toLowerCase() === name.toLowerCase(); });
+    if (existing) { existing.qty += qty; } else { stockProducts.push({ name: name, qty: qty }); }
+    saveStock();
+    renderStock();
+    document.getElementById('stock-product-name').value = '';
+    document.getElementById('stock-product-qty').value = '';
+}
+
+function stockQty(idx, delta) {
+    if (!stockProducts[idx]) return;
+    stockProducts[idx].qty = Math.max(0, stockProducts[idx].qty + delta);
+    saveStock();
+    renderStock();
+}
+
+function stockRemove(idx) {
+    if (!stockProducts[idx]) return;
+    stockProducts = stockProducts.filter(function(_, i) { return i !== idx; });
+    saveStock();
+    renderStock();
+}
+
+// ===== STATS FILTER =====
+document.querySelectorAll('.stats-filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.stats-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        var t = this.dataset.tab;
+        document.getElementById('stats-income-form').style.display = t === 'income' ? '' : 'none';
+        document.getElementById('stats-expense-form').style.display = t === 'expense' ? '' : 'none';
+        document.getElementById('stats-stock-form').style.display = t === 'stock' ? '' : 'none';
+        document.getElementById('stats-income-wrap').style.display = t === 'income' ? '' : 'none';
+        document.getElementById('stats-expense-wrap').style.display = t === 'expense' ? '' : 'none';
+    });
+});
 
 // ===== EXPORT / IMPORT =====
-document.getElementById('stats-export-btn').addEventListener('click', function() {
-    const data = {
-        stats: statsEntries,
-        stock: stockProducts,
-        products: customProducts
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+function exportStats() {
+    var data = { stats: statsEntries, stock: stockProducts, products: customProducts };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = url;
     a.download = 'dormvape-stats.json';
     a.click();
     URL.revokeObjectURL(url);
-});
-
-document.getElementById('stats-import-btn').addEventListener('click', function() {
-    document.getElementById('stats-import-file').click();
-});
+}
 
 document.getElementById('stats-import-file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+    var file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
+    var reader = new FileReader();
     reader.onload = function(ev) {
         try {
-            const data = JSON.parse(ev.target.result);
+            var data = JSON.parse(ev.target.result);
             if (data.stats) { statsEntries = data.stats; saveStats(); }
             if (data.stock) { stockProducts = data.stock; saveStock(); }
             if (data.products) { customProducts = data.products; saveCustomProducts(); }
             renderStats();
             renderStock();
-            alert('Данные загружены!');
-        } catch(err) {
-            alert('Ошибка: файл повреждён');
-        }
+        } catch(err) { alert('Ошибка: файл повреждён'); }
     };
     reader.readAsText(file);
     this.value = '';
 });
 
-// ===== STOCK ADD =====
-document.getElementById('stock-add-btn').addEventListener('click', function() {
-    const name = document.getElementById('stock-product-name').value.trim();
-    const qty = parseInt(document.getElementById('stock-product-qty').value) || 0;
-    if (!name || qty < 0) return;
-    stockAddProduct(name, qty);
-    document.getElementById('stock-product-name').value = '';
-    document.getElementById('stock-product-qty').value = '';
-});
-
-// ===== PARALLAX ORBS =====
-const orb1 = document.querySelector('.orb-1');
-const orb2 = document.querySelector('.orb-2');
-const orb3 = document.querySelector('.orb-3');
-
-let orbTicking = false;
-window.addEventListener('scroll', function() {
-    if (!orbTicking) {
-        requestAnimationFrame(function() {
-            const y = window.scrollY;
-            if (orb1) orb1.style.transform = 'translate(' + (-y * 0.03) + 'px, ' + (y * 0.08) + 'px)';
-            if (orb2) orb2.style.transform = 'translate(' + (y * 0.05) + 'px, ' + (-y * 0.04) + 'px)';
-            if (orb3) orb3.style.transform = 'translate(' + (-y * 0.02) + 'px, ' + (y * 0.06) + 'px)';
-            orbTicking = false;
-        });
-        orbTicking = true;
-    }
-}, { passive: true });
-
-// ===== WELCOME MODAL =====
-if (!localStorage.getItem('dormvape_welcomed')) {
-    document.getElementById('welcome-overlay').classList.add('active');
-}
-
-document.getElementById('welcome-close').addEventListener('click', function() {
-    if (document.getElementById('welcome-dontshow-cb').checked) {
-        localStorage.setItem('dormvape_welcomed', '1');
-    }
-    document.getElementById('welcome-overlay').classList.remove('active');
-    switchTab('catalog');
-});
+// ===== INIT =====
+updateCartUI();
+renderProducts('all');

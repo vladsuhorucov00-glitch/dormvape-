@@ -2,498 +2,330 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DormVape</title>
     <link rel="icon" href="photo_5375347215754271125_x.jpg">
-    <link rel="stylesheet" href="styles.css?v=1">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<!-- WELCOME MODAL -->
-<div class="welcome-overlay" id="welcome-overlay" style="display:none">
-    <div class="welcome-modal">
-        <div class="welcome-logo">💨</div>
-        <h2>DormVape</h2>
-        <p class="welcome-sub">Вейп-шоп прямо в твоём общежитии</p>
+    <div class="bg-effects"></div>
 
-        <div class="welcome-features">
-            <div class="welcome-feature">
-                <div class="welcome-feature-icon">⚡</div>
-                <div class="welcome-feature-text">
-                    <strong>Быстрая доставка</strong>
-                    <span>Привезём прямо в общагу или в Титаник за минуты</span>
+    <!-- WELCOME MODAL -->
+    <div class="modal-overlay" id="welcome-overlay">
+        <div class="modal welcome-modal glass">
+            <h2>DormVape</h2>
+            <p class="welcome-sub">Вейп-шоп прямо в твоём общежитии</p>
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <span class="wf-icon">⚡</span>
+                    <div><strong>Быстрая доставка</strong><span>Привезём в общагу или Титаник за минуты</span></div>
+                </div>
+                <div class="welcome-feature">
+                    <span class="wf-icon">💰</span>
+                    <div><strong>Лучшие цены</strong><span>Жидкости от 450₽, испарители от 300₽</span></div>
+                </div>
+                <div class="welcome-feature">
+                    <span class="wf-icon">🆓</span>
+                    <div><strong>Бесплатная доставка</strong><span>По общежитию и в Титаник — бесплатно</span></div>
                 </div>
             </div>
-            <div class="welcome-feature">
-                <div class="welcome-feature-icon">💰</div>
-                <div class="welcome-feature-text">
-                    <strong>Лучшие цены</strong>
-                    <span>Жидкости от 450₽, испарители от 300₽</span>
-                </div>
-            </div>
-            <div class="welcome-feature">
-                <div class="welcome-feature-icon">🆓</div>
-                <div class="welcome-feature-text">
-                    <strong>Бесплатная доставка</strong>
-                    <span>По общежитию и в Титаник — бесплатно</span>
-                </div>
-            </div>
-            <div class="welcome-feature">
-                <div class="welcome-feature-icon">🛡</div>
-                <div class="welcome-feature-text">
-                    <strong>Оригинал</strong>
-                    <span>Только оригинальные жидкости и устройства</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="welcome-info">
-            <span>📍 п. Майский, ул. Садовая, 12Б, к.410а</span>
-            <span>Telegram: <a href="tg://resolve?domain=HIFONER" target="_blank">@HIFONER</a></span>
-        </div>
-
-        <div class="welcome-dontshow">
-            <input type="checkbox" id="welcome-dontshow-cb">
-            <label for="welcome-dontshow-cb">Больше не показывать</label>
-        </div>
-        <button class="welcome-btn" id="welcome-close">Перейти в каталог →</button>
-    </div>
-</div>
-
-<!-- BACKGROUND ORBS -->
-<div class="orb-wrap">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
-
-<!-- HEADER -->
-<header>
-    <div class="container header-inner">
-        <a href="#" class="logo-link" data-tab="home">
-            <img src="photo_5375347215754271125_x.jpg" alt="DormVape" class="logo-img">
-            <div class="logo">Dorm<span>Vape</span></div>
-        </a>
-        <nav class="top-nav">
-            <a href="tg://resolve?domain=HIFONER" target="_blank" class="tg-link">✈️ ТГ-канал</a>
-        </nav>
-    </div>
-</header>
-
-<!-- TAB: ГЛАВНАЯ -->
-<div class="tab-page active" id="tab-home">
-    <section class="banner">
-        <div class="container">
-            <h1>Добро пожаловать в <span>DormVape</span></h1>
-            <p>Только качественная продукция по лучшим ценам</p>
-            <a href="#" class="btn" data-tab="catalog">Перейти к покупкам</a>
-            <br>
-            <a href="https://www.tinkoff.ru/rm/r_EpcBFhUDvp.NRXhBLjGFZ/L227a13721" target="_blank" class="btn-payment">💳 Оплатить через СБП</a>
-            <div class="promo-badges">
-                <div class="promo-badge">
-                    <div class="percent">-5%</div>
-                    <div class="label">На первую покупку</div>
-                </div>
-                <div class="promo-badge">
-                    <div class="percent">Дополнительно</div>
-                    <div class="label">Скидка на заказ различной продукции</div>
-                </div>
-                <div class="promo-badge">
-                    <div class="percent">Бесплатно</div>
-                    <div class="label">Доставка по общаге и в Титаник</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- MARQUEE -->
-    <div class="marquee">
-        <div class="marquee-track">
-            <span>-5% на первую покупку</span>
-            <span class="marquee-dot">✦</span>
-            <span>Бесплатная доставка по общаге и в Титаник</span>
-            <span class="marquee-dot">✦</span>
-            <span>Жидкости от 450₽</span>
-            <span class="marquee-dot">✦</span>
-            <span>Круглосуточно</span>
-            <span class="marquee-dot">✦</span>
-            <span>Оплата СБП / наличные</span>
-            <span class="marquee-dot">✦</span>
-            <span>-5% на первую покупку</span>
-            <span class="marquee-dot">✦</span>
-            <span>Бесплатная доставка по общаге и в Титаник</span>
-            <span class="marquee-dot">✦</span>
-            <span>Жидкости от 450₽</span>
-            <span class="marquee-dot">✦</span>
-            <span>Круглосуточно</span>
-            <span class="marquee-dot">✦</span>
-            <span>Оплата СБП / наличные</span>
-            <span class="marquee-dot">✦</span>
+            <label class="welcome-dontshow">
+                <input type="checkbox" id="welcome-dontshow-cb"> Больше не показывать
+            </label>
+            <button class="btn" id="welcome-close">Перейти в каталог →</button>
         </div>
     </div>
 
-    <!-- КАТЕГОРИИ -->
-    <section>
-        <div class="container">
-            <h2 class="section-title">Категории</h2>
-            <div class="categories">
-                <div class="category-card" data-category="liquid" tabindex="0">
-                    <div class="icon">🧪</div>
-                    <h3>Жидкости для вейпов</h3>
-                    <p>Популярные бренды и различные вкусы.</p>
-                </div>
-                <div class="category-card" data-category="coil" tabindex="0">
-                    <div class="icon">⚙️</div>
-                    <h3>Испарители и картриджи</h3>
-                    <p>Оригинальные испарители для разных моделей.</p>
-                </div>
-                <div class="category-card" data-category="device" tabindex="0">
-                    <div class="icon">💨</div>
-                    <h3>Поды и однаразки</h3>
-                    <p>Закажи через Telegram: @HIFONER / @senyyxx</p>
+    <!-- HEADER -->
+    <header class="glass">
+        <div class="logo" id="logo-btn">
+            <img src="photo_5375347215754271125_x.jpg" alt="DormVape" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="logo-placeholder">DV</div>
+        </div>
+        <div class="header-right">
+            <button class="nav-btn active" data-page="home">Главная</button>
+            <button class="nav-btn" data-page="catalog">Каталог</button>
+            <button class="nav-btn" data-page="cart">
+                Корзина
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- HOME -->
+        <section id="page-home" class="page active">
+            <div class="hero">
+                <div class="hero-content glass">
+                    <h1>DormVape</h1>
+                    <p>Вкусный пар без лишних вопросов</p>
+                    <button class="btn" onclick="switchPage('catalog')">Перейти в каталог</button>
+                    <a href="https://www.tinkoff.ru/rm/r_EpcBFhUDvp.NRXhBLjGFZ/L227a13721" target="_blank" class="btn btn-sbp">💳 Оплатить через СБП</a>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- ДОСТАВКА -->
-    <section>
-        <div class="container">
-            <h2 class="section-title">Доставка и <span>оплата</span></h2>
-            <div class="delivery-grid">
-                <a href="#" class="delivery-card delivery-link" data-tab="catalog">
-                    <div class="delivery-icon">🚗</div>
-                    <h3>Доставка</h3>
-                    <p>Бесплатная доставка по общежитию и в Титаник. Доставка по городу в течение 1-2 часов.</p>
-                </a>
-                <a href="#" class="delivery-card delivery-link" data-tab="catalog">
-                    <div class="delivery-icon">💰</div>
-                    <h3>Оплата</h3>
-                    <p>Наличные, СБП, перевод на карту.</p>
-                </a>
-                <a href="#" class="delivery-card delivery-link" data-tab="catalog">
-                    <div class="delivery-icon">🔄</div>
-                    <h3>Заказ другой продукции</h3>
-                    <p>Закажите другую продукцию, которой нет в наличии. Напишите нам!</p>
-                </a>
+            <div class="marquee">
+                <div class="marquee-track">
+                    <span>-5% на первую покупку</span><span class="marquee-dot">✦</span>
+                    <span>Бесплатная доставка по общаге и в Титаник</span><span class="marquee-dot">✦</span>
+                    <span>Жидкости от 450₽</span><span class="marquee-dot">✦</span>
+                    <span>Оплата СБП / наличные</span><span class="marquee-dot">✦</span>
+                    <span>-5% на первую покупку</span><span class="marquee-dot">✦</span>
+                    <span>Бесплатная доставка по общаге и в Титаник</span><span class="marquee-dot">✦</span>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <!-- КОНТАКТЫ -->
-    <section>
-        <div class="container">
-            <h2 class="section-title">Контакты</h2>
-            <div class="contacts-wrapper">
-                <div class="contact-info">
-                    <div class="info-item">
-                        <div class="icon">📍</div>
-                        <div class="text">
-                            <strong>Адрес</strong>
-                            п. Майский, ул. Садовая, 12Б, к.410а
+            <div class="section">
+                <h2>Категории</h2>
+                <div class="category-list glass">
+                    <button class="category-item" onclick="switchPage('catalog'); setTimeout(() => filterProducts('liquid'), 50)">
+                        <span class="category-icon">🧪</span>
+                        <span>Жидкости для вейпов</span>
+                    </button>
+                    <button class="category-item" onclick="switchPage('catalog'); setTimeout(() => filterProducts('coil'), 50)">
+                        <span class="category-icon">⚙️</span>
+                        <span>Испарители и картриджи</span>
+                    </button>
+                    <button class="category-item" onclick="switchPage('catalog'); setTimeout(() => filterProducts('device'), 50)">
+                        <span class="category-icon">💨</span>
+                        <span>Поды и одноразки</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Доставка и оплата</h2>
+                <div class="info-grid">
+                    <div class="info-card glass">
+                        <h3>🚚 Доставка</h3>
+                        <p>Бесплатная доставка по общежитию и в Титаник. По городу — 1-2 часа.</p>
+                    </div>
+                    <div class="info-card glass">
+                        <h3>💳 Оплата</h3>
+                        <p>Наличные, СБП, перевод на карту.</p>
+                    </div>
+                    <div class="info-card glass">
+                        <h3>🔄 Заказ другой продукции</h3>
+                        <p>Нет в наличии? Напиши нам — закажем.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Контакты</h2>
+                <div class="contacts-list">
+                    <div class="contact-item glass">
+                        <span class="contact-role">📍 п. Майский, ул. Садовая, 12Б, к.410а</span>
+                    </div>
+                    <a href="tel:+79524353929" class="contact-item glass">
+                        <span class="contact-name">📞 8-952-435-39-29</span>
+                    </a>
+                    <a href="tel:+79524351892" class="contact-item glass">
+                        <span class="contact-name">📞 8-952-435-18-92</span>
+                    </a>
+                    <a href="tg://resolve?domain=HIFONER" class="contact-item glass">
+                        <span class="contact-name">✈️ @HIFONER</span>
+                    </a>
+                    <a href="tg://resolve?domain=senyyxx" class="contact-item glass">
+                        <span class="contact-name">✈️ @senyyxx</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATALOG -->
+        <section id="page-catalog" class="page">
+            <div class="section">
+                <h2>Каталог</h2>
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Все</button>
+                    <button class="filter-btn" data-filter="liquid">Жидкости</button>
+                    <button class="filter-btn" data-filter="coil">Испарители и картриджи</button>
+                    <button class="filter-btn" data-filter="device">Поды и одноразки</button>
+                </div>
+                <div class="products" id="products-grid"></div>
+            </div>
+        </section>
+
+        <!-- CART -->
+        <section id="page-cart" class="page">
+            <div class="section">
+                <h2>Корзина</h2>
+                <div class="cart-section">
+                    <div class="cart-items" id="cart-items"></div>
+                    <div class="cart-total glass" id="cart-footer">
+                        <div class="total-row">
+                            <span>Итого:</span>
+                            <span class="total-price" id="cart-total">0 ₽</span>
                         </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="icon">📞</div>
-                        <div class="text">
-                            <strong>Телефон</strong>
-                            <a href="tel:+79524353929" class="phone-link">8-952-435-39-29</a><br>
-                            <a href="tel:+79524351892" class="phone-link">8-952-435-18-92</a>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="icon">🕐</div>
-                        <div class="text">
-                            <strong>Часы работы</strong>
-                            Круглосуточно
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="icon">✉️</div>
-                        <div class="text">
-                            <strong>Telegram</strong>
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
-                                <a href="tg://resolve?domain=HIFONER" target="_blank" class="tg-btn">✈️ @HIFONER</a>
-                                <a href="tg://resolve?domain=senyyxx" target="_blank" class="tg-btn">✈️ @senyyxx</a>
-                            </div>
-                        </div>
+                        <button class="btn" onclick="openCheckout()">Оформить заказ</button>
+                        <button class="btn btn-outline" onclick="clearCart()">Очистить корзину</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-</div>
+        </section>
 
-<!-- TAB: КАТАЛОГ -->
-<div class="tab-page" id="tab-catalog">
-    <section class="catalog-section">
-        <div class="container">
-            <div class="filter-bar">
-                <button class="filter-btn active" data-filter="all">Все</button>
-                <button class="filter-btn" data-filter="liquid">Жидкости</button>
-                <button class="filter-btn" data-filter="coil">Испарители и картриджи</button>
-                <button class="filter-btn" data-filter="device">Поды и однаразки</button>
+    </main>
+
+    <!-- PRODUCT MODAL -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal glass">
+            <button class="modal-close" onclick="closeProductModal()">✕</button>
+            <div class="carousel" id="modal-carousel">
+                <div class="carousel-track" id="modal-carousel-track"></div>
+                <button class="carousel-btn carousel-prev" onclick="modalGoTo(-1)">‹</button>
+                <button class="carousel-btn carousel-next" onclick="modalGoTo(1)">›</button>
+                <div class="carousel-dots" id="modal-carousel-dots"></div>
             </div>
-            <div class="products" id="products-grid"></div>
-        </div>
-    </section>
-</div>
-
-<!-- TAB: КОРЗИНА -->
-<div class="tab-page" id="tab-cart">
-    <section>
-        <div class="container">
-            <h2 class="section-title">Корзина</h2>
-            <div class="cart-section" id="cart-section">
-                <div class="cart-items" id="cart-items">
-                    <div class="cart-empty">
-                        <div class="cart-empty-icon">🛒</div>
-                        Корзина пуста
-                        <br>
-                        <a href="#" class="cart-empty-link" data-tab="catalog">Перейти в каталог</a>
-                    </div>
+            <div class="modal-info">
+                <h3 id="product-modal-name"></h3>
+                <div class="modal-details" id="product-modal-desc"></div>
+                <div id="product-modal-flavors" class="flavor-section"></div>
+                <div class="modal-price-row">
+                    <span class="modal-price" id="product-modal-price"></span>
+                    <span class="modal-old-price" id="product-modal-old-price"></span>
                 </div>
-                <div class="cart-total" id="cart-total-row">
-                    <span>Итого:</span>
-                    <span id="cart-total">0₽</span>
-                </div>
-                <div class="cart-actions">
-                    <button class="checkout-btn" id="checkout-btn">Оформить заказ</button>
-                    <button class="clear-btn" id="clear-btn">Очистить</button>
-                </div>
+                <button class="btn modal-add-btn" id="product-modal-add">Добавить в корзину</button>
             </div>
-        </div>
-    </section>
-</div>
-
-<!-- PASSWORD MODAL -->
-<div class="password-overlay" id="password-overlay" style="display:none">
-    <div class="password-modal">
-        <h3>Введите пароль</h3>
-        <input type="password" id="password-input" placeholder="****" maxlength="8">
-        <div class="password-error" id="password-error">Неверный пароль</div>
-        <div class="password-actions">
-            <button class="password-btn password-cancel" id="password-cancel">Отмена</button>
-            <button class="password-btn password-ok" id="password-ok">Войти</button>
         </div>
     </div>
-</div>
 
-<!-- TAB: СТАТИСТИКА (СЕКРЕТНАЯ) -->
-<div class="tab-page" id="tab-stats">
-    <section>
-        <div class="container">
-            <h2 class="section-title">Статистика продаж</h2>
+    <!-- CHECKOUT MODAL -->
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal glass">
+            <button class="modal-close" onclick="closeCheckout()">✕</button>
+            <div id="checkout-step-form">
+                <h3>Оформление заказа</h3>
+                <div class="checkout-summary" id="modal-summary"></div>
+                <form id="checkout-form">
+                    <input type="text" id="checkout-name" placeholder="Имя *" required class="checkout-input">
+                    <input type="tel" id="checkout-phone" placeholder="Телефон *" required class="checkout-input">
+                    <input type="text" id="checkout-telegram" placeholder="Telegram @username" class="checkout-input">
+                    <input type="text" id="checkout-address" placeholder="Адрес *" required class="checkout-input">
+                    <input type="text" id="checkout-flat" placeholder="Квартира / Подъезд" class="checkout-input">
+                    <textarea id="checkout-comment" placeholder="Комментарий к заказу" class="checkout-input checkout-textarea"></textarea>
+                    <label class="checkout-save">
+                        <input type="checkbox" id="checkout-save" checked> Сохранить данные
+                    </label>
+                    <button type="submit" class="btn checkout-submit">Перейти к оплате</button>
+                </form>
+            </div>
+            <div id="checkout-step-payment" style="display:none">
+                <h3>Оплата заказа</h3>
+                <p class="payment-sub">Заказ оформлен! Теперь оплатите</p>
+                <div class="payment-amount" id="payment-amount"></div>
+                <a href="https://www.tinkoff.ru/rm/r_EpcBFhUDvp.NRXhBLjGFZ/L227a13721" target="_blank" class="btn">💳 Оплатить через СБП</a>
+                <div class="payment-divider"><span>или</span></div>
+                <button class="btn btn-outline" onclick="confirmOrder()">💵 Наличными при получении</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- PASSWORD MODAL -->
+    <div class="modal-overlay" id="password-modal">
+        <div class="modal modal-sm glass">
+            <h3>Введите пароль</h3>
+            <input type="password" id="password-input" placeholder="****" maxlength="8" class="checkout-input">
+            <div class="password-error" id="password-error">Неверный пароль</div>
+            <div class="password-actions">
+                <button class="btn btn-outline" onclick="document.getElementById('password-modal').classList.remove('show')">Отмена</button>
+                <button class="btn" id="password-ok">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS PAGE -->
+    <section id="page-stats" class="page">
+        <div class="section">
+            <h2>Статистика</h2>
             <div class="stats-summary">
-                <div class="stats-card stats-income">
+                <div class="stats-card glass">
                     <div class="stats-label">Доходы</div>
                     <div class="stats-value" id="stats-total-income">0₽</div>
                 </div>
-                <div class="stats-card stats-expense">
+                <div class="stats-card glass">
                     <div class="stats-label">Расходы</div>
                     <div class="stats-value" id="stats-total-expense">0₽</div>
                 </div>
-                <div class="stats-card stats-profit">
+                <div class="stats-card glass">
                     <div class="stats-label">Прибыль</div>
                     <div class="stats-value" id="stats-total-profit">0₽</div>
                 </div>
             </div>
-
-            <div class="stats-sync-bar">
-                <button class="stats-sync-btn" id="stats-export-btn">📤 Экспорт данных</button>
-                <button class="stats-sync-btn" id="stats-import-btn">📥 Импорт данных</button>
+            <div class="stats-actions">
+                <button class="btn btn-outline" onclick="exportStats()">📤 Экспорт</button>
+                <button class="btn btn-outline" onclick="document.getElementById('stats-import-file').click()">📥 Импорт</button>
                 <input type="file" id="stats-import-file" accept=".json" style="display:none">
             </div>
-
             <div class="stats-form-wrap">
-                <div class="stats-form-header" id="stats-form-header">
-                    <h3>Добавить доход</h3>
+                <div class="stats-filter-bar">
+                    <button class="stats-filter-btn active" data-tab="income">Доходы</button>
+                    <button class="stats-filter-btn" data-tab="expense">Расходы</button>
+                    <button class="stats-filter-btn" data-tab="stock">Остатки</button>
                 </div>
-
-                <form id="stats-income-form" class="stats-form-panel">
-                    <label for="stats-income-amount">Сумма *</label>
-                    <input type="number" id="stats-income-amount" placeholder="0" min="0" required>
-                    <label for="stats-income-who">Кому</label>
-                    <input type="text" id="stats-income-who" placeholder="Имя покупателя">
-                    <label for="stats-income-desc">Что</label>
-                    <input type="text" id="stats-income-desc" placeholder="HSB Mango Ice">
-                    <label for="stats-income-qty">Кол-во</label>
-                    <input type="number" id="stats-income-qty" placeholder="1" min="1" value="1">
-                    <button type="submit" class="stats-add-btn">Добавить доход</button>
+                <form id="stats-income-form" class="stats-form">
+                    <h3>Добавить доход</h3>
+                    <input type="number" id="stats-income-amount" placeholder="Сумма *" class="checkout-input" required>
+                    <input type="text" id="stats-income-who" placeholder="Кому" class="checkout-input">
+                    <input type="text" id="stats-income-desc" placeholder="Что продано" class="checkout-input">
+                    <input type="number" id="stats-income-qty" placeholder="Кол-во" value="1" min="1" class="checkout-input">
+                    <button type="submit" class="btn">Добавить</button>
                 </form>
-
-                <form id="stats-expense-form" class="stats-form-panel" style="display:none">
-                    <label for="stats-invoice">Номер счёта</label>
-                    <input type="text" id="stats-invoice" placeholder="Счёт #1234">
-                    <label>Товары</label>
-                    <div class="delivery-items" id="delivery-items">
+                <form id="stats-expense-form" class="stats-form" style="display:none">
+                    <h3>Добавить поставку</h3>
+                    <input type="text" id="stats-invoice" placeholder="Номер счёта" class="checkout-input">
+                    <div id="delivery-items">
                         <div class="delivery-item">
-                            <input type="text" placeholder="Название" class="di-name" required>
-                            <input type="number" placeholder="Кол-во" class="di-qty" min="1" required>
-                            <input type="number" placeholder="Цена за шт." class="di-price" min="0" step="0.01" required>
+                            <input type="text" placeholder="Название" class="di-name checkout-input" required>
+                            <input type="number" placeholder="Кол-во" class="di-qty checkout-input" min="1" required>
+                            <input type="number" placeholder="Цена" class="di-price checkout-input" min="0" step="0.01" required>
                             <span class="di-total">0₽</span>
-                            <button type="button" class="di-remove">&times;</button>
+                            <button type="button" class="di-remove">✕</button>
                         </div>
                     </div>
-                    <button type="button" class="di-add-btn" id="di-add-btn">+ Добавить товар</button>
+                    <button type="button" class="btn btn-outline" onclick="addDeliveryItem()">+ Добавить товар</button>
                     <div class="delivery-summary">
-                        <span>Итого:</span>
-                        <span class="delivery-total" id="delivery-total">0₽</span>
+                        <span>Итого:</span><span class="delivery-total" id="delivery-total">0₽</span>
                     </div>
-                    <button type="submit" class="stats-add-btn">Добавить поставку</button>
+                    <button type="submit" class="btn">Добавить поставку</button>
                 </form>
-            </div>
-
-            <div class="stats-tables">
-                <div class="stats-filter-bar">
-                    <button class="stats-filter-btn active" data-stats-filter="income">Доходы</button>
-                    <button class="stats-filter-btn" data-stats-filter="expense">Расходы</button>
-                    <button class="stats-filter-btn" data-stats-filter="stock">Остатки</button>
-                </div>
-
-                <div class="stats-table-wrap" id="stats-income-wrap">
-                    <h3>Доходы</h3>
-                    <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>Дата</th>
-                                <th>Кому</th>
-                                <th>Что</th>
-                                <th>Шт</th>
-                                <th>Сумма</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="stats-income-tbody"></tbody>
-                    </table>
-                    <div class="stats-empty" id="stats-income-empty">Нет доходов</div>
-                </div>
-
-                <div class="stats-table-wrap" id="stats-expense-wrap" style="display:none">
-                    <h3>Расходы</h3>
-                    <div class="expense-list" id="stats-expense-tbody"></div>
-                    <div class="stats-empty" id="stats-expense-empty">Нет расходов</div>
-                </div>
-
-                <div class="stats-table-wrap" id="stats-stock-wrap" style="display:none">
+                <div id="stats-stock-form" class="stats-form" style="display:none">
                     <h3>Остатки</h3>
-                    <div class="stock-add-form">
-                        <input type="text" id="stock-product-name" placeholder="Название товара">
-                        <input type="number" id="stock-product-qty" placeholder="Кол-во" min="0">
-                        <button type="button" class="stats-add-btn" id="stock-add-btn">Добавить</button>
+                    <div style="display:flex;gap:8px">
+                        <input type="text" id="stock-product-name" placeholder="Название" class="checkout-input" style="flex:1">
+                        <input type="number" id="stock-product-qty" placeholder="Кол-во" class="checkout-input" style="width:80px" min="0">
+                        <button class="btn" onclick="stockAdd()">+</button>
                     </div>
                     <div class="stock-list" id="stats-stock-list"></div>
-                    <div class="stats-empty" id="stats-stock-empty">Нет товаров</div>
+                    <div class="stats-empty" id="stats-stock-empty" style="display:none">Нет товаров</div>
+                </div>
+            </div>
+            <div class="stats-tables">
+                <div id="stats-income-wrap">
+                    <div class="stats-table-wrap" id="stats-income-tbody"></div>
+                    <div class="stats-empty" id="stats-income-empty">Нет доходов</div>
+                </div>
+                <div id="stats-expense-wrap" style="display:none">
+                    <div id="stats-expense-tbody"></div>
+                    <div class="stats-empty" id="stats-expense-empty">Нет расходов</div>
                 </div>
             </div>
         </div>
     </section>
-</div>
 
-<!-- BOTTOM NAVIGATION -->
-<nav class="bottom-nav">
-    <button class="bottom-tab active" data-tab="home">
-        <div class="bottom-tab-icon">🏠</div>
-        <div class="bottom-tab-label">Главная</div>
-    </button>
-    <button class="bottom-tab" data-tab="catalog">
-        <div class="bottom-tab-icon">📋</div>
-        <div class="bottom-tab-label">Каталог</div>
-    </button>
-    <button class="bottom-tab" data-tab="cart">
-        <div class="bottom-tab-icon cart-tab-icon">
-            🛒
-            <span class="cart-badge-tab" id="cart-badge-tab"></span>
-        </div>
-        <div class="bottom-tab-label">Корзина</div>
-    </button>
-</nav>
+    <!-- CART NOTIFICATION -->
+    <div class="cart-notification" id="cart-notification">Товар добавлен в корзину!</div>
 
-<!-- FOOTER -->
-<footer>
-    <div class="container">
-        <p>&copy; 2026 DormVape. Все права защищены.</p>
+    <!-- FLAVOR PICKER -->
+    <div class="flavor-picker-popup" id="flavor-picker-popup">
+        <div class="flavor-picker-title">Выберите вкус:</div>
+        <div class="flavor-picker-list" id="flavor-picker-list"></div>
     </div>
-</footer>
 
-<!-- PRODUCT DETAIL MODAL -->
-<div class="product-modal-overlay" id="product-modal-overlay">
-    <div class="product-modal">
-        <button class="close-btn" id="product-modal-close">&times;</button>
-        <div class="modal-img-wrap">
-            <div class="carousel modal-carousel" id="modal-carousel">
-                <div class="carousel-track" id="modal-carousel-track"></div>
-                <button class="carousel-arrow left" id="modal-arrow-left">&#8249;</button>
-                <button class="carousel-arrow right" id="modal-arrow-right">&#8250;</button>
-                <div class="carousel-dots" id="modal-carousel-dots"></div>
-            </div>
-        </div>
-        <div class="modal-body">
-            <h3 id="product-modal-name"></h3>
-            <div class="desc" id="product-modal-desc"></div>
-            <div id="product-modal-flavors" class="flavor-section" style="display:none"></div>
-            <div class="modal-price-row">
-                <span class="modal-price" id="product-modal-price"></span>
-                <span class="modal-old-price" id="product-modal-old-price"></span>
-            </div>
-            <button class="modal-add-btn" id="product-modal-add">Добавить в корзину</button>
-        </div>
-    </div>
-</div>
-
-<!-- CHECKOUT MODAL -->
-<div class="modal-overlay" id="checkout-modal">
-    <div class="modal">
-        <div class="checkout-step" id="checkout-step-form">
-            <h3>Оформление заказа</h3>
-            <div class="modal-subtitle">Заполните данные для доставки</div>
-            <div class="modal-order-summary" id="modal-summary"></div>
-            <form id="checkout-form">
-                <label for="checkout-name">Имя *</label>
-                <input type="text" id="checkout-name" placeholder="Ваше имя" required>
-                <label for="checkout-phone">Телефон *</label>
-                <input type="tel" id="checkout-phone" placeholder="+7 (999) 123-45-67" required>
-                <label for="checkout-telegram">Telegram</label>
-                <input type="text" id="checkout-telegram" placeholder="@username">
-                <label for="checkout-address">Адрес *</label>
-                <input type="text" id="checkout-address" placeholder="ул. Садовая, 12Б" required>
-                <label for="checkout-flat">Квартира / Подъезд</label>
-                <input type="text" id="checkout-flat" placeholder="Кв. 5, под. 2">
-                <label for="checkout-comment">Комментарий</label>
-                <textarea id="checkout-comment" placeholder="Пожелания к заказу..."></textarea>
-                <label class="save-data-check">
-                    <input type="checkbox" id="checkout-save" checked>
-                    <span class="save-data-mark">✓</span>
-                    Сохранить данные
-                </label>
-                <button type="submit" class="submit-btn">Перейти к оплате</button>
-            </form>
-        </div>
-        <div class="checkout-step" id="checkout-step-payment" style="display:none">
-            <h3>Оплата заказа</h3>
-            <div class="modal-subtitle">Заказ оформлен! Теперь оплатите</div>
-            <div class="payment-amount" id="payment-amount"></div>
-            <a href="https://www.tinkoff.ru/rm/r_EpcBFhUDvp.NRXhBLjGFZ/L227a13721" target="_blank" class="payment-link-btn" id="payment-link-btn">💳 Оплатить через СБП</a>
-            <div class="payment-divider"><span>или</span></div>
-            <button class="submit-btn payment-cash-btn" id="payment-cash-btn">💵 Оплата наличными при получении</button>
-            <button class="submit-btn" id="payment-confirm-btn" style="display:none">Я оплатил</button>
-        </div>
-        <button class="close-btn" id="modal-close">&times;</button>
-    </div>
-</div>
-
-<!-- CART NOTIFICATION -->
-<div class="cart-notification" id="cart-notification">Товар добавлен в корзину!</div>
-
-<!-- FLAVOR PICKER POPUP -->
-<div class="flavor-picker-popup" id="flavor-picker-popup">
-    <div class="flavor-picker-title">Выберите вкус:</div>
-    <div class="flavor-picker-list" id="flavor-picker-list"></div>
-</div>
-
-<script src="script.js?v=1"></script>
+    <script src="script.js"></script>
 </body>
 </html>
