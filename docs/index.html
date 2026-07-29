@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DormVape</title>
-    <link rel="icon" href="photo_5375347215754271125_x.jpg">
+    <link rel="icon" href="изображения/логотип.jpg">
     <link rel="stylesheet" href="styles.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -13,7 +13,7 @@
 
     <div class="bg-effects"></div>
 
-    <!-- WELCOME MODAL -->
+    <!-- ===== WELCOME MODAL ===== -->
     <div class="modal-overlay" id="welcome-overlay">
         <div class="modal welcome-modal glass">
             <h2>DormVape</h2>
@@ -39,10 +39,10 @@
         </div>
     </div>
 
-    <!-- HEADER -->
+    <!-- ===== HEADER ===== -->
     <header class="glass">
         <div class="logo" id="logo-btn">
-            <img src="photo_5375347215754271125_x.jpg" alt="DormVape" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <img src="изображения/логотип.jpg" alt="DormVape" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="logo-placeholder">DV</div>
         </div>
         <div class="header-right">
@@ -57,7 +57,7 @@
 
     <main>
 
-        <!-- HOME -->
+        <!-- ===== ГЛАВНАЯ ===== -->
         <section id="page-home" class="page active">
             <div class="hero">
                 <div class="hero-content glass">
@@ -68,6 +68,7 @@
                 </div>
             </div>
 
+            <!-- Marquee -->
             <div class="marquee">
                 <div class="marquee-track">
                     <span>-5% на первую покупку</span><span class="marquee-dot">✦</span>
@@ -102,7 +103,7 @@
                 <div class="info-grid">
                     <div class="info-card glass">
                         <h3>🚚 Доставка</h3>
-                        <p>Бесплатная доставка по общежитию и в Титаник. По городу — 1-2 часа.</p>
+                        <p>Бесплатная доставка по общежитию и в Титаник. По горгу — 1-2 часа.</p>
                     </div>
                     <div class="info-card glass">
                         <h3>💳 Оплата</h3>
@@ -137,7 +138,7 @@
             </div>
         </section>
 
-        <!-- CATALOG -->
+        <!-- ===== КАТАЛОГ ===== -->
         <section id="page-catalog" class="page">
             <div class="section">
                 <h2>Каталог</h2>
@@ -151,7 +152,7 @@
             </div>
         </section>
 
-        <!-- CART -->
+        <!-- ===== КОРЗИНА ===== -->
         <section id="page-cart" class="page">
             <div class="section">
                 <h2>Корзина</h2>
@@ -171,7 +172,7 @@
 
     </main>
 
-    <!-- PRODUCT MODAL -->
+    <!-- ===== PRODUCT MODAL ===== -->
     <div class="modal-overlay" id="product-modal">
         <div class="modal glass">
             <button class="modal-close" onclick="closeProductModal()">✕</button>
@@ -194,7 +195,7 @@
         </div>
     </div>
 
-    <!-- CHECKOUT MODAL -->
+    <!-- ===== CHECKOUT MODAL ===== -->
     <div class="modal-overlay" id="checkout-modal">
         <div class="modal glass">
             <button class="modal-close" onclick="closeCheckout()">✕</button>
@@ -225,7 +226,7 @@
         </div>
     </div>
 
-    <!-- PASSWORD MODAL -->
+    <!-- ===== PASSWORD MODAL ===== -->
     <div class="modal-overlay" id="password-modal">
         <div class="modal modal-sm glass">
             <h3>Введите пароль</h3>
@@ -238,7 +239,7 @@
         </div>
     </div>
 
-    <!-- STATS PAGE -->
+    <!-- ===== STATS PAGE ===== -->
     <section id="page-stats" class="page">
         <div class="section">
             <h2>Статистика</h2>
@@ -255,11 +256,6 @@
                     <div class="stats-label">Прибыль</div>
                     <div class="stats-value" id="stats-total-profit">0₽</div>
                 </div>
-            </div>
-            <div class="stats-actions">
-                <button class="btn btn-outline" onclick="exportStats()">📤 Экспорт</button>
-                <button class="btn btn-outline" onclick="document.getElementById('stats-import-file').click()">📥 Импорт</button>
-                <input type="file" id="stats-import-file" accept=".json" style="display:none">
             </div>
             <div class="stats-form-wrap">
                 <div class="stats-filter-bar">
@@ -317,10 +313,10 @@
         </div>
     </section>
 
-    <!-- CART NOTIFICATION -->
+    <!-- ===== CART NOTIFICATION ===== -->
     <div class="cart-notification" id="cart-notification">Товар добавлен в корзину!</div>
 
-    <!-- FLAVOR PICKER -->
+    <!-- ===== FLAVOR PICKER ===== -->
     <div class="flavor-picker-popup" id="flavor-picker-popup">
         <div class="flavor-picker-title">Выберите вкус:</div>
         <div class="flavor-picker-list" id="flavor-picker-list"></div>

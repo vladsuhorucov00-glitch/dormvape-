@@ -32,7 +32,7 @@ body {
     border-radius: 16px;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 header {
     display: flex;
     align-items: center;
@@ -110,7 +110,7 @@ header {
     margin-left: 4px;
 }
 
-/* PAGES */
+/* ===== PAGES ===== */
 .page {
     display: none;
     animation: fadeIn 0.3s ease;
@@ -125,7 +125,7 @@ header {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* HOME */
+/* ===== HOME ===== */
 .hero {
     min-height: 50vh;
     display: flex;
@@ -204,7 +204,7 @@ header {
     letter-spacing: 1px;
 }
 
-/* MARQUEE */
+/* ===== MARQUEE ===== */
 .marquee {
     overflow: hidden;
     padding: 12px 0;
@@ -228,7 +228,7 @@ header {
     100% { transform: translateX(-50%); }
 }
 
-/* CATEGORIES */
+/* ===== CATEGORIES ===== */
 .category-list {
     display: flex;
     flex-direction: column;
@@ -267,7 +267,7 @@ header {
     border-radius: 10px;
 }
 
-/* INFO GRID */
+/* ===== INFO GRID ===== */
 .info-grid {
     display: flex;
     flex-direction: column;
@@ -291,7 +291,7 @@ header {
     line-height: 1.5;
 }
 
-/* CONTACTS */
+/* ===== CONTACTS ===== */
 .contacts-list {
     display: flex;
     flex-direction: column;
@@ -322,7 +322,7 @@ header {
     color: #666;
 }
 
-/* CATALOG */
+/* ===== CATALOG ===== */
 .filters {
     display: flex;
     gap: 8px;
@@ -528,7 +528,7 @@ header {
     font-weight: 500;
 }
 
-/* PRODUCT MODAL */
+/* ===== PRODUCT MODAL ===== */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -563,6 +563,11 @@ header {
 @keyframes slideUp {
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-close {
@@ -687,7 +692,7 @@ header {
     padding: 14px;
 }
 
-/* FLAVOR SECTION */
+/* ===== FLAVOR SECTION ===== */
 .flavor-section {
     margin-bottom: 12px;
 }
@@ -721,7 +726,7 @@ header {
     border-color: rgba(255,255,255,0.2);
 }
 
-/* CART */
+/* ===== CART ===== */
 .cart-empty {
     text-align: center;
     padding: 48px 0;
@@ -825,7 +830,7 @@ header {
     color: #fff;
 }
 
-/* CHECKOUT */
+/* ===== CHECKOUT ===== */
 .checkout-summary {
     font-size: 13px;
     color: #888;
@@ -915,7 +920,7 @@ header {
     background: rgba(255,255,255,0.08);
 }
 
-/* FLAVOR PICKER POPUP */
+/* ===== FLAVOR PICKER POPUP ===== */
 .flavor-picker-popup {
     display: none;
     position: fixed;
@@ -956,7 +961,7 @@ header {
     background: rgba(255,255,255,0.1);
 }
 
-/* WELCOME MODAL */
+/* ===== WELCOME MODAL ===== */
 .welcome-modal {
     text-align: center;
     padding: 40px 24px;
@@ -1025,7 +1030,7 @@ header {
     cursor: pointer;
 }
 
-/* PASSWORD MODAL */
+/* ===== PASSWORD MODAL ===== */
 .password-error {
     color: #e74c3c;
     font-size: 13px;
@@ -1047,7 +1052,7 @@ header {
     flex: 1;
 }
 
-/* STATS */
+/* ===== STATS ===== */
 .stats-summary {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1223,7 +1228,7 @@ header {
     margin-bottom: 16px;
 }
 
-/* CART NOTIFICATION */
+/* ===== CART NOTIFICATION ===== */
 .cart-notification {
     position: fixed;
     bottom: 80px;
@@ -1242,13 +1247,15 @@ header {
     max-width: 90vw;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: none;
 }
 
 .cart-notification.show {
     transform: translateX(-50%) translateY(0);
+    display: block;
 }
 
-/* RESPONSIVE */
+/* ===== RESPONSIVE ===== */
 @media (min-width: 600px) {
     .products { grid-template-columns: repeat(3, 1fr); }
     .info-grid { flex-direction: row; }
