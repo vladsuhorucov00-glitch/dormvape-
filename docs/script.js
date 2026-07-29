@@ -162,8 +162,12 @@ function addToCart(product, flavor) {
 
     const notif = document.getElementById('cart-notification');
     notif.textContent = product.name + (flavor ? ' (' + flavor + ')' : '') + ' — в корзине!';
+    notif.style.display = 'block';
     notif.classList.add('show');
-    setTimeout(() => notif.classList.remove('show'), 2500);
+    setTimeout(() => {
+        notif.classList.remove('show');
+        notif.style.display = 'none';
+    }, 2500);
 }
 
 function removeFromCart(id, flavor) {

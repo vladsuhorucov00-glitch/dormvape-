@@ -1247,12 +1247,12 @@ header {
     max-width: 90vw;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: none;
+    display: none !important;
 }
 
 .cart-notification.show {
     transform: translateX(-50%) translateY(0);
-    display: block;
+    display: block !important;
 }
 
 /* ===== RESPONSIVE ===== */
