@@ -645,7 +645,6 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     document.getElementById('checkout-step-form').style.display = 'none';
     document.getElementById('checkout-step-payment').style.display = 'block';
     document.getElementById('payment-amount').textContent = getCartTotal() + '₽';
-
 });
 
 function confirmOrder() {
