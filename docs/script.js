@@ -560,6 +560,12 @@ function openCheckout() {
         document.getElementById('checkout-flat').value = saved.flat || '';
         document.getElementById('checkout-time').value = saved.time || '';
     }
+    if (isTG && tg.initDataUnsafe?.user?.username) {
+        const tgField = document.getElementById('checkout-telegram');
+        if (!tgField.value) {
+            tgField.value = '@' + tg.initDataUnsafe.user.username;
+        }
+    }
 
     document.getElementById('checkout-step-form').style.display = 'block';
     document.getElementById('checkout-step-payment').style.display = 'none';
@@ -639,12 +645,7 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     document.getElementById('checkout-step-form').style.display = 'none';
     document.getElementById('checkout-step-payment').style.display = 'block';
     document.getElementById('payment-amount').textContent = getCartTotal() + '₽';
-    if (isTG) {
-        tgShowMainButton('💵 Наличными при получении', function() {
-            tgHideMainButton();
-            confirmOrder();
-        });
-    }
+
 });
 
 function confirmOrder() {
