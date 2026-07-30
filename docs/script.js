@@ -395,6 +395,34 @@ document.getElementById('product-modal').addEventListener('click', function(e) {
     if (e.target === this) closeProductModal();
 });
 
+// ===== CAROUSEL SWIPE =====
+let swipeStartX = 0;
+let swipeStartY = 0;
+const carouselTrack = document.getElementById('modal-carousel-track');
+carouselTrack.addEventListener('touchstart', function(e) {
+    swipeStartX = e.touches[0].clientX;
+    swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+carouselTrack.addEventListener('touchend', function(e) {
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        modalGoTo(dx < 0 ? 1 : -1);
+    }
+}, { passive: true });
+
+// ===== MODAL SWIPE DOWN =====
+let modalSwipeStartY = 0, modalSwipeStartX = 0;
+document.getElementById('product-modal').addEventListener('touchstart', function(e) {
+    modalSwipeStartY = e.touches[0].clientY;
+    modalSwipeStartX = e.touches[0].clientX;
+}, { passive: true });
+document.getElementById('product-modal').addEventListener('touchend', function(e) {
+    const dy = e.changedTouches[0].clientY - modalSwipeStartY;
+    const dx = e.changedTouches[0].clientX - modalSwipeStartX;
+    if (dy > 80 && Math.abs(dx) < 40) closeProductModal();
+}, { passive: true });
+
 // ===== CART RENDER =====
 function renderCartItems() {
     const container = document.getElementById('cart-items');
