@@ -173,7 +173,7 @@
             </div>
             <div class="modal-info">
                 <h3 id="product-modal-name"></h3>
-                <div class="modal-details" id="product-modal-desc"></div>
+                <div id="product-modal-specs" style="font-size:12px;color:#888;margin-bottom:6px"></div>
                 <div id="product-modal-flavors" class="flavor-section"></div>
                 <div class="modal-price-row">
                     <span class="modal-price" id="product-modal-price"></span>
@@ -281,7 +281,7 @@
                 </form>
                 <form id="stats-expense-form" class="stats-form" style="display:none">
                     <h3>Добавить поставку</h3>
-                    <input type="text" id="stats-invoice" placeholder="Номер счёта" class="checkout-input">
+                    <input type="text" id="stats-invoice" placeholder="Номер поставки" class="checkout-input">
                     <div id="delivery-items">
                         <div class="delivery-item">
                             <input type="text" placeholder="Название" class="di-name checkout-input" required>
@@ -316,8 +316,11 @@
                         <option value="device">Под / одноразка</option>
                         <option value="coil">Испаритель / картридж</option>
                     </select>
-                    <input type="text" id="prod-desc" placeholder="Описание" class="checkout-input">
                     <input type="text" id="prod-flavors" placeholder="Вкусы через запятую" class="checkout-input">
+                    <div id="prod-coil-fields" style="display:none">
+                        <input type="text" id="prod-ohm-input" placeholder="Омы через запятую (напр. 0.6, 0.8, 1.0)" class="checkout-input">
+                        <input type="text" id="prod-coil-volume" placeholder="Объём (напр. 2)" class="checkout-input" onblur="this.value=this.value.replace(/[^0-9.]/g,'')+(this.value?'мл':'')">
+                    </div>
                     <input type="file" id="prod-img" accept="image/*" class="checkout-input" style="padding:8px;font-size:13px">
                     <img id="prod-img-preview" style="display:none;max-width:80px;margin:4px 0;border-radius:6px">
                     <button class="btn" onclick="addProduct()">Добавить товар</button>
