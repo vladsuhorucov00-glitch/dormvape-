@@ -12,11 +12,12 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ===== TELEGRAM =====
-const TG_BOT_TOKEN = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
+const TG_BOT_TOKEN_OLD = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
+const TG_BOT_TOKEN = '8775545408:AAECP7FBjbLlUmuFDZ7zNpw6Up6j_JkYCVE';
 const TG_CHAT_ID = '1951895339';
 
 function sendTelegram(text) {
-    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN_OLD}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
