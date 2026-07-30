@@ -205,7 +205,7 @@ function renderProducts(filter) {
         ? all.filter(p => p.category === filter)
         : all;
 
-    grid.innerHTML = filtered.map(p => {
+    grid.innerHTML = filtered.map((p, i) => {
         const cartItems = cart.filter(c => c.id === p.id);
         const totalQty = cartItems.reduce((s, c) => s + c.qty, 0);
         const specs = p.category === 'coil'
@@ -220,13 +220,13 @@ function renderProducts(filter) {
         const qtyControl = totalQty > 0
             ? '<div class="qty-control"><button class="qty-btn" onclick="event.stopPropagation();cartQty(' + p.id + ',-1)">−</button><span class="qty-value">' + totalQty + '</span><button class="qty-btn" onclick="event.stopPropagation();cartQty(' + p.id + ',1)">+</button></div>'
             : '<button class="btn-add" onclick="event.stopPropagation();productAdd(' + p.id + ',this)">+ Добавить</button>';
-        return '<div class="product-card" data-pid="' + p.id + '">' +
+        const delay = i * 0.04;
+        return '<div class="product-card" style="animation-delay:' + delay + 's" data-pid="' + p.id + '">' +
             '<div class="product-media"><img src="' + p.images[0] + '" alt="' + p.name + '" loading="lazy" onerror="this.outerHTML=\'<div style=padding:40px;text-align:center;color:#444;font-size:32px>📷</div>\'"></div>' +
             '<div class="product-info">' +
             (specs ? '<div class="product-spec">' + specs + '</div>' : '') +
             '<div class="product-name">' + p.name + '</div>' +
             flavorsHtml +
-
             '<div class="product-footer">' +
             '<div class="product-price">' + p.price + '₽' + (p.oldPrice ? '<span class="product-old">' + p.oldPrice + '₽</span>' : '') + '</div>' +
             qtyControl + '</div></div></div>';
@@ -663,6 +663,7 @@ function renderStats() {
         '<div class="item-info"><div class="item-name">' + (e.desc || '—') + '</div>' +
         '<div class="item-price">' + e.date + ' · ' + (e.who || '—') + ' · x' + (e.qty || 1) + '</div></div>' +
         '<div style="font-weight:600;color:#4caf50">+' + e.amount + '₽</div>' +
+        '<button class="remove-item" onclick="editIncome(' + e.realIdx + ')" style="color:#4ea8f5">✎</button>' +
         '<button class="remove-item" onclick="statsDelete(' + e.realIdx + ')">✕</button></div>'
     ).join('');
 
@@ -672,6 +673,7 @@ function renderStats() {
         '<div class="item-info"><div class="item-name">' + arrow + 'Поставка ' + (e.invoice || 'б/н') + '</div>' +
         '<div class="item-price">' + e.date + '</div></div>' +
         '<div style="font-weight:600;color:#e74c3c">-' + (e.totalAmount || e.amount || 0) + '₽</div>' +
+        '<button class="remove-item" onclick="event.stopPropagation();editExpense(' + e.realIdx + ')" style="color:#4ea8f5">✎</button>' +
         '<button class="remove-item" onclick="event.stopPropagation();statsDelete(' + e.realIdx + ')">✕</button>' +
         '<div class="expense-details" style="width:100%;font-size:12px;color:#666;padding:4px;display:none">' +
         ((e.items || []).map(it => it.name + ' x' + it.qty + ' = ' + it.total + '₽').join('<br>')) + '</div></div>';
@@ -692,25 +694,26 @@ document.getElementById('stats-income-form').addEventListener('submit', function
     const qty = parseInt(document.getElementById('stats-income-qty').value) || 1;
     if (!amount || amount <= 0) return;
 
-    const now = new Date();
-    const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-    statsEntries.push({ type: 'income', amount, who, desc, qty, date });
-    saveStats();
-    renderStats();
-
-    if (desc) {
-        const match = stockProducts.find(p => p.name.toLowerCase() === desc.toLowerCase());
-        if (match) {
-            match.qty = Math.max(0, match.qty - qty);
-            saveStock();
-            renderStock();
+    if (editingIncomeIdx >= 0) {
+        const old = statsEntries[editingIncomeIdx];
+        statsEntries[editingIncomeIdx] = { ...old, amount, who, desc, qty };
+        editingIncomeIdx = -1;
+    } else {
+        const now = new Date();
+        const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
+        statsEntries.push({ type: 'income', amount, who, desc, qty, date });
+        if (desc) {
+            const match = stockProducts.find(p => p.name.toLowerCase() === desc.toLowerCase());
+            if (match) {
+                match.qty = Math.max(0, match.qty - qty);
+                saveStock();
+                renderStock();
+            }
         }
     }
-
-    document.getElementById('stats-income-amount').value = '';
-    document.getElementById('stats-income-who').value = '';
-    document.getElementById('stats-income-desc').value = '';
-    document.getElementById('stats-income-qty').value = '1';
+    saveStats();
+    renderStats();
+    cancelIncomeEdit();
 });
 
 // ===== DELIVERY ITEMS =====
@@ -773,24 +776,55 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
 
     if (items.length === 0) return;
 
-    const now = new Date();
-    const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-    statsEntries.push({ type: 'expense', invoice, items, totalAmount, date });
+    if (editingExpenseIdx >= 0) {
+        const old = statsEntries[editingExpenseIdx];
+        statsEntries[editingExpenseIdx] = { ...old, invoice, items, totalAmount };
+        editingExpenseIdx = -1;
+    } else {
+        const now = new Date();
+        const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
+        statsEntries.push({ type: 'expense', invoice, items, totalAmount, date });
+        items.forEach(it => {
+            const existing = stockProducts.find(p => p.name.toLowerCase() === it.name.toLowerCase());
+            if (existing) { existing.qty += it.qty; } else { stockProducts.push({ name: it.name, qty: it.qty }); }
+        });
+        saveStock();
+        renderStock();
+    }
     saveStats();
     renderStats();
 
-    items.forEach(it => {
-        const existing = stockProducts.find(p => p.name.toLowerCase() === it.name.toLowerCase());
-        if (existing) {
-            existing.qty += it.qty;
-        } else {
-            stockProducts.push({ name: it.name, qty: it.qty });
-        }
-    });
-    saveStock();
-    renderStock();
+    cancelExpenseEdit();
+});
 
-    this.reset();
+// ===== EDIT EXPENSE =====
+let editingExpenseIdx = -1;
+
+function editExpense(idx) {
+    const e = statsEntries[idx];
+    editingExpenseIdx = idx;
+    document.getElementById('stats-invoice').value = e.invoice || '';
+    const container = document.getElementById('delivery-items');
+    container.innerHTML = '';
+    e.items.forEach((it, i) => {
+        const div = document.createElement('div');
+        div.className = 'delivery-item';
+        div.innerHTML = '<input type="text" placeholder="Название" class="di-name checkout-input" value="' + it.name + '" required>' +
+            '<input type="number" placeholder="Кол-во" class="di-qty checkout-input" value="' + it.qty + '" min="1" required>' +
+            '<input type="number" placeholder="Цена" class="di-price checkout-input" value="' + it.price + '" min="0" step="0.01" required>' +
+            '<span class="di-total">' + (it.qty * it.price) + '₽</span>' +
+            '<button type="button" class="di-remove">✕</button>';
+        container.appendChild(div);
+        bindItemEvents(div);
+    });
+    document.getElementById('delivery-total').textContent = e.totalAmount + '₽';
+    document.getElementById('expense-submit-btn').textContent = 'Сохранить';
+    document.getElementById('expense-cancel-btn').style.display = '';
+}
+
+function cancelExpenseEdit() {
+    editingExpenseIdx = -1;
+    document.getElementById('stats-invoice').value = '';
     document.getElementById('delivery-items').innerHTML = '<div class="delivery-item">' +
         '<input type="text" placeholder="Название" class="di-name checkout-input" required>' +
         '<input type="number" placeholder="Кол-во" class="di-qty checkout-input" min="1" required>' +
@@ -799,7 +833,33 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
         '<button type="button" class="di-remove">✕</button></div>';
     bindItemEvents(document.querySelector('.delivery-item'));
     document.getElementById('delivery-total').textContent = '0₽';
-});
+    document.getElementById('expense-submit-btn').textContent = 'Добавить поставку';
+    document.getElementById('expense-cancel-btn').style.display = 'none';
+}
+
+// ===== EDIT INCOME =====
+let editingIncomeIdx = -1;
+
+function editIncome(idx) {
+    const e = statsEntries[idx];
+    editingIncomeIdx = idx;
+    document.getElementById('stats-income-amount').value = e.amount;
+    document.getElementById('stats-income-who').value = e.who || '';
+    document.getElementById('stats-income-desc').value = e.desc || '';
+    document.getElementById('stats-income-qty').value = e.qty || 1;
+    document.getElementById('income-submit-btn').textContent = 'Сохранить';
+    document.getElementById('income-cancel-btn').style.display = '';
+}
+
+function cancelIncomeEdit() {
+    editingIncomeIdx = -1;
+    document.getElementById('stats-income-amount').value = '';
+    document.getElementById('stats-income-who').value = '';
+    document.getElementById('stats-income-desc').value = '';
+    document.getElementById('stats-income-qty').value = '1';
+    document.getElementById('income-submit-btn').textContent = 'Добавить';
+    document.getElementById('income-cancel-btn').style.display = 'none';
+}
 
 // ===== STOCK =====
 function renderStock() {
@@ -866,7 +926,10 @@ function switchStatsTab(t) {
     document.getElementById('stats-products-form').style.display = t === 'products' ? '' : 'none';
     document.getElementById('stats-income-wrap').style.display = t === 'income' ? '' : 'none';
     document.getElementById('stats-expense-wrap').style.display = t === 'expense' ? '' : 'none';
+    if (editingExpenseIdx >= 0 && t !== 'expense') cancelExpenseEdit();
+    if (editingIncomeIdx >= 0 && t !== 'income') cancelIncomeEdit();
     if (t === 'products') {
+        cancelEdit();
         document.getElementById('prod-category').value = 'liquid';
         document.getElementById('prod-flavors').style.display = '';
         document.getElementById('prod-coil-fields').style.display = 'none';
@@ -875,6 +938,8 @@ function switchStatsTab(t) {
 }
 
 // ===== CUSTOM PRODUCTS =====
+let editingIndex = -1;
+
 function renderCustomProducts() {
     const list = document.getElementById('stats-products-list');
     const empty = document.getElementById('stats-products-empty');
@@ -887,8 +952,44 @@ function renderCustomProducts() {
     list.innerHTML = customProducts.map((p, i) =>
         '<div class="stock-item">' +
         '<span class="stock-item-name">' + p.name + ' — ' + p.price + '₽</span>' +
+        '<button class="stock-btn" onclick="editProduct(' + i + ')" style="color:#4ea8f5">✎</button>' +
         '<button class="stock-btn" onclick="removeProduct(' + i + ')" style="color:#f55">✕</button></div>'
     ).join('');
+}
+
+function editProduct(idx) {
+    const p = customProducts[idx];
+    editingIndex = idx;
+    document.getElementById('prod-name').value = p.name;
+    document.getElementById('prod-price').value = p.price;
+    document.getElementById('prod-category').value = p.category;
+    document.getElementById('prod-category').dispatchEvent(new Event('change'));
+    if (p.category === 'coil') {
+        document.getElementById('prod-ohm-input').value = (p.ohm || []).map(o => o.replace('Ω', '')).join(', ');
+        document.getElementById('prod-coil-volume').value = (p.coilVolume || '').replace('мл', '');
+    } else {
+        document.getElementById('prod-flavors').value = (p.flavors || []).join(', ');
+    }
+    document.getElementById('prod-img-preview').style.display = 'none';
+    document.getElementById('prod-submit-btn').textContent = 'Сохранить';
+    document.getElementById('prod-cancel-btn').style.display = '';
+}
+
+function cancelEdit() {
+    editingIndex = -1;
+    resetProductForm();
+    document.getElementById('prod-submit-btn').textContent = 'Добавить товар';
+    document.getElementById('prod-cancel-btn').style.display = 'none';
+}
+
+function resetProductForm() {
+    document.getElementById('prod-name').value = '';
+    document.getElementById('prod-price').value = '';
+    document.getElementById('prod-flavors').value = '';
+    document.getElementById('prod-ohm-input').value = '';
+    document.getElementById('prod-coil-volume').value = '';
+    document.getElementById('prod-img').value = '';
+    document.getElementById('prod-img-preview').style.display = 'none';
 }
 
 document.getElementById('prod-category').addEventListener('change', function() {
@@ -923,30 +1024,29 @@ function addProduct() {
     const fileInput = document.getElementById('prod-img');
     const file = fileInput.files[0];
     function save(imgSrc) {
-        const id = customProducts.length > 0 ? Math.max(...customProducts.map(p => p.id)) + 1 : 23;
-        customProducts.push({
-            id, name, price, category,
+        const productData = {
+            name, price, category,
             flavors, images: [imgSrc],
             oldPrice: null, brand: '—', strength: '—', volume: '—',
             ohm, coilVolume
-        });
+        };
+        if (editingIndex >= 0) {
+            Object.assign(customProducts[editingIndex], productData);
+        } else {
+            productData.id = customProducts.length > 0 ? Math.max(...customProducts.map(p => p.id)) + 1 : 23;
+            customProducts.push(productData);
+        }
         saveCustomProducts();
         renderProducts(currentFilter);
         renderCustomProducts();
-        document.getElementById('prod-name').value = '';
-        document.getElementById('prod-price').value = '';
-        document.getElementById('prod-flavors').value = '';
-        document.getElementById('prod-ohm-input').value = '';
-        document.getElementById('prod-coil-volume').value = '';
-        fileInput.value = '';
-        document.getElementById('prod-img-preview').style.display = 'none';
+        cancelEdit();
     }
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) { save(e.target.result); };
         reader.readAsDataURL(file);
     } else {
-        save('img/1_1.jpg');
+        save(editingIndex >= 0 ? customProducts[editingIndex].images[0] : 'img/1_1.jpg');
     }
 }
 
@@ -958,6 +1058,26 @@ function removeProduct(idx) {
 }
 
 
+// ===== RIPPLE =====
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn, .btn-add, .qty-btn, .flavor-btn, .flavor-picker-btn, .stats-filter-btn, .stock-btn');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+});
+
+// ===== PARALLAX =====
+window.addEventListener('scroll', function() {
+    const bg = document.querySelector('.bg-effects');
+    if (bg) bg.style.transform = 'translateY(' + (window.scrollY * 0.05) + 'px)';
+});
 // ===== INIT =====
 updateCartUI();
 renderProducts('all');

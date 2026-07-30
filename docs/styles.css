@@ -182,6 +182,8 @@ header {
     transition: all 0.3s;
     width: 100%;
     text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn:hover, .btn:active {
@@ -478,6 +480,23 @@ header {
     margin: 4px 0;
 }
 
+.catalog-notice {
+    text-align: center;
+    padding: 16px;
+    margin-top: 24px;
+    border-radius: 12px;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.catalog-notice a {
+    color: #6af;
+    text-decoration: none;
+    font-weight: 500;
+}
+.catalog-notice a:active { color: #4af; }
+
 .flavor-tag {
     font-size: 10px;
     color: #888;
@@ -497,6 +516,8 @@ header {
     transition: all 0.3s;
     white-space: nowrap;
     font-weight: 500;
+    position: relative;
+    overflow: hidden;
 }
 
 .btn-add:active {
@@ -598,19 +619,23 @@ header {
     position: absolute;
     top: 12px;
     right: 16px;
-    background: rgba(255,255,255,0.06);
-    border: none;
-    color: #888;
-    width: 32px;
-    height: 32px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: 600;
     cursor: pointer;
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
+.modal-close:active { background: rgba(255,255,255,0.3); }
 
 .carousel {
     position: relative;
@@ -742,6 +767,8 @@ header {
     font-size: 12px;
     cursor: pointer;
     transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
 .flavor-btn.active {
@@ -1027,7 +1054,9 @@ select.checkout-input option {
     cursor: pointer;
     font-size: 13px;
     text-align: left;
-    transition: background 0.2s;
+    transition: background 0.15s;
+    position: relative;
+    overflow: hidden;
 }
 
 .flavor-picker-btn:active {
@@ -1186,6 +1215,8 @@ select.checkout-input option {
     cursor: pointer;
     font-size: 13px;
     transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
 .stats-filter-btn.active {
@@ -1264,6 +1295,8 @@ select.checkout-input option {
 .stock-btn {
     width: 28px;
     height: 28px;
+    position: relative;
+    overflow: hidden;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 6px;
     background: transparent;
@@ -1365,4 +1398,25 @@ select.checkout-input option {
 @media (min-width: 900px) {
     body { max-width: 1000px; margin: 0 auto; }
     .products { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.product-card { animation: fadeInUp 0.35s ease both; }
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    transform: scale(0);
+    animation: rippleAnim 0.5s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes rippleAnim {
+    to { transform: scale(4); opacity: 0; }
 }

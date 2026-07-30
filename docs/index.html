@@ -138,6 +138,11 @@
                     <button class="filter-btn" data-filter="device">Поды и одноразки</button>
                 </div>
                 <div class="products" id="products-grid"></div>
+                <div class="catalog-notice glass">
+                    <span>Не нашли нужную жидкость, испаритель или одноразку?</span>
+                    <span>Напишите нам — привезём под заказ в течение недели</span>
+                    <a href="tg://resolve?domain=dormvapee_bot" target="_blank">Связаться с нами</a>
+                </div>
             </div>
         </section>
 
@@ -277,7 +282,10 @@
                     <input type="text" id="stats-income-who" placeholder="Кому" class="checkout-input">
                     <input type="text" id="stats-income-desc" placeholder="Что продано" class="checkout-input">
                     <input type="number" id="stats-income-qty" placeholder="Кол-во" value="1" min="1" class="checkout-input">
-                    <button type="submit" class="btn">Добавить</button>
+                    <div style="display:flex;gap:8px">
+                        <button type="submit" class="btn" id="income-submit-btn">Добавить</button>
+                        <button type="button" class="btn btn-outline" id="income-cancel-btn" style="display:none" onclick="cancelIncomeEdit()">Отмена</button>
+                    </div>
                 </form>
                 <form id="stats-expense-form" class="stats-form" style="display:none">
                     <h3>Добавить поставку</h3>
@@ -295,14 +303,17 @@
                     <div class="delivery-summary">
                         <span>Итого:</span><span class="delivery-total" id="delivery-total">0₽</span>
                     </div>
-                    <button type="submit" class="btn">Добавить поставку</button>
+                    <div style="display:flex;gap:8px">
+                        <button type="submit" class="btn" id="expense-submit-btn">Добавить поставку</button>
+                        <button type="button" class="btn btn-outline" id="expense-cancel-btn" style="display:none" onclick="cancelExpenseEdit()">Отмена</button>
+                    </div>
                 </form>
                 <div id="stats-stock-form" class="stats-form" style="display:none">
                     <h3>Остатки</h3>
+                    <input type="text" id="stock-product-name" placeholder="Название товара" class="checkout-input">
                     <div style="display:flex;gap:8px">
-                        <input type="text" id="stock-product-name" placeholder="Название" class="checkout-input" style="flex:1">
-                        <input type="number" id="stock-product-qty" placeholder="Кол-во" class="checkout-input" style="width:80px" min="0">
-                        <button class="btn" onclick="stockAdd()">+</button>
+                        <input type="number" id="stock-product-qty" placeholder="Кол-во" class="checkout-input" style="flex:1" min="0">
+                        <button class="btn" onclick="stockAdd()" style="flex:none;width:auto;padding:10px 20px">+ Добавить</button>
                     </div>
                     <div class="stock-list" id="stats-stock-list"></div>
                     <div class="stats-empty" id="stats-stock-empty" style="display:none">Нет товаров</div>
@@ -323,7 +334,8 @@
                     </div>
                     <input type="file" id="prod-img" accept="image/*" class="checkout-input" style="padding:8px;font-size:13px">
                     <img id="prod-img-preview" style="display:none;max-width:80px;margin:4px 0;border-radius:6px">
-                    <button class="btn" onclick="addProduct()">Добавить товар</button>
+                    <button class="btn" id="prod-submit-btn" onclick="addProduct()">Добавить товар</button>
+                    <button class="btn btn-outline" id="prod-cancel-btn" style="display:none" onclick="cancelEdit()">Отмена</button>
                     <div class="stats-tables" id="stats-products-list" style="margin-top:16px"></div>
                     <div class="stats-empty" id="stats-products-empty">Нет добавленных товаров</div>
                 </div>
