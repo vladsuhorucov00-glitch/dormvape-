@@ -483,6 +483,7 @@ function openCheckout() {
         document.getElementById('checkout-telegram').value = saved.telegram || '';
         document.getElementById('checkout-address').value = saved.address || '';
         document.getElementById('checkout-flat').value = saved.flat || '';
+        document.getElementById('checkout-time').value = saved.time || '';
     }
 
     document.getElementById('checkout-step-form').style.display = 'block';
@@ -494,14 +495,47 @@ function closeCheckout() {
     document.getElementById('checkout-modal').classList.remove('show');
 }
 
+document.getElementById('checkout-phone').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '');
+});
+
+// ===== DROPDOWNS =====
+document.querySelectorAll('.checkout-select-wrap input').forEach(function(input) {
+    input.addEventListener('click', function() {
+        const dropdown = this.parentElement.querySelector('.checkout-select-dropdown');
+        if (dropdown) dropdown.classList.toggle('open');
+    });
+});
+document.querySelectorAll('.checkout-select-dropdown').forEach(function(dropdown) {
+    dropdown.querySelectorAll('.checkout-select-option').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+            const input = dropdown.parentElement.querySelector('input');
+            input.value = this.dataset.value;
+            dropdown.classList.remove('open');
+        });
+    });
+});
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.checkout-select-dropdown.open').forEach(function(d) {
+        if (!e.target.closest('.checkout-select-wrap')) d.classList.remove('open');
+    });
+});
+
 document.getElementById('checkout-form').addEventListener('submit', function(e) {
     e.preventDefault();
+    const phone = document.getElementById('checkout-phone').value.trim().replace(/\D/g, '');
+    if (phone.length < 10) {
+        alert('Введите корректный номер телефона (не менее 10 цифр)');
+        return;
+    }
+    const time = document.getElementById('checkout-time').value.trim();
     const data = {
         name: document.getElementById('checkout-name').value.trim(),
-        phone: document.getElementById('checkout-phone').value.trim(),
+        phone: phone,
         telegram: document.getElementById('checkout-telegram').value.trim(),
         address: document.getElementById('checkout-address').value.trim(),
         flat: document.getElementById('checkout-flat').value.trim(),
+        time: time,
         comment: document.getElementById('checkout-comment').value.trim()
     };
 
@@ -513,7 +547,8 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
         '\n\n<b>Итого: ' + getCartTotal() + '₽</b>\n\n<b>👤 Покупатель:</b>\n  Имя: ' + data.name +
         '\n  Телефон: ' + data.phone +
         (data.telegram ? '\n  Telegram: ' + data.telegram : '') +
-        '\n  Адрес: ' + data.phone + (data.flat ? '\n  Кв/под: ' + data.flat : '') +
+        '\n  Адрес: ' + data.address + (data.flat ? '\n  Кв/под: ' + data.flat : '') +
+        (data.time ? '\n  Время: ' + data.time : '') +
         (data.comment ? '\n\nКомментарий: ' + data.comment : '') +
         '\n\nСпособ оплаты: будет выбран';
 
@@ -806,18 +841,89 @@ function stockRemove(idx) {
 }
 
 // ===== STATS FILTER =====
-document.querySelectorAll('.stats-filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.stats-filter-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        const t = this.dataset.tab;
-        document.getElementById('stats-income-form').style.display = t === 'income' ? '' : 'none';
-        document.getElementById('stats-expense-form').style.display = t === 'expense' ? '' : 'none';
-        document.getElementById('stats-stock-form').style.display = t === 'stock' ? '' : 'none';
-        document.getElementById('stats-income-wrap').style.display = t === 'income' ? '' : 'none';
-        document.getElementById('stats-expense-wrap').style.display = t === 'expense' ? '' : 'none';
-    });
+function switchStatsTab(t) {
+    document.querySelectorAll('.stats-filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.stats-filter-btn[data-tab="${t}"]`).classList.add('active');
+    document.getElementById('stats-income-form').style.display = t === 'income' ? '' : 'none';
+    document.getElementById('stats-expense-form').style.display = t === 'expense' ? '' : 'none';
+    document.getElementById('stats-stock-form').style.display = t === 'stock' ? '' : 'none';
+    document.getElementById('stats-products-form').style.display = t === 'products' ? '' : 'none';
+    document.getElementById('stats-income-wrap').style.display = t === 'income' ? '' : 'none';
+    document.getElementById('stats-expense-wrap').style.display = t === 'expense' ? '' : 'none';
+    if (t === 'products') renderCustomProducts();
+}
+
+// ===== CUSTOM PRODUCTS =====
+function renderCustomProducts() {
+    const list = document.getElementById('stats-products-list');
+    const empty = document.getElementById('stats-products-empty');
+    if (customProducts.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = customProducts.map((p, i) =>
+        '<div class="stock-item">' +
+        '<span class="stock-item-name">' + p.name + ' — ' + p.price + '₽</span>' +
+        '<button class="stock-btn" onclick="removeProduct(' + i + ')" style="color:#f55">✕</button></div>'
+    ).join('');
+}
+
+document.getElementById('prod-img').addEventListener('change', function() {
+    const preview = document.getElementById('prod-img-preview');
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) { preview.src = e.target.result; preview.style.display = ''; };
+        reader.readAsDataURL(this.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
 });
+
+function addProduct() {
+    const name = document.getElementById('prod-name').value.trim();
+    const price = parseInt(document.getElementById('prod-price').value);
+    const category = document.getElementById('prod-category').value;
+    if (!name || !price) { alert('Заполните название и цену'); return; }
+    const flavors = document.getElementById('prod-flavors').value.trim()
+        .split(',').map(f => f.trim()).filter(f => f);
+    const fileInput = document.getElementById('prod-img');
+    const file = fileInput.files[0];
+    function save(imgSrc) {
+        const id = customProducts.length > 0 ? Math.max(...customProducts.map(p => p.id)) + 1 : 23;
+        customProducts.push({
+            id, name, price, category,
+            desc: document.getElementById('prod-desc').value.trim() || '',
+            flavors, images: [imgSrc],
+            oldPrice: null, brand: '—', strength: '—', volume: '—',
+            ohm: null, coilVolume: null
+        });
+        saveCustomProducts();
+        renderProducts(currentFilter);
+        renderCustomProducts();
+        document.getElementById('prod-name').value = '';
+        document.getElementById('prod-price').value = '';
+        document.getElementById('prod-desc').value = '';
+        document.getElementById('prod-flavors').value = '';
+        fileInput.value = '';
+        document.getElementById('prod-img-preview').style.display = 'none';
+    }
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) { save(e.target.result); };
+        reader.readAsDataURL(file);
+    } else {
+        save('img/1_1.jpg');
+    }
+}
+
+function removeProduct(idx) {
+    customProducts = customProducts.filter((_, i) => i !== idx);
+    saveCustomProducts();
+    renderProducts(currentFilter);
+    renderCustomProducts();
+}
 
 
 // ===== INIT =====

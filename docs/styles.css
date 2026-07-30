@@ -555,6 +555,7 @@ header {
     backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);
     z-index: 200;
+    display: flex;
     align-items: flex-end;
     justify-content: center;
     opacity: 0;
@@ -573,10 +574,10 @@ header {
 .modal {
     width: 100%;
     max-width: 500px;
-    max-height: 90vh;
+    max-height: 75vh;
     overflow-y: auto;
     border-radius: 20px 20px 0 0;
-    padding: 24px 20px 32px;
+    padding: 20px 20px 28px;
     position: relative;
     transform: translateY(100%);
     transition: transform 0.35s ease;
@@ -908,6 +909,55 @@ header {
     resize: vertical;
 }
 
+select.checkout-input {
+    appearance: auto;
+    cursor: pointer;
+}
+
+select.checkout-input option {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.checkout-select-wrap {
+    position: relative;
+}
+
+.checkout-select-wrap .checkout-input {
+    cursor: pointer;
+}
+
+.checkout-select-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.checkout-select-dropdown.open {
+    display: block;
+}
+
+.checkout-select-option {
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #ccc;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.checkout-select-option:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+}
+
 .checkout-save {
     font-size: 13px;
     color: #888;
@@ -993,6 +1043,14 @@ header {
 }
 
 /* ===== WELCOME MODAL ===== */
+#welcome-overlay {
+    align-items: center;
+}
+
+#welcome-overlay .modal {
+    transform: none;
+}
+
 .welcome-modal {
     text-align: center;
     padding: 40px 24px;

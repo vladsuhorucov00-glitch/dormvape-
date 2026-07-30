@@ -193,10 +193,28 @@
                 <div class="checkout-summary" id="modal-summary"></div>
                 <form id="checkout-form">
                     <input type="text" id="checkout-name" placeholder="Имя *" required class="checkout-input">
-                    <input type="tel" id="checkout-phone" placeholder="Телефон *" required class="checkout-input">
+                    <input type="tel" id="checkout-phone" placeholder="Телефон *" required class="checkout-input" inputmode="numeric" autocomplete="tel">
                     <input type="text" id="checkout-telegram" placeholder="Telegram @username" class="checkout-input">
-                    <input type="text" id="checkout-address" placeholder="Адрес *" required class="checkout-input">
-                    <input type="text" id="checkout-flat" placeholder="Квартира / Подъезд" class="checkout-input">
+                    <div class="checkout-select-wrap">
+                        <input type="text" id="checkout-address" placeholder="Адрес *" required class="checkout-input">
+                        <div class="checkout-select-dropdown" id="checkout-address-dropdown">
+                            <div class="checkout-select-option" data-value="Общага (п. Майский, ул. Садовая, 12Б)">Общага (п. Майский, ул. Садовая, 12Б)</div>
+                            <div class="checkout-select-option" data-value="Титаник">Титаник</div>
+                        </div>
+                    </div>
+                    <input type="text" id="checkout-flat" placeholder="Квартира / Подъезд / Комната" class="checkout-input">
+                    <div class="checkout-select-wrap">
+                        <input type="text" id="checkout-time" placeholder="Желательное время доставки" class="checkout-input">
+                        <div class="checkout-select-dropdown" id="checkout-time-dropdown">
+                            <div class="checkout-select-option" data-value="Сейчас">Сейчас</div>
+                            <div class="checkout-select-option" data-value="10:00 - 12:00">10:00 - 12:00</div>
+                            <div class="checkout-select-option" data-value="12:00 - 14:00">12:00 - 14:00</div>
+                            <div class="checkout-select-option" data-value="14:00 - 16:00">14:00 - 16:00</div>
+                            <div class="checkout-select-option" data-value="16:00 - 18:00">16:00 - 18:00</div>
+                            <div class="checkout-select-option" data-value="18:00 - 20:00">18:00 - 20:00</div>
+                            <div class="checkout-select-option" data-value="20:00 - 22:00">20:00 - 22:00</div>
+                        </div>
+                    </div>
                     <textarea id="checkout-comment" placeholder="Комментарий к заказу" class="checkout-input checkout-textarea"></textarea>
                     <label class="checkout-save">
                         <input type="checkbox" id="checkout-save" checked> Сохранить данные
@@ -248,9 +266,10 @@
             </div>
             <div class="stats-form-wrap">
                 <div class="stats-filter-bar">
-                    <button class="stats-filter-btn active" data-tab="income">Доходы</button>
-                    <button class="stats-filter-btn" data-tab="expense">Расходы</button>
-                    <button class="stats-filter-btn" data-tab="stock">Остатки</button>
+                    <button class="stats-filter-btn active" data-tab="income" onclick="switchStatsTab('income')">Доходы</button>
+                    <button class="stats-filter-btn" data-tab="expense" onclick="switchStatsTab('expense')">Расходы</button>
+                    <button class="stats-filter-btn" data-tab="stock" onclick="switchStatsTab('stock')">Остатки</button>
+                    <button class="stats-filter-btn" data-tab="products" onclick="switchStatsTab('products')">Товары</button>
                 </div>
                 <form id="stats-income-form" class="stats-form">
                     <h3>Добавить доход</h3>
@@ -287,6 +306,23 @@
                     </div>
                     <div class="stock-list" id="stats-stock-list"></div>
                     <div class="stats-empty" id="stats-stock-empty" style="display:none">Нет товаров</div>
+                </div>
+                <div id="stats-products-form" class="stats-form" style="display:none">
+                    <h3>Добавить товар в каталог</h3>
+                    <input type="text" id="prod-name" placeholder="Название *" class="checkout-input" required>
+                    <input type="number" id="prod-price" placeholder="Цена *" class="checkout-input" required>
+                    <select id="prod-category" class="checkout-input">
+                        <option value="liquid">Жидкость</option>
+                        <option value="device">Под / одноразка</option>
+                        <option value="coil">Испаритель / картридж</option>
+                    </select>
+                    <input type="text" id="prod-desc" placeholder="Описание" class="checkout-input">
+                    <input type="text" id="prod-flavors" placeholder="Вкусы через запятую" class="checkout-input">
+                    <input type="file" id="prod-img" accept="image/*" class="checkout-input" style="padding:8px;font-size:13px">
+                    <img id="prod-img-preview" style="display:none;max-width:80px;margin:4px 0;border-radius:6px">
+                    <button class="btn" onclick="addProduct()">Добавить товар</button>
+                    <div class="stats-tables" id="stats-products-list" style="margin-top:16px"></div>
+                    <div class="stats-empty" id="stats-products-empty">Нет добавленных товаров</div>
                 </div>
             </div>
             <div class="stats-tables">
