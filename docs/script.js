@@ -23,6 +23,65 @@ function sendTelegram(text) {
     }).catch(() => {});
 }
 
+// ===== TELEGRAM WEB APP =====
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+let isTG = false;
+if (tg) {
+    isTG = true;
+    tg.expand();
+    tg.ready();
+    document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0a0a0a');
+    document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#e0e0e0');
+    document.documentElement.style.setProperty('--tg-hint', tg.themeParams.hint_color || '#888');
+    document.documentElement.style.setProperty('--tg-btn', tg.themeParams.button_color || '#5288c1');
+    document.documentElement.style.setProperty('--tg-btn-text', tg.themeParams.button_text_color || '#fff');
+    document.documentElement.style.setProperty('--tg-secondary', tg.themeParams.secondary_bg_color || 'rgba(255,255,255,0.04)');
+}
+
+function tgNav(page) {
+    switchPage(page);
+    if (tg && page === 'home') {
+        tg.BackButton.hide();
+    } else if (tg) {
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => tgNav('home'));
+    }
+}
+
+function tgShowMainButton(text, onClick) {
+    if (!tg) return;
+    tg.MainButton.setText(text);
+    tg.MainButton.show();
+    tg.MainButton.enable();
+    tg.MainButton.onClick(onClick);
+}
+
+function tgHideMainButton() {
+    if (!tg) return;
+    tg.MainButton.hide();
+    tg.MainButton.offClick();
+}
+
+function tgOpenLink(url) {
+    if (tg) {
+        if (url.startsWith('tg://') && tg.openTelegramLink) {
+            tg.openTelegramLink(url.replace('tg://resolve?domain=', 'https://t.me/'));
+        } else {
+            tg.openLink(url);
+        }
+    } else {
+        window.open(url, '_blank');
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[href^="tg://"]');
+    if (link && tg) {
+        e.preventDefault();
+        tgOpenLink(link.href);
+    }
+});
+
 // ===== PRODUCTS =====
 const products = [
     { id: 1, name: 'HSB Mango Ice', category: 'liquid', brand: 'HSB', strength: '3мг', volume: '60мл', desc: 'Сочное манго с ментоловой свежестью', price: 690, oldPrice: 860, flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'], images: ['img/1_1.jpg', 'img/1_2.jpg', 'img/1_3.jpg'] },
@@ -124,7 +183,7 @@ function switchPage(page) {
 }
 
 document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchPage(btn.dataset.page));
+    btn.addEventListener('click', () => { isTG ? tgNav(btn.dataset.page) : switchPage(btn.dataset.page); });
 });
 
 // ===== CART =====
@@ -509,6 +568,7 @@ function openCheckout() {
 
 function closeCheckout() {
     document.getElementById('checkout-modal').classList.remove('show');
+    tgHideMainButton();
 }
 
 document.getElementById('checkout-phone').addEventListener('input', function() {
@@ -579,6 +639,12 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
     document.getElementById('checkout-step-form').style.display = 'none';
     document.getElementById('checkout-step-payment').style.display = 'block';
     document.getElementById('payment-amount').textContent = getCartTotal() + '₽';
+    if (isTG) {
+        tgShowMainButton('💵 Наличными при получении', function() {
+            tgHideMainButton();
+            confirmOrder();
+        });
+    }
 });
 
 function confirmOrder() {
@@ -592,7 +658,7 @@ function confirmOrder() {
 }
 
 // ===== WELCOME MODAL =====
-if (!localStorage.getItem('dormvape_welcomed')) {
+if (!localStorage.getItem('dormvape_welcomed') && !isTG) {
     document.getElementById('welcome-overlay').classList.add('show');
 }
 
