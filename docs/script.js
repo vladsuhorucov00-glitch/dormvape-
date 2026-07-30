@@ -82,6 +82,63 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// ===== TG USERS =====
+function saveTgUser(user) {
+    if (!user || !user.id) return;
+    db.ref('tgUsers/' + user.id).set({
+        id: user.id,
+        username: user.username || '',
+        first_name: user.first_name || '',
+        last_seen: Date.now()
+    }).catch(() => {});
+}
+
+function getTgUsers(cb) {
+    db.ref('tgUsers').once('value').then(snap => {
+        const data = snap.val();
+        cb(data ? Object.values(data) : []);
+    }).catch(() => cb([]));
+}
+
+function notifyAllUsers(text) {
+    getTgUsers(users => {
+        users.forEach(u => {
+            sendTelegramTo(text, u.id);
+        });
+    });
+}
+
+function sendTelegramTo(text, chatId) {
+    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
+    }).catch(() => {});
+}
+
+function sendNotify() {
+    const text = document.getElementById('notify-text').value.trim();
+    if (!text) { document.getElementById('notify-status').textContent = 'Напиши текст'; return; }
+    const btn = document.querySelector('.stats-notify .btn');
+    btn.disabled = true;
+    btn.textContent = 'Отправка...';
+    document.getElementById('notify-status').textContent = '';
+    getTgUsers(users => {
+        let sent = 0;
+        users.forEach(u => {
+            sendTelegramTo('📢 <b>' + text + '</b>\n\n— DormVape Shop', u.id);
+            sent++;
+        });
+        document.getElementById('notify-status').textContent = 'Отправлено ' + sent + ' пользователям';
+        btn.disabled = false;
+        btn.textContent = '📨 Отправить всем пользователям';
+    });
+}
+
+if (isTG && tg.initDataUnsafe?.user) {
+    saveTgUser(tg.initDataUnsafe.user);
+}
+
 // ===== PRODUCTS =====
 const products = [
     { id: 1, name: 'HSB Mango Ice', category: 'liquid', brand: 'HSB', strength: '3мг', volume: '60мл', desc: 'Сочное манго с ментоловой свежестью', price: 690, oldPrice: 860, flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'], images: ['img/1_1.jpg', 'img/1_2.jpg', 'img/1_3.jpg'] },
@@ -560,10 +617,12 @@ function openCheckout() {
         document.getElementById('checkout-flat').value = saved.flat || '';
         document.getElementById('checkout-time').value = saved.time || '';
     }
-    if (isTG && tg.initDataUnsafe?.user?.username) {
-        const tgField = document.getElementById('checkout-telegram');
-        if (!tgField.value) {
+    const tgField = document.getElementById('checkout-telegram');
+    if (!tgField.value) {
+        if (isTG && tg.initDataUnsafe?.user?.username) {
             tgField.value = '@' + tg.initDataUnsafe.user.username;
+        } else {
+            tgField.value = '@';
         }
     }
 

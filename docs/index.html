@@ -320,6 +320,13 @@
                     <div class="stats-empty" id="stats-stock-empty" style="display:none">Нет товаров</div>
                 </div>
                 <div id="stats-products-form" class="stats-form" style="display:none">
+                    <div class="stats-notify">
+                        <h3>Рассылка пользователям</h3>
+                        <textarea id="notify-text" placeholder="Текст уведомления..." class="checkout-input checkout-textarea"></textarea>
+                        <button class="btn" onclick="sendNotify()">📨 Отправить всем пользователям</button>
+                        <div id="notify-status" style="font-size:12px;color:#888;margin-top:6px"></div>
+                    </div>
+                    <hr style="border-color:rgba(255,255,255,0.06);margin:20px 0">
                     <h3>Добавить товар в каталог</h3>
                     <input type="text" id="prod-name" placeholder="Название *" class="checkout-input" required>
                     <input type="number" id="prod-price" placeholder="Цена *" class="checkout-input" required>

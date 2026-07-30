@@ -1398,6 +1398,10 @@ select.checkout-input option {
     .flavor-tag { font-size: 9px; padding: 1px 4px; }
 }
 
+.stats-notify { margin-bottom: 16px; }
+.stats-notify textarea { min-height: 80px; resize: vertical; }
+.stats-notify .btn { margin-top: 8px; }
+
 @media (min-width: 600px) {
     .products { grid-template-columns: repeat(3, 1fr); }
     .info-grid { flex-direction: row; }
