@@ -338,6 +338,9 @@
                         <option value="coil">Испаритель / картридж</option>
                     </select>
                     <input type="text" id="prod-flavors" placeholder="Вкусы через запятую" class="checkout-input">
+                    <div id="prod-liquid-fields" style="display:none">
+                        <input type="text" id="prod-strength" placeholder="Крепость (напр. 3мг, 6мг, 20мг)" class="checkout-input">
+                    </div>
                     <div id="prod-coil-fields" style="display:none">
                         <input type="text" id="prod-ohm-input" placeholder="Омы через запятую (напр. 0.6, 0.8, 1.0)" class="checkout-input">
                         <input type="text" id="prod-coil-volume" placeholder="Объём (напр. 2)" class="checkout-input" onblur="this.value=this.value.replace(/[^0-9.]/g,'')+(this.value?'мл':'')">

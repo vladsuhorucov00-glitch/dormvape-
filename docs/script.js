@@ -190,6 +190,7 @@ function postProductToChannel(productData) {
         '🆕 <b>Новый товар!</b>\n\n' +
         '<b>' + productData.name + '</b>\n' +
         (productData.flavors && productData.flavors.length ? '🍓 Вкусы:\n  ' + productData.flavors.map(f => '• ' + f).join('\n  ') + '\n' : '') +
+        (productData.strength && productData.strength !== '—' ? '💪 Крепость: ' + productData.strength + '\n' : '') +
         (productData.ohm ? '⚡️ Омы: ' + (Array.isArray(productData.ohm) ? productData.ohm.join(' / ') : productData.ohm) + '\n' : '') +
         (productData.coilVolume ? '📦 Объём: ' + productData.coilVolume + '\n' : '') +
         '💰 Цена: <b>' + productData.price + '₽</b>\n\n' +
@@ -1129,6 +1130,7 @@ function switchStatsTab(t) {
         cancelEdit();
         document.getElementById('prod-category').value = 'liquid';
         document.getElementById('prod-flavors').style.display = '';
+        document.getElementById('prod-liquid-fields').style.display = '';
         document.getElementById('prod-coil-fields').style.display = 'none';
         renderCustomProducts();
     }
@@ -1166,6 +1168,7 @@ function editProduct(idx) {
         document.getElementById('prod-coil-volume').value = (p.coilVolume || '').replace('мл', '');
     } else {
         document.getElementById('prod-flavors').value = (p.flavors || []).join(', ');
+        document.getElementById('prod-strength').value = (p.strength || '').replace('мг', '');
     }
     document.getElementById('prod-img-preview').style.display = 'none';
     document.getElementById('prod-submit-btn').textContent = 'Сохранить';
@@ -1183,6 +1186,7 @@ function resetProductForm() {
     document.getElementById('prod-name').value = '';
     document.getElementById('prod-price').value = '';
     document.getElementById('prod-flavors').value = '';
+    document.getElementById('prod-strength').value = '';
     document.getElementById('prod-ohm-input').value = '';
     document.getElementById('prod-coil-volume').value = '';
     document.getElementById('prod-img').value = '';
@@ -1191,7 +1195,9 @@ function resetProductForm() {
 
 document.getElementById('prod-category').addEventListener('change', function() {
     const isCoil = this.value === 'coil';
+    const isLiquid = this.value === 'liquid';
     document.getElementById('prod-flavors').style.display = isCoil ? 'none' : '';
+    document.getElementById('prod-liquid-fields').style.display = isLiquid ? '' : 'none';
     document.getElementById('prod-coil-fields').style.display = isCoil ? '' : 'none';
 });
 
@@ -1212,19 +1218,21 @@ function addProduct() {
     const category = document.getElementById('prod-category').value;
     if (!name || !price) { alert('Заполните название и цену'); return; }
     const isCoil = category === 'coil';
+    const isLiquid = category === 'liquid';
     const flavors = isCoil ? [] : document.getElementById('prod-flavors').value.trim()
         .split(',').map(f => f.trim()).filter(f => f);
     const ohm = isCoil ? document.getElementById('prod-ohm-input').value.trim()
         .split(',').map(s => s.trim().replace(/[^0-9.]/g, '')).filter(Boolean).map(s => s + 'Ω') : null;
     if (isCoil && (!ohm || ohm.length === 0)) { alert('Добавьте хотя бы один ом'); return; }
     const coilVolume = isCoil ? (document.getElementById('prod-coil-volume').value.trim().replace(/[^0-9.]/g, '') + 'мл') : null;
+    const strength = isLiquid ? (document.getElementById('prod-strength').value.trim().replace(/[^0-9.]/g, '') + 'мг') : null;
     const fileInput = document.getElementById('prod-img');
     const file = fileInput.files[0];
     function save(imgSrc) {
         const productData = {
             name, price, category,
             flavors, images: [imgSrc],
-            oldPrice: null, brand: '—', strength: '—', volume: '—',
+            oldPrice: null, brand: '—', strength: strength || '—', volume: '—',
             ohm, coilVolume
         };
         if (editingIndex >= 0) {
