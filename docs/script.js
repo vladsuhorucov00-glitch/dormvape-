@@ -173,7 +173,10 @@ function sendTelegramPhotoTo(imgBase64, text, chatId) {
         const form = new FormData();
         form.append('chat_id', chatId);
         form.append('photo', blob, 'photo.jpg');
-        if (text) form.append('caption', text);
+        if (text) {
+            form.append('caption', text);
+            form.append('parse_mode', 'HTML');
+        }
         fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`, {
             method: 'POST',
             body: form
@@ -186,7 +189,7 @@ function postProductToChannel(productData) {
     const caption =
         '🆕 <b>Новый товар!</b>\n\n' +
         '<b>' + productData.name + '</b>\n' +
-        (productData.flavors && productData.flavors.length ? '🍓 Вкусы: ' + productData.flavors.join(', ') + '\n' : '') +
+        (productData.flavors && productData.flavors.length ? '🍓 Вкусы:\n  ' + productData.flavors.map(f => '• ' + f).join('\n  ') + '\n' : '') +
         (productData.ohm ? '⚡️ Омы: ' + (Array.isArray(productData.ohm) ? productData.ohm.join(' / ') : productData.ohm) + '\n' : '') +
         (productData.coilVolume ? '📦 Объём: ' + productData.coilVolume + '\n' : '') +
         '💰 Цена: <b>' + productData.price + '₽</b>\n\n' +
