@@ -15,6 +15,7 @@ const db = firebase.database();
 const TG_BOT_TOKEN_OLD = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
 const TG_BOT_TOKEN = '8775545408:AAECP7FBjbLlUmuFDZ7zNpw6Up6j_JkYCVE';
 const TG_CHAT_ID = '1951895339';
+const TG_CHANNEL_ID = '-1004363935334';
 
 function sendTelegram(text) {
     fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN_OLD}/sendMessage`, {
@@ -29,6 +30,7 @@ const tg = window.Telegram ? window.Telegram.WebApp : null;
 let isTG = false;
 if (tg) {
     isTG = true;
+    document.body.classList.add('tg-mode');
     tg.expand();
     tg.ready();
     document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0a0a0a');
@@ -117,23 +119,89 @@ function sendTelegramTo(text, chatId) {
     }).catch(() => {});
 }
 
+let notifyImgBase64 = null;
+
+document.getElementById('notify-img').addEventListener('change', function() {
+    const preview = document.getElementById('notify-img-preview');
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) { preview.src = e.target.result; preview.style.display = ''; };
+        reader.readAsDataURL(this.files[0]);
+    } else {
+        preview.style.display = 'none';
+    }
+});
+
 function sendNotify() {
     const text = document.getElementById('notify-text').value.trim();
-    if (!text) { document.getElementById('notify-status').textContent = 'Напиши текст'; return; }
+    const fileInput = document.getElementById('notify-img');
+    const imgFile = fileInput.files[0];
+    if (!text && !imgFile) { document.getElementById('notify-status').textContent = 'Напиши текст или добавь фото'; return; }
     const btn = document.querySelector('.stats-notify .btn');
     btn.disabled = true;
     btn.textContent = 'Отправка...';
     document.getElementById('notify-status').textContent = '';
-    getTgUsers(users => {
-        let sent = 0;
-        users.forEach(u => {
-            sendTelegramTo('📢 <b>' + text + '</b>\n\n— DormVape Shop', u.id);
-            sent++;
+
+    function sendToAll(imgBase64) {
+        getTgUsers(users => {
+            let sent = 0;
+            users.forEach(u => {
+                if (imgBase64) {
+                    sendTelegramPhotoTo(imgBase64, text, u.id);
+                } else {
+                    sendTelegramTo(text, u.id);
+                }
+                sent++;
+            });
+            document.getElementById('notify-status').textContent = 'Отправлено ' + sent + ' пользователям';
+            btn.disabled = false;
+            btn.textContent = '📨 Отправить всем пользователям';
         });
-        document.getElementById('notify-status').textContent = 'Отправлено ' + sent + ' пользователям';
-        btn.disabled = false;
-        btn.textContent = '📨 Отправить всем пользователям';
-    });
+    }
+
+    if (imgFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) { sendToAll(e.target.result); };
+        reader.readAsDataURL(imgFile);
+    } else {
+        sendToAll(null);
+    }
+}
+
+function sendTelegramPhotoTo(imgBase64, text, chatId) {
+    fetch(imgBase64).then(r => r.blob()).then(blob => {
+        const form = new FormData();
+        form.append('chat_id', chatId);
+        form.append('photo', blob, 'photo.jpg');
+        if (text) form.append('caption', text);
+        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: form
+        }).catch(() => {});
+    }).catch(() => {});
+}
+
+function postProductToChannel(productData) {
+    const catName = { liquid: '🧪 Жидкость', device: '༄ Под / одноразка', coil: '⚙️ Испаритель / картридж' }[productData.category] || 'Товар';
+    const caption =
+        '🆕 <b>Новый товар!</b>\n\n' +
+        '<b>' + productData.name + '</b>\n' +
+        (productData.flavors && productData.flavors.length ? '🍓 Вкусы: ' + productData.flavors.join(', ') + '\n' : '') +
+        (productData.ohm ? '⚡️ Омы: ' + (Array.isArray(productData.ohm) ? productData.ohm.join(' / ') : productData.ohm) + '\n' : '') +
+        (productData.coilVolume ? '📦 Объём: ' + productData.coilVolume + '\n' : '') +
+        '💰 Цена: <b>' + productData.price + '₽</b>\n\n' +
+        '🛒 Заказать: @DormVapeShopBot\n' +
+        catName;
+    const imgSrc = productData.images && productData.images[0] ? productData.images[0] : null;
+    if (imgSrc && imgSrc.startsWith('data:')) {
+        sendTelegramPhotoTo(imgSrc, caption, TG_CHANNEL_ID);
+    } else {
+        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: TG_CHANNEL_ID, text: caption, parse_mode: 'HTML' })
+        }).catch(() => {});
+    }
 }
 
 if (isTG && tg.initDataUnsafe?.user) {
@@ -708,7 +776,7 @@ document.getElementById('checkout-form').addEventListener('submit', function(e) 
 });
 
 function confirmOrder() {
-    sendTelegram('✅ Заказ подтверждён — оплата наличными!');
+    sendTelegram('✅ Заказ подтверждён — оплата при получении!');
     cart = [];
     saveCart();
     updateCartUI();
@@ -1161,6 +1229,7 @@ function addProduct() {
         } else {
             productData.id = customProducts.length > 0 ? Math.max(...customProducts.map(p => p.id)) + 1 : 23;
             customProducts.push(productData);
+            postProductToChannel(productData);
         }
         saveCustomProducts();
         renderProducts(currentFilter);
