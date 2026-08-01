@@ -614,6 +614,22 @@ header {
     align-items: flex-end;
 }
 
+.tg-mode .glass,
+.tg-mode .product-card {
+    background: rgba(20, 20, 25, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tg-mode header,
+.tg-mode .hero-content,
+.tg-mode .info-card,
+.tg-mode .contact-item,
+.tg-mode .category-list,
+.tg-mode .cart-total {
+    background: rgba(20, 20, 25, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .modal-sm {
     max-width: 380px;
     text-align: center;
