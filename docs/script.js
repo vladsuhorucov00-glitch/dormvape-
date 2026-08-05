@@ -1420,7 +1420,9 @@ function editProduct(idx) {
         document.getElementById('prod-flavors').value = (p.flavors || []).join(', ');
         document.getElementById('prod-strength').value = (p.strength || '').replace('мг', '');
     }
-    document.getElementById('prod-img-preview').style.display = 'none';
+    document.getElementById('prod-img-previews').style.display = 'none';
+    prodImgs = (p.images || []).slice();
+    renderProdImgPreviews();
     document.getElementById('prod-submit-btn').textContent = 'Сохранить';
     document.getElementById('prod-cancel-btn').style.display = '';
 }
@@ -1440,7 +1442,8 @@ function resetProductForm() {
     document.getElementById('prod-ohm-input').value = '';
     document.getElementById('prod-coil-volume').value = '';
     document.getElementById('prod-img').value = '';
-    document.getElementById('prod-img-preview').style.display = 'none';
+    prodImgs = [];
+    document.getElementById('prod-img-previews').style.display = 'none';
 }
 
 document.getElementById('prod-category').addEventListener('change', function() {
@@ -1451,16 +1454,32 @@ document.getElementById('prod-category').addEventListener('change', function() {
     document.getElementById('prod-coil-fields').style.display = isCoil ? '' : 'none';
 });
 
+let prodImgs = [];
+
 document.getElementById('prod-img').addEventListener('change', function() {
-    const preview = document.getElementById('prod-img-preview');
-    if (this.files && this.files[0]) {
+    const files = Array.from(this.files || []);
+    files.forEach(f => {
         const reader = new FileReader();
-        reader.onload = function(e) { preview.src = e.target.result; preview.style.display = ''; };
-        reader.readAsDataURL(this.files[0]);
-    } else {
-        preview.style.display = 'none';
-    }
+        reader.onload = function(e) { prodImgs.push(e.target.result); renderProdImgPreviews(); };
+        reader.readAsDataURL(f);
+    });
+    this.value = '';
 });
+
+function renderProdImgPreviews() {
+    const wrap = document.getElementById('prod-img-previews');
+    if (!wrap) return;
+    wrap.innerHTML = prodImgs.map((src, i) =>
+        '<div class="notify-thumb-wrap"><img src="' + src + '" class="notify-thumb">' +
+        '<button type="button" class="notify-thumb-del" onclick="removeProdImg(' + i + ')">✕</button></div>'
+    ).join('');
+    wrap.style.display = prodImgs.length ? 'flex' : 'none';
+}
+
+function removeProdImg(idx) {
+    prodImgs.splice(idx, 1);
+    renderProdImgPreviews();
+}
 
 function addProduct() {
     const name = document.getElementById('prod-name').value.trim();
@@ -1476,34 +1495,24 @@ function addProduct() {
     if (isCoil && (!ohm || ohm.length === 0)) { alert('Добавьте хотя бы один ом'); return; }
     const coilVolume = isCoil ? (document.getElementById('prod-coil-volume').value.trim().replace(/[^0-9.]/g, '') + 'мл') : null;
     const strength = isLiquid ? (document.getElementById('prod-strength').value.trim().replace(/[^0-9.]/g, '') + 'мг') : null;
-    const fileInput = document.getElementById('prod-img');
-    const file = fileInput.files[0];
-    function save(imgSrc) {
-        const productData = {
-            name, price, category,
-            flavors, images: [imgSrc],
-            oldPrice: null, brand: '—', strength: strength || '—', volume: '—',
-            ohm, coilVolume
-        };
-        if (editingIndex >= 0) {
-            Object.assign(customProducts[editingIndex], productData);
-        } else {
-            productData.id = customProducts.length > 0 ? Math.max(...customProducts.map(p => p.id)) + 1 : 23;
-            customProducts.push(productData);
-            postProductToChannel(productData);
-        }
-        saveCustomProducts();
-        renderProducts(currentFilter);
-        renderCustomProducts();
-        cancelEdit();
-    }
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) { save(e.target.result); };
-        reader.readAsDataURL(file);
+    const images = prodImgs.length ? prodImgs.slice() : (editingIndex >= 0 ? (customProducts[editingIndex].images || []) : ['img/1_1.jpg']);
+    const productData = {
+        name, price, category,
+        flavors, images,
+        oldPrice: null, brand: '—', strength: strength || '—', volume: '—',
+        ohm, coilVolume
+    };
+    if (editingIndex >= 0) {
+        Object.assign(customProducts[editingIndex], productData);
     } else {
-        save(editingIndex >= 0 ? customProducts[editingIndex].images[0] : 'img/1_1.jpg');
+        productData.id = customProducts.length > 0 ? Math.max(...customProducts.map(p => p.id)) + 1 : 23;
+        customProducts.push(productData);
+        postProductToChannel(productData);
     }
+    saveCustomProducts();
+    renderProducts(currentFilter);
+    renderCustomProducts();
+    cancelEdit();
 }
 
 function removeProduct(idx) {

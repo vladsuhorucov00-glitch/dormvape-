@@ -363,8 +363,8 @@
                         <input type="text" id="prod-ohm-input" placeholder="Омы через запятую (напр. 0.6, 0.8, 1.0)" class="checkout-input">
                         <input type="text" id="prod-coil-volume" placeholder="Объём (напр. 2)" class="checkout-input" onblur="this.value=this.value.replace(/[^0-9.]/g,'')+(this.value?'мл':'')">
                     </div>
-                    <input type="file" id="prod-img" accept="image/*" class="checkout-input" style="padding:8px;font-size:13px">
-                    <img id="prod-img-preview" style="display:none;max-width:80px;margin:4px 0;border-radius:6px">
+                    <input type="file" id="prod-img" accept="image/*" multiple class="checkout-input" style="padding:8px;font-size:13px">
+                    <div id="prod-img-previews" style="display:none;flex-wrap:wrap;gap:8px;margin:4px 0"></div>
                     <button class="btn" id="prod-submit-btn" onclick="addProduct()">Добавить товар</button>
                     <button class="btn btn-outline" id="prod-cancel-btn" style="display:none" onclick="cancelEdit()">Отмена</button>
                     <div class="stats-tables" id="stats-products-list" style="margin-top:16px"></div>
