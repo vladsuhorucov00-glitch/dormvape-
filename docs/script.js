@@ -866,6 +866,60 @@ function monthLabel(key) {
 
 let selectedMonth = null;
 
+// ===== HISTORY (UNDO/REDO) =====
+let historyUndo = [];
+let historyRedo = [];
+const HISTORY_LIMIT = 50;
+
+function pushHistory() {
+    historyUndo.push({
+        stats: JSON.parse(JSON.stringify(statsEntries)),
+        stock: JSON.parse(JSON.stringify(stockProducts))
+    });
+    if (historyUndo.length > HISTORY_LIMIT) historyUndo.shift();
+    historyRedo = [];
+    updateHistoryButtons();
+}
+
+function undoStats() {
+    if (historyUndo.length === 0) return;
+    historyRedo.push({
+        stats: JSON.parse(JSON.stringify(statsEntries)),
+        stock: JSON.parse(JSON.stringify(stockProducts))
+    });
+    const snap = historyUndo.pop();
+    statsEntries = snap.stats;
+    stockProducts = snap.stock;
+    saveStats();
+    saveStock();
+    renderStats();
+    renderStock();
+    updateHistoryButtons();
+}
+
+function redoStats() {
+    if (historyRedo.length === 0) return;
+    historyUndo.push({
+        stats: JSON.parse(JSON.stringify(statsEntries)),
+        stock: JSON.parse(JSON.stringify(stockProducts))
+    });
+    const snap = historyRedo.pop();
+    statsEntries = snap.stats;
+    stockProducts = snap.stock;
+    saveStats();
+    saveStock();
+    renderStats();
+    renderStock();
+    updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+    const b = document.getElementById('btn-history-back');
+    const f = document.getElementById('btn-history-forward');
+    if (b) b.classList.toggle('disabled', historyUndo.length === 0);
+    if (f) f.classList.toggle('disabled', historyRedo.length === 0);
+}
+
 function renderStats() {
     const incomeTbody = document.getElementById('stats-income-tbody');
     const expenseTbody = document.getElementById('stats-expense-tbody');
@@ -989,6 +1043,7 @@ function renderMonths() {
 }
 
 function statsDelete(idx) {
+    pushHistory();
     statsEntries.splice(idx, 1);
     saveStats();
     renderStats();
@@ -1001,6 +1056,8 @@ document.getElementById('stats-income-form').addEventListener('submit', function
     const desc = document.getElementById('stats-income-desc').value.trim();
     const qty = parseInt(document.getElementById('stats-income-qty').value) || 1;
     if (!amount || amount <= 0) return;
+
+    pushHistory();
 
     if (editingIncomeIdx >= 0) {
         const old = statsEntries[editingIncomeIdx];
@@ -1083,6 +1140,8 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
     });
 
     if (items.length === 0) return;
+
+    pushHistory();
 
     if (editingExpenseIdx >= 0) {
         const old = statsEntries[editingExpenseIdx];
@@ -1399,3 +1458,4 @@ window.addEventListener('scroll', function() {
 // ===== INIT =====
 updateCartUI();
 renderProducts('all');
+updateHistoryButtons();
