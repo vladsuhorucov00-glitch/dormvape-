@@ -293,9 +293,15 @@
                     <h3>Добавить доход</h3>
                     <input type="number" id="stats-income-amount" placeholder="Сумма *" class="checkout-input" required>
                     <input type="text" id="stats-income-who" placeholder="Кому" class="checkout-input">
-                    <input type="text" id="stats-income-desc" placeholder="Что продано" class="checkout-input">
-                    <input type="number" id="stats-income-qty" placeholder="Кол-во" value="1" min="1" class="checkout-input">
-                    <div style="display:flex;gap:8px">
+                    <div id="sale-items">
+                        <div class="delivery-item sale-item">
+                            <input type="text" placeholder="Что продано" class="si-name checkout-input" style="flex:1">
+                            <input type="number" placeholder="Кол-во" class="si-qty checkout-input" min="1" value="1" style="width:70px">
+                            <button type="button" class="di-remove">✕</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline" onclick="addSaleItem()">+ Добавить товар</button>
+                    <div style="display:flex;gap:8px;margin-top:8px">
                         <button type="submit" class="btn" id="income-submit-btn">Добавить</button>
                         <button type="button" class="btn btn-outline" id="income-cancel-btn" style="display:none" onclick="cancelIncomeEdit()">Отмена</button>
                     </div>
@@ -334,8 +340,8 @@
                 <div id="stats-products-form" class="stats-form" style="display:none">
                     <div class="stats-notify">
                         <h3>Рассылка пользователям</h3>
-                        <input type="file" id="notify-img" accept="image/*" class="checkout-input" style="padding:8px;font-size:13px">
-                        <img id="notify-img-preview" style="display:none;max-width:120px;margin:4px 0;border-radius:6px">
+                        <input type="file" id="notify-img" accept="image/*" multiple class="checkout-input" style="padding:8px;font-size:13px">
+                        <div id="notify-img-previews" style="display:none;flex-wrap:wrap;gap:8px;margin:4px 0"></div>
                         <textarea id="notify-text" placeholder="Текст уведомления..." class="checkout-input checkout-textarea"></textarea>
                         <button class="btn" onclick="sendNotify()">📨 Отправить всем пользователям</button>
                         <div id="notify-status" style="font-size:12px;color:#888;margin-top:6px"></div>

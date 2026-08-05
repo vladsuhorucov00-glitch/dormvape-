@@ -121,42 +121,59 @@ function sendTelegramTo(text, chatId) {
     }).catch(() => {});
 }
 
-let notifyImgBase64 = null;
+let notifyImgs = [];
+const MAX_NOTIFY_IMGS = 10;
 
 document.getElementById('notify-img').addEventListener('change', function() {
-    const preview = document.getElementById('notify-img-preview');
-    if (this.files && this.files[0]) {
+    const files = Array.from(this.files || []);
+    files.slice(0, MAX_NOTIFY_IMGS - notifyImgs.length).forEach(f => {
         const reader = new FileReader();
-        reader.onload = function(e) { preview.src = e.target.result; preview.style.display = ''; };
-        reader.readAsDataURL(this.files[0]);
-    } else {
-        preview.style.display = 'none';
-    }
+        reader.onload = function(e) { notifyImgs.push(e.target.result); renderNotifyPreviews(); };
+        reader.readAsDataURL(f);
+    });
+    this.value = '';
 });
+
+function renderNotifyPreviews() {
+    const wrap = document.getElementById('notify-img-previews');
+    if (!wrap) return;
+    wrap.innerHTML = notifyImgs.map((src, i) =>
+        '<div class="notify-thumb-wrap"><img src="' + src + '" class="notify-thumb">' +
+        '<button type="button" class="notify-thumb-del" onclick="notifyRemoveImg(' + i + ')">✕</button></div>'
+    ).join('');
+    wrap.style.display = notifyImgs.length ? 'flex' : 'none';
+}
+
+function notifyRemoveImg(idx) {
+    notifyImgs.splice(idx, 1);
+    renderNotifyPreviews();
+}
 
 function sendNotify() {
     const text = document.getElementById('notify-text').value.trim();
-    const fileInput = document.getElementById('notify-img');
-    const imgFile = fileInput.files[0];
-    if (!text && !imgFile) { document.getElementById('notify-status').textContent = 'Напиши текст или добавь фото'; return; }
+    if (!text && notifyImgs.length === 0) { document.getElementById('notify-status').textContent = 'Напиши текст или добавь фото'; return; }
     const btn = document.querySelector('.stats-notify .btn');
     btn.disabled = true;
     btn.textContent = 'Отправка...';
     document.getElementById('notify-status').textContent = '';
 
-    function sendToAll(imgBase64) {
+    function sendToAll() {
         getTgUsers(users => {
             let sent = 0;
             users.forEach(u => {
-                if (imgBase64) {
-                    sendTelegramPhotoTo(imgBase64, text, u.id);
+                if (notifyImgs.length === 1) {
+                    sendTelegramPhotoTo(notifyImgs[0], text, u.id);
+                } else if (notifyImgs.length > 1) {
+                    sendTelegramPhotoGroupTo(notifyImgs, text, u.id);
                 } else {
                     sendTelegramTo(text, u.id);
                 }
                 sent++;
             });
-            if (imgBase64) {
-                sendTelegramPhotoTo(imgBase64, text, TG_CHANNEL_ID);
+            if (notifyImgs.length === 1) {
+                sendTelegramPhotoTo(notifyImgs[0], text, TG_CHANNEL_ID);
+            } else if (notifyImgs.length > 1) {
+                sendTelegramPhotoGroupTo(notifyImgs, text, TG_CHANNEL_ID);
             } else {
                 sendTelegramTo(text, TG_CHANNEL_ID);
             }
@@ -166,13 +183,7 @@ function sendNotify() {
         });
     }
 
-    if (imgFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) { sendToAll(e.target.result); };
-        reader.readAsDataURL(imgFile);
-    } else {
-        sendToAll(null);
-    }
+    sendToAll();
 }
 
 function sendTelegramPhotoTo(imgBase64, text, chatId) {
@@ -185,6 +196,24 @@ function sendTelegramPhotoTo(imgBase64, text, chatId) {
             form.append('parse_mode', 'HTML');
         }
         fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: form
+        }).catch(() => {});
+    }).catch(() => {});
+}
+
+function sendTelegramPhotoGroupTo(imgs, text, chatId) {
+    Promise.all(imgs.slice(0, MAX_NOTIFY_IMGS).map(src => fetch(src).then(r => r.blob()))).then(blobs => {
+        const form = new FormData();
+        form.append('chat_id', chatId);
+        const media = blobs.map((b, i) => {
+            const item = { type: 'photo', media: 'attach://p' + i };
+            if (i === 0 && text) { item.caption = text; item.parse_mode = 'HTML'; }
+            return item;
+        });
+        form.append('media', JSON.stringify(media));
+        blobs.forEach((b, i) => form.append('p' + i, b, 'photo' + i + '.jpg'));
+        fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMediaGroup`, {
             method: 'POST',
             body: form
         }).catch(() => {});
@@ -954,8 +983,8 @@ function renderStats() {
 
     incomeTbody.innerHTML = incomeEntries.map(e =>
         '<div class="cart-item" style="margin-bottom:4px">' +
-        '<div class="item-info"><div class="item-name">' + (e.desc || '—') + '</div>' +
-        '<div class="item-price">' + e.date + ' · ' + (e.who || '—') + ' · x' + (e.qty || 1) + '</div></div>' +
+        '<div class="item-info"><div class="item-name">' + incomeItemNames(e) + '</div>' +
+        '<div class="item-price">' + e.date + ' · ' + (e.who || '—') + '</div></div>' +
         '<div style="font-weight:600;color:#4caf50">+' + e.amount + '₽</div>' +
         '<button class="remove-item" onclick="editIncome(' + e.realIdx + ')" style="color:#4ea8f5">✎</button>' +
         '<button class="remove-item" onclick="statsDelete(' + e.realIdx + ')">✕</button></div>'
@@ -984,8 +1013,8 @@ function monthDetailHTML(m) {
         html += '<div class="month-subtitle">Доходы</div>';
         html += inc.reverse().map(e =>
             '<div class="cart-item" style="margin-bottom:4px">' +
-            '<div class="item-info"><div class="item-name">' + (e.desc || '—') + '</div>' +
-            '<div class="item-price">' + e.date + ' · ' + (e.who || '—') + ' · x' + (e.qty || 1) + '</div></div>' +
+            '<div class="item-info"><div class="item-name">' + incomeItemNames(e) + '</div>' +
+            '<div class="item-price">' + e.date + ' · ' + (e.who || '—') + '</div></div>' +
             '<div style="font-weight:600;color:#4caf50">+' + e.amount + '₽</div></div>'
         ).join('');
     }
@@ -1006,6 +1035,18 @@ function toggleMonth(m) {
     renderMonths();
 }
 
+function incomeItemNames(e) {
+    if (e.items && e.items.length) {
+        return e.items.map(it => it.name + (it.qty > 1 ? ' x' + it.qty : '')).join(', ');
+    }
+    return e.desc || '—';
+}
+
+function incomeTotalQty(e) {
+    if (e.items && e.items.length) return e.items.reduce((s, it) => s + (it.qty || 1), 0);
+    return e.qty || 1;
+}
+
 function renderMonths() {
     const tbody = document.getElementById('stats-months-tbody');
     const empty = document.getElementById('stats-months-empty');
@@ -1016,7 +1057,7 @@ function renderMonths() {
         const m = getEntryMonth(e);
         if (!m) return;
         if (!groups[m]) groups[m] = { income: 0, expense: 0, qty: 0 };
-        if (e.type === 'income') { groups[m].income += e.amount; groups[m].qty += (e.qty || 1); }
+        if (e.type === 'income') { groups[m].income += e.amount; groups[m].qty += incomeTotalQty(e); }
         else groups[m].expense += e.totalAmount || e.amount || 0;
     });
 
@@ -1053,33 +1094,57 @@ document.getElementById('stats-income-form').addEventListener('submit', function
     e.preventDefault();
     const amount = parseFloat(document.getElementById('stats-income-amount').value);
     const who = document.getElementById('stats-income-who').value.trim();
-    const desc = document.getElementById('stats-income-desc').value.trim();
-    const qty = parseInt(document.getElementById('stats-income-qty').value) || 1;
+    const items = [];
+    document.querySelectorAll('.sale-item').forEach(row => {
+        const name = row.querySelector('.si-name').value.trim();
+        const qty = parseInt(row.querySelector('.si-qty').value) || 1;
+        if (name) items.push({ name, qty });
+    });
     if (!amount || amount <= 0) return;
 
     pushHistory();
 
     if (editingIncomeIdx >= 0) {
         const old = statsEntries[editingIncomeIdx];
-        statsEntries[editingIncomeIdx] = { ...old, amount, who, desc, qty };
+        statsEntries[editingIncomeIdx] = { ...old, amount, who, items };
         editingIncomeIdx = -1;
     } else {
         const now = new Date();
         const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-        statsEntries.push({ type: 'income', amount, who, desc, qty, date, month: currentMonthKey() });
-        if (desc) {
-            const match = stockProducts.find(p => p.name.toLowerCase() === desc.toLowerCase());
+        statsEntries.push({ type: 'income', amount, who, items, date, month: currentMonthKey() });
+        items.forEach(it => {
+            const match = stockProducts.find(p => p.name.toLowerCase() === it.name.toLowerCase());
             if (match) {
-                match.qty = Math.max(0, match.qty - qty);
+                match.qty = Math.max(0, match.qty - it.qty);
                 saveStock();
                 renderStock();
             }
-        }
+        });
     }
     saveStats();
     renderStats();
     cancelIncomeEdit();
 });
+
+// ===== SALE ITEMS (доход) =====
+function addSaleItem() {
+    const container = document.getElementById('sale-items');
+    const div = document.createElement('div');
+    div.className = 'delivery-item sale-item';
+    div.innerHTML = '<input type="text" placeholder="Что продано" class="si-name checkout-input" style="flex:1">' +
+        '<input type="number" placeholder="Кол-во" class="si-qty checkout-input" min="1" value="1" style="width:70px">' +
+        '<button type="button" class="di-remove">✕</button>';
+    container.appendChild(div);
+    bindSaleItemEvents(div);
+}
+
+function bindSaleItemEvents(row) {
+    row.querySelector('.di-remove').addEventListener('click', function() {
+        if (document.querySelectorAll('.sale-item').length > 1) row.remove();
+    });
+}
+
+bindSaleItemEvents(document.querySelector('.sale-item'));
 
 // ===== DELIVERY ITEMS =====
 function calcItemTotal(row) {
@@ -1212,8 +1277,18 @@ function editIncome(idx) {
     editingIncomeIdx = idx;
     document.getElementById('stats-income-amount').value = e.amount;
     document.getElementById('stats-income-who').value = e.who || '';
-    document.getElementById('stats-income-desc').value = e.desc || '';
-    document.getElementById('stats-income-qty').value = e.qty || 1;
+    const container = document.getElementById('sale-items');
+    container.innerHTML = '';
+    const items = (e.items && e.items.length) ? e.items : (e.desc ? [{ name: e.desc, qty: e.qty || 1 }] : [{ name: '', qty: 1 }]);
+    items.forEach(it => {
+        const div = document.createElement('div');
+        div.className = 'delivery-item sale-item';
+        div.innerHTML = '<input type="text" placeholder="Что продано" class="si-name checkout-input" style="flex:1" value="' + (it.name || '') + '">' +
+            '<input type="number" placeholder="Кол-во" class="si-qty checkout-input" min="1" value="' + (it.qty || 1) + '" style="width:70px">' +
+            '<button type="button" class="di-remove">✕</button>';
+        container.appendChild(div);
+        bindSaleItemEvents(div);
+    });
     document.getElementById('income-submit-btn').textContent = 'Сохранить';
     document.getElementById('income-cancel-btn').style.display = '';
 }
@@ -1222,8 +1297,12 @@ function cancelIncomeEdit() {
     editingIncomeIdx = -1;
     document.getElementById('stats-income-amount').value = '';
     document.getElementById('stats-income-who').value = '';
-    document.getElementById('stats-income-desc').value = '';
-    document.getElementById('stats-income-qty').value = '1';
+    const container = document.getElementById('sale-items');
+    container.innerHTML = '<div class="delivery-item sale-item">' +
+        '<input type="text" placeholder="Что продано" class="si-name checkout-input" style="flex:1">' +
+        '<input type="number" placeholder="Кол-во" class="si-qty checkout-input" min="1" value="1" style="width:70px">' +
+        '<button type="button" class="di-remove">✕</button></div>';
+    bindSaleItemEvents(document.querySelector('.sale-item'));
     document.getElementById('income-submit-btn').textContent = 'Добавить';
     document.getElementById('income-cancel-btn').style.display = 'none';
 }
