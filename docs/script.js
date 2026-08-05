@@ -33,12 +33,14 @@ if (tg) {
     document.body.classList.add('tg-mode');
     tg.expand();
     tg.ready();
-    document.documentElement.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#0a0a0a');
-    document.documentElement.style.setProperty('--tg-text', tg.themeParams.text_color || '#e0e0e0');
-    document.documentElement.style.setProperty('--tg-hint', tg.themeParams.hint_color || '#888');
-    document.documentElement.style.setProperty('--tg-btn', tg.themeParams.button_color || '#5288c1');
-    document.documentElement.style.setProperty('--tg-btn-text', tg.themeParams.button_text_color || '#fff');
-    document.documentElement.style.setProperty('--tg-secondary', tg.themeParams.secondary_bg_color || 'rgba(255,255,255,0.04)');
+    tg.setHeaderColor('#0a0a0a');
+    tg.setBackgroundColor('#0a0a0a');
+    document.documentElement.style.setProperty('--tg-bg', '#0a0a0a');
+    document.documentElement.style.setProperty('--tg-text', '#e0e0e0');
+    document.documentElement.style.setProperty('--tg-hint', '#888');
+    document.documentElement.style.setProperty('--tg-btn', '#5288c1');
+    document.documentElement.style.setProperty('--tg-btn-text', '#fff');
+    document.documentElement.style.setProperty('--tg-secondary', 'rgba(255,255,255,0.04)');
 }
 
 function tgNav(page) {
@@ -153,7 +155,12 @@ function sendNotify() {
                 }
                 sent++;
             });
-            document.getElementById('notify-status').textContent = 'Отправлено ' + sent + ' пользователям';
+            if (imgBase64) {
+                sendTelegramPhotoTo(imgBase64, text, TG_CHANNEL_ID);
+            } else {
+                sendTelegramTo(text, TG_CHANNEL_ID);
+            }
+            document.getElementById('notify-status').textContent = 'Отправлено ' + sent + ' пользователям + канал';
             btn.disabled = false;
             btn.textContent = '📨 Отправить всем пользователям';
         });
@@ -835,23 +842,58 @@ document.getElementById('password-input').addEventListener('keydown', function(e
 });
 
 // ===== STATS =====
+const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+function currentMonthKey() {
+    const now = new Date();
+    return now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+}
+
+function getEntryMonth(e) {
+    if (e.month) return e.month;
+    if (e.date) {
+        const parts = e.date.split('.');
+        if (parts.length === 3) return parts[2] + '-' + parts[1];
+    }
+    return null;
+}
+
+function monthLabel(key) {
+    if (!key) return '';
+    const p = key.split('-');
+    return MONTH_NAMES[+p[1] - 1] + ' ' + p[0];
+}
+
+let selectedMonth = null;
+
 function renderStats() {
     const incomeTbody = document.getElementById('stats-income-tbody');
     const expenseTbody = document.getElementById('stats-expense-tbody');
     if (!incomeTbody || !expenseTbody) return;
 
-    let totalIncome = 0, totalExpense = 0;
+    const curMonth = currentMonthKey();
+
+    let totalIncome = 0, totalExpense = 0, allIncome = 0, allExpense = 0;
     statsEntries.forEach(e => {
+        if (e.type === 'income') { allIncome += e.amount; } else { allExpense += e.totalAmount || e.amount || 0; }
+        if (getEntryMonth(e) !== curMonth) return;
         if (e.type === 'income') totalIncome += e.amount;
         else totalExpense += e.totalAmount || e.amount || 0;
     });
+
+    document.getElementById('stats-all-income').textContent = allIncome + '₽';
+    document.getElementById('stats-all-expense').textContent = allExpense + '₽';
+    document.getElementById('stats-all-profit').textContent = (allIncome - allExpense) + '₽';
+
+    const ml = document.getElementById('stats-current-month');
+    if (ml) ml.textContent = monthLabel(curMonth);
 
     document.getElementById('stats-total-income').textContent = totalIncome + '₽';
     document.getElementById('stats-total-expense').textContent = totalExpense + '₽';
     document.getElementById('stats-total-profit').textContent = (totalIncome - totalExpense) + '₽';
 
-    const incomeEntries = statsEntries.map((e, i) => ({ ...e, realIdx: i })).filter(e => e.type === 'income').reverse();
-    const expenseEntries = statsEntries.map((e, i) => ({ ...e, realIdx: i })).filter(e => e.type === 'expense').reverse();
+    const incomeEntries = statsEntries.map((e, i) => ({ ...e, realIdx: i })).filter(e => e.type === 'income' && getEntryMonth(e) === curMonth).reverse();
+    const expenseEntries = statsEntries.map((e, i) => ({ ...e, realIdx: i })).filter(e => e.type === 'expense' && getEntryMonth(e) === curMonth).reverse();
 
     document.getElementById('stats-income-empty').style.display = incomeEntries.length === 0 ? 'block' : 'none';
     document.getElementById('stats-expense-empty').style.display = expenseEntries.length === 0 ? 'block' : 'none';
@@ -876,6 +918,74 @@ function renderStats() {
         '<div class="expense-details" style="width:100%;font-size:12px;color:#666;padding:4px;display:none">' +
         ((e.items || []).map(it => it.name + ' x' + it.qty + ' = ' + it.total + '₽').join('<br>')) + '</div></div>';
     }).join('');
+
+    renderMonths();
+}
+
+function monthDetailHTML(m) {
+    const inc = statsEntries.filter(e => e.type === 'income' && getEntryMonth(e) === m);
+    const exp = statsEntries.filter(e => e.type === 'expense' && getEntryMonth(e) === m);
+    let html = '';
+    if (inc.length) {
+        html += '<div class="month-subtitle">Доходы</div>';
+        html += inc.reverse().map(e =>
+            '<div class="cart-item" style="margin-bottom:4px">' +
+            '<div class="item-info"><div class="item-name">' + (e.desc || '—') + '</div>' +
+            '<div class="item-price">' + e.date + ' · ' + (e.who || '—') + ' · x' + (e.qty || 1) + '</div></div>' +
+            '<div style="font-weight:600;color:#4caf50">+' + e.amount + '₽</div></div>'
+        ).join('');
+    }
+    if (exp.length) {
+        html += '<div class="month-subtitle">Расходы</div>';
+        html += exp.reverse().map(e =>
+            '<div class="cart-item" style="margin-bottom:4px">' +
+            '<div class="item-info"><div class="item-name">Поставка ' + (e.invoice || 'б/н') + '</div>' +
+            '<div class="item-price">' + e.date + '</div></div>' +
+            '<div style="font-weight:600;color:#e74c3c">-' + (e.totalAmount || e.amount || 0) + '₽</div></div>'
+        ).join('');
+    }
+    return html;
+}
+
+function toggleMonth(m) {
+    selectedMonth = (selectedMonth === m) ? null : m;
+    renderMonths();
+}
+
+function renderMonths() {
+    const tbody = document.getElementById('stats-months-tbody');
+    const empty = document.getElementById('stats-months-empty');
+    if (!tbody) return;
+
+    const groups = {};
+    statsEntries.forEach(e => {
+        const m = getEntryMonth(e);
+        if (!m) return;
+        if (!groups[m]) groups[m] = { income: 0, expense: 0, qty: 0 };
+        if (e.type === 'income') { groups[m].income += e.amount; groups[m].qty += (e.qty || 1); }
+        else groups[m].expense += e.totalAmount || e.amount || 0;
+    });
+
+    const keys = Object.keys(groups).sort().reverse();
+    empty.style.display = keys.length === 0 ? 'block' : 'none';
+
+    tbody.innerHTML = keys.map(m => {
+        const g = groups[m];
+        const profit = g.income - g.expense;
+        const isCurrent = m === currentMonthKey();
+        const isOpen = selectedMonth === m;
+        return '<div class="month-row" onclick="toggleMonth(\'' + m + '\')">' +
+            '<div class="month-row-title">' + monthLabel(m) +
+            (isCurrent ? '<span class="month-current-tag">текущий</span>' : '') + '</div>' +
+            '<div class="month-metrics">' +
+            '<div class="month-metric">Продано<b>' + g.qty + '</b></div>' +
+            '<div class="month-metric good">Доходы<b>+' + g.income + '₽</b></div>' +
+            '<div class="month-metric bad">Расходы<b>-' + g.expense + '₽</b></div>' +
+            '<div class="month-metric">Прибыль<b>' + profit + '₽</b></div>' +
+            '</div>' +
+            (isOpen ? '<div class="month-detail">' + monthDetailHTML(m) + '</div>' : '') +
+            '</div>';
+    }).join('');
 }
 
 function statsDelete(idx) {
@@ -899,7 +1009,7 @@ document.getElementById('stats-income-form').addEventListener('submit', function
     } else {
         const now = new Date();
         const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-        statsEntries.push({ type: 'income', amount, who, desc, qty, date });
+        statsEntries.push({ type: 'income', amount, who, desc, qty, date, month: currentMonthKey() });
         if (desc) {
             const match = stockProducts.find(p => p.name.toLowerCase() === desc.toLowerCase());
             if (match) {
@@ -981,7 +1091,7 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
     } else {
         const now = new Date();
         const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
-        statsEntries.push({ type: 'expense', invoice, items, totalAmount, date });
+        statsEntries.push({ type: 'expense', invoice, items, totalAmount, date, month: currentMonthKey() });
         items.forEach(it => {
             const existing = stockProducts.find(p => p.name.toLowerCase() === it.name.toLowerCase());
             if (existing) { existing.qty += it.qty; } else { stockProducts.push({ name: it.name, qty: it.qty }); }
@@ -1124,8 +1234,10 @@ function switchStatsTab(t) {
     document.getElementById('stats-products-form').style.display = t === 'products' ? '' : 'none';
     document.getElementById('stats-income-wrap').style.display = t === 'income' ? '' : 'none';
     document.getElementById('stats-expense-wrap').style.display = t === 'expense' ? '' : 'none';
+    document.getElementById('stats-months-wrap').style.display = t === 'months' ? '' : 'none';
     if (editingExpenseIdx >= 0 && t !== 'expense') cancelExpenseEdit();
     if (editingIncomeIdx >= 0 && t !== 'income') cancelIncomeEdit();
+    if (t === 'months') renderMonths();
     if (t === 'products') {
         cancelEdit();
         document.getElementById('prod-category').value = 'liquid';
