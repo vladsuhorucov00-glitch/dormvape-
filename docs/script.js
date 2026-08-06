@@ -1156,7 +1156,7 @@ function calcItemTotal(row) {
 
 function calcDeliveryTotal() {
     let sum = 0;
-    document.querySelectorAll('.delivery-item').forEach(row => {
+    document.querySelectorAll('#delivery-items .delivery-item').forEach(row => {
         const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
         const price = parseFloat(row.querySelector('.di-price').value) || 0;
         sum += qty * price;
@@ -1178,14 +1178,14 @@ function bindItemEvents(row) {
     row.querySelector('.di-qty').addEventListener('input', function() { calcItemTotal(row); });
     row.querySelector('.di-price').addEventListener('input', function() { calcItemTotal(row); });
     row.querySelector('.di-remove').addEventListener('click', function() {
-        if (document.querySelectorAll('.delivery-item').length > 1) {
+        if (document.querySelectorAll('#delivery-items .delivery-item').length > 1) {
             row.remove();
             calcDeliveryTotal();
         }
     });
 }
 
-bindItemEvents(document.querySelector('.delivery-item'));
+bindItemEvents(document.querySelector('#delivery-items .delivery-item'));
 
 document.getElementById('stats-expense-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -1193,7 +1193,7 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
     const items = [];
     let totalAmount = 0;
 
-    document.querySelectorAll('.delivery-item').forEach(row => {
+    document.querySelectorAll('#delivery-items .delivery-item').forEach(row => {
         const name = row.querySelector('.di-name').value.trim();
         const qty = parseFloat(row.querySelector('.di-qty').value) || 0;
         const price = parseFloat(row.querySelector('.di-price').value) || 0;
@@ -1263,7 +1263,7 @@ function cancelExpenseEdit() {
         '<input type="number" placeholder="Цена" class="di-price checkout-input" min="0" step="0.01" required>' +
         '<span class="di-total">0₽</span>' +
         '<button type="button" class="di-remove">✕</button></div>';
-    bindItemEvents(document.querySelector('.delivery-item'));
+    bindItemEvents(document.querySelector('#delivery-items .delivery-item'));
     document.getElementById('delivery-total').textContent = '0₽';
     document.getElementById('expense-submit-btn').textContent = 'Добавить поставку';
     document.getElementById('expense-cancel-btn').style.display = 'none';
@@ -1379,9 +1379,7 @@ function switchStatsTab(t) {
     if (t === 'products') {
         cancelEdit();
         document.getElementById('prod-category').value = 'liquid';
-        document.getElementById('prod-flavors').style.display = '';
-        document.getElementById('prod-liquid-fields').style.display = '';
-        document.getElementById('prod-coil-fields').style.display = 'none';
+        applyProdCategory();
         renderCustomProducts();
     }
 }
@@ -1412,7 +1410,7 @@ function editProduct(idx) {
     document.getElementById('prod-name').value = p.name;
     document.getElementById('prod-price').value = p.price;
     document.getElementById('prod-category').value = p.category;
-    document.getElementById('prod-category').dispatchEvent(new Event('change'));
+    applyProdCategory();
     if (p.category === 'coil') {
         document.getElementById('prod-ohm-input').value = (p.ohm || []).map(o => o.replace('Ω', '')).join(', ');
         document.getElementById('prod-coil-volume').value = (p.coilVolume || '').replace('мл', '');
@@ -1446,13 +1444,16 @@ function resetProductForm() {
     document.getElementById('prod-img-previews').style.display = 'none';
 }
 
-document.getElementById('prod-category').addEventListener('change', function() {
-    const isCoil = this.value === 'coil';
-    const isLiquid = this.value === 'liquid';
+function applyProdCategory() {
+    const val = document.getElementById('prod-category').value;
+    const isCoil = val === 'coil';
+    const isLiquid = val === 'liquid';
     document.getElementById('prod-flavors').style.display = isCoil ? 'none' : '';
     document.getElementById('prod-liquid-fields').style.display = isLiquid ? '' : 'none';
     document.getElementById('prod-coil-fields').style.display = isCoil ? '' : 'none';
-});
+}
+
+document.getElementById('prod-category').addEventListener('change', applyProdCategory);
 
 let prodImgs = [];
 
