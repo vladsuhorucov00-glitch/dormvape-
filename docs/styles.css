@@ -1225,18 +1225,29 @@ select.checkout-input option {
     font-weight: 600;
 }
 
-.stats-history-controls {
+.stats-header {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
     margin-bottom: 12px;
 }
 
+.stats-header h2 {
+    margin: 0;
+}
+
+.stats-history-controls {
+    display: flex;
+    gap: 6px;
+}
+
 .history-btn {
     flex: none;
-    width: 42px;
-    padding: 8px 0;
+    width: 34px;
+    padding: 4px 0;
     text-align: center;
-    font-size: 15px;
+    font-size: 13px;
 }
 
 .history-btn.disabled {
