@@ -348,6 +348,8 @@ function switchPage(page) {
     window.scrollTo(0, 0);
     if (page === 'catalog') renderProducts(currentFilter);
     if (page === 'cart') renderCartItems();
+    const historyEl = document.getElementById('header-history');
+    if (historyEl) historyEl.style.display = page === 'stats' ? 'flex' : 'none';
 }
 
 document.querySelectorAll('.nav-btn').forEach(btn => {
