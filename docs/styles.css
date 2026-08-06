@@ -1237,9 +1237,10 @@ select.checkout-input option {
     margin: 0;
 }
 
-.stats-history-controls {
+.header-history {
     display: flex;
-    gap: 6px;
+    gap: 4px;
+    align-items: center;
 }
 
 .history-btn {

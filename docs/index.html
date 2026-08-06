@@ -46,6 +46,10 @@
             <img src="лого2.jpg" alt="DormVape" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="logo-placeholder">DV</div>
         </div>
+        <div class="header-history">
+            <button class="btn btn-outline history-btn" id="btn-history-back" onclick="undoStats()" title="Отменить">←</button>
+            <button class="btn btn-outline history-btn" id="btn-history-forward" onclick="redoStats()" title="Вернуть">→</button>
+        </div>
         <div class="header-right">
             <button class="nav-btn active" data-page="home">Главная</button>
             <button class="nav-btn" data-page="catalog">Каталог</button>
@@ -257,10 +261,6 @@
         <div class="section">
             <div class="stats-header">
                 <h2>Статистика</h2>
-                <div class="stats-history-controls">
-                    <button class="btn btn-outline history-btn" id="btn-history-back" onclick="undoStats()" title="Отменить">←</button>
-                    <button class="btn btn-outline history-btn" id="btn-history-forward" onclick="redoStats()" title="Вернуть">→</button>
-                </div>
             </div>
             <div class="stats-month-label" id="stats-current-month"></div>
             <div class="stats-summary">
