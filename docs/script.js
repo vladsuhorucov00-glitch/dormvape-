@@ -232,9 +232,11 @@ function postProductToChannel(productData) {
         '💰 Цена: <b>' + productData.price + '₽</b>\n\n' +
         '🛒 Заказать: @DormVapeShopBot\n' +
         catName;
-    const imgSrc = productData.images && productData.images[0] ? productData.images[0] : null;
-    if (imgSrc && imgSrc.startsWith('data:')) {
-        sendTelegramPhotoTo(imgSrc, caption, TG_CHANNEL_ID);
+    const imgs = (productData.images || []).filter(i => i && i.startsWith('data:'));
+    if (imgs.length > 1) {
+        sendTelegramPhotoGroupTo(imgs, caption, TG_CHANNEL_ID);
+    } else if (imgs.length === 1) {
+        sendTelegramPhotoTo(imgs[0], caption, TG_CHANNEL_ID);
     } else {
         fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
