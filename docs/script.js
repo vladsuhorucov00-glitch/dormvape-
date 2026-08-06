@@ -379,6 +379,42 @@ function updateCartUI() {
     document.getElementById('cart-count').textContent = count;
 }
 
+// ===== FLY TO CART =====
+function flyToCart(product, fromEl) {
+    const badge = document.getElementById('cart-count');
+    if (!badge) return;
+    const src = (product.images && product.images[0]) ? product.images[0] : null;
+    if (!src) return;
+    const fly = document.createElement('img');
+    fly.className = 'fly-to-cart';
+    fly.src = src;
+    fly.onerror = () => fly.remove();
+    document.body.appendChild(fly);
+
+    const startRect = fromEl ? fromEl.getBoundingClientRect() : null;
+    const startX = startRect ? startRect.left + startRect.width / 2 : window.innerWidth / 2;
+    const startY = startRect ? startRect.top + startRect.height / 2 : window.innerHeight / 2;
+    const endRect = badge.getBoundingClientRect();
+    const dx = endRect.left + endRect.width / 2 - startX;
+    const dy = endRect.top + endRect.height / 2 - startY;
+
+    fly.style.left = startX + 'px';
+    fly.style.top = startY + 'px';
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            fly.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.2)';
+            fly.style.opacity = '0.35';
+        });
+    });
+
+    fly.addEventListener('transitionend', () => fly.remove());
+
+    badge.classList.remove('bump');
+    void badge.offsetWidth;
+    badge.classList.add('bump');
+}
+
 function addToCart(product, flavor) {
     const existing = cart.find(i => i.id === product.id && i.flavor === (flavor || null));
     if (existing) {
@@ -481,6 +517,7 @@ function productAdd(id, btn) {
         openFlavorPicker(p, btn);
     } else {
         addToCart(p);
+        flyToCart(p, btn);
         renderProducts(currentFilter);
     }
 }
@@ -527,6 +564,7 @@ function openFlavorPicker(product, anchor, customOptions, customTitle) {
         if (btn) {
             e.stopPropagation();
             addToCart(product, btn.dataset.flavor);
+            flyToCart(product, anchor);
             popup.style.display = 'none';
             renderProducts(currentFilter);
         }
@@ -610,6 +648,7 @@ function openProductModal(product) {
         const activeFlavor = flavorWrap.querySelector('.flavor-btn.active');
         const flavor = activeFlavor ? activeFlavor.dataset.flavor : null;
         addToCart(product, flavor);
+        flyToCart(product, addBtn);
         closeProductModal();
         renderProducts(currentFilter);
     };
