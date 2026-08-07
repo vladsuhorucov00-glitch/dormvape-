@@ -947,7 +947,8 @@ const HISTORY_LIMIT = 50;
 function pushHistory() {
     historyUndo.push({
         stats: JSON.parse(JSON.stringify(statsEntries)),
-        stock: JSON.parse(JSON.stringify(stockProducts))
+        stock: JSON.parse(JSON.stringify(stockProducts)),
+        products: JSON.parse(JSON.stringify(customProducts))
     });
     if (historyUndo.length > HISTORY_LIMIT) historyUndo.shift();
     historyRedo = [];
@@ -959,15 +960,20 @@ function undoStats() {
     if (historyUndo.length === 0) return;
     historyRedo.push({
         stats: JSON.parse(JSON.stringify(statsEntries)),
-        stock: JSON.parse(JSON.stringify(stockProducts))
+        stock: JSON.parse(JSON.stringify(stockProducts)),
+        products: JSON.parse(JSON.stringify(customProducts))
     });
     const snap = historyUndo.pop();
     statsEntries = snap.stats;
     stockProducts = snap.stock;
+    customProducts = snap.products;
     saveStats();
     saveStock();
+    saveCustomProducts();
     renderStats();
     renderStock();
+    renderCustomProducts();
+    renderProducts(currentFilter);
     updateHistoryButtons();
 }
 
@@ -976,15 +982,20 @@ function redoStats() {
     if (historyRedo.length === 0) return;
     historyUndo.push({
         stats: JSON.parse(JSON.stringify(statsEntries)),
-        stock: JSON.parse(JSON.stringify(stockProducts))
+        stock: JSON.parse(JSON.stringify(stockProducts)),
+        products: JSON.parse(JSON.stringify(customProducts))
     });
     const snap = historyRedo.pop();
     statsEntries = snap.stats;
     stockProducts = snap.stock;
+    customProducts = snap.products;
     saveStats();
     saveStock();
+    saveCustomProducts();
     renderStats();
     renderStock();
+    renderCustomProducts();
+    renderProducts(currentFilter);
     updateHistoryButtons();
 }
 
@@ -1550,6 +1561,7 @@ function addProduct() {
         oldPrice: null, brand: '—', strength: strength || '—', volume: '—',
         ohm, coilVolume
     };
+    pushHistory();
     if (editingIndex >= 0) {
         Object.assign(customProducts[editingIndex], productData);
     } else {
@@ -1564,6 +1576,7 @@ function addProduct() {
 }
 
 function removeProduct(idx) {
+    pushHistory();
     customProducts = customProducts.filter((_, i) => i !== idx);
     saveCustomProducts();
     renderProducts(currentFilter);
