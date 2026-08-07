@@ -348,6 +348,7 @@ function switchPage(page) {
     window.scrollTo(0, 0);
     if (page === 'catalog') renderProducts(currentFilter);
     if (page === 'cart') renderCartItems();
+    updateHistoryButtons();
     const historyEl = document.getElementById('header-history');
     if (historyEl) historyEl.style.display = page === 'stats' ? 'flex' : 'none';
 }
@@ -954,6 +955,7 @@ function pushHistory() {
 }
 
 function undoStats() {
+    if (!document.getElementById('page-stats').classList.contains('active')) return;
     if (historyUndo.length === 0) return;
     historyRedo.push({
         stats: JSON.parse(JSON.stringify(statsEntries)),
@@ -970,6 +972,7 @@ function undoStats() {
 }
 
 function redoStats() {
+    if (!document.getElementById('page-stats').classList.contains('active')) return;
     if (historyRedo.length === 0) return;
     historyUndo.push({
         stats: JSON.parse(JSON.stringify(statsEntries)),
@@ -988,8 +991,9 @@ function redoStats() {
 function updateHistoryButtons() {
     const b = document.getElementById('btn-history-back');
     const f = document.getElementById('btn-history-forward');
-    if (b) b.classList.toggle('disabled', historyUndo.length === 0);
-    if (f) f.classList.toggle('disabled', historyRedo.length === 0);
+    const onStats = document.getElementById('page-stats').classList.contains('active');
+    if (b) b.classList.toggle('disabled', !onStats || historyUndo.length === 0);
+    if (f) f.classList.toggle('disabled', !onStats || historyRedo.length === 0);
 }
 
 function renderStats() {
