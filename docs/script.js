@@ -899,7 +899,7 @@ document.getElementById('logo-btn').addEventListener('click', function() {
 
 document.getElementById('password-ok').addEventListener('click', function() {
     const val = document.getElementById('password-input').value;
-    if (val === '1234') {
+    if (val === '2025') {
         document.getElementById('password-modal').classList.remove('show');
         switchPage('stats');
         renderStats();
