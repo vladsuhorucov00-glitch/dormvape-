@@ -291,7 +291,7 @@ function firebaseLoad(cb) {
 firebaseLoad(d => {
     if (d.stats) { statsEntries = d.stats; localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries)); renderStats(); }
     if (d.stock) { stockProducts = d.stock; localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts)); renderStock(); }
-    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter); }
+    if (d.products) { customProducts = d.products; localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); renderProducts(currentFilter); renderCustomProducts(); }
 });
 
 db.ref('data').on('value', snap => {
@@ -311,6 +311,7 @@ db.ref('data').on('value', snap => {
         customProducts = d.products;
         localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
         renderProducts(currentFilter);
+        renderCustomProducts();
     }
 });
 
