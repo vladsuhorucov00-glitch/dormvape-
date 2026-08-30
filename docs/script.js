@@ -124,12 +124,46 @@ function sendTelegramTo(text, chatId) {
 let notifyImgs = [];
 const MAX_NOTIFY_IMGS = 10;
 
+function compressImage(file, maxSize, quality) {
+    return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                try {
+                    let w = img.width, h = img.height;
+                    const max = maxSize || 900;
+                    if (w > max || h > max) {
+                        const scale = max / Math.max(w, h);
+                        w = Math.round(w * scale);
+                        h = Math.round(h * scale);
+                    }
+                    const cv = document.createElement('canvas');
+                    cv.width = w; cv.height = h;
+                    const ctx = cv.getContext('2d');
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(img, 0, 0, w, h);
+                    resolve(cv.toDataURL('image/jpeg', quality || 0.75));
+                } catch (err) {
+                    resolve(e.target.result);
+                }
+            };
+            img.onerror = function() { resolve(e.target.result); };
+            img.src = e.target.result;
+        };
+        reader.onerror = function() { reject(new Error('read')); };
+        reader.readAsDataURL(file);
+    });
+}
+
 document.getElementById('notify-img').addEventListener('change', function() {
     const files = Array.from(this.files || []);
     files.slice(0, MAX_NOTIFY_IMGS - notifyImgs.length).forEach(f => {
-        const reader = new FileReader();
-        reader.onload = function(e) { notifyImgs.push(e.target.result); renderNotifyPreviews(); };
-        reader.readAsDataURL(f);
+        compressImage(f).then(dataUrl => {
+            notifyImgs.push(dataUrl);
+            renderNotifyPreviews();
+        }).catch(() => {});
     });
     this.value = '';
 });
@@ -470,7 +504,7 @@ function renderProducts(filter) {
             : '<button class="btn-add" onclick="event.stopPropagation();productAdd(' + p.id + ',this)">+ Добавить</button>';
         const delay = i * 0.04;
         return '<div class="product-card" style="animation-delay:' + delay + 's" data-pid="' + p.id + '">' +
-            '<div class="product-media"><img src="' + p.images[0] + '" alt="' + p.name + '" loading="lazy" onerror="this.outerHTML=\'<div style=padding:40px;text-align:center;color:#444;font-size:32px>📷</div>\'"></div>' +
+            '<div class="product-media"><img src="' + p.images[0] + '" alt="' + p.name + '" loading="lazy" decoding="async" onerror="this.outerHTML=\'<div style=padding:40px;text-align:center;color:#444;font-size:32px>📷</div>\'"></div>' +
             '<div class="product-info">' +
             (specs ? '<div class="product-spec">' + specs + '</div>' : '') +
             '<div class="product-name">' + p.name + '</div>' +
@@ -1503,9 +1537,10 @@ let prodImgs = [];
 document.getElementById('prod-img').addEventListener('change', function() {
     const files = Array.from(this.files || []);
     files.forEach(f => {
-        const reader = new FileReader();
-        reader.onload = function(e) { prodImgs.push(e.target.result); renderProdImgPreviews(); };
-        reader.readAsDataURL(f);
+        compressImage(f).then(dataUrl => {
+            prodImgs.push(dataUrl);
+            renderProdImgPreviews();
+        }).catch(() => {});
     });
     this.value = '';
 });
