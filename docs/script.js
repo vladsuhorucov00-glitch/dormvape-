@@ -1127,15 +1127,16 @@ function statsDelete(idx) {
 
 document.getElementById('stats-income-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const amount = parseFloat(document.getElementById('stats-income-amount').value);
+    const amountVal = document.getElementById('stats-income-amount').value.replace(',', '.').trim();
+    const amount = parseFloat(amountVal);
     const who = document.getElementById('stats-income-who').value.trim();
+    if (!amount || amount <= 0) { alert('Укажите сумму дохода (например 500 или 500,50)'); return; }
     const items = [];
     document.querySelectorAll('.sale-item').forEach(row => {
         const name = row.querySelector('.si-name').value.trim();
         const qty = parseInt(row.querySelector('.si-qty').value) || 1;
         if (name) items.push({ name, qty });
     });
-    if (!amount || amount <= 0) return;
 
     pushHistory();
 
@@ -1143,10 +1144,12 @@ document.getElementById('stats-income-form').addEventListener('submit', function
         const old = statsEntries[editingIncomeIdx];
         statsEntries[editingIncomeIdx] = { ...old, amount, who, items };
         editingIncomeIdx = -1;
+        saveStats();
     } else {
         const now = new Date();
         const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
         statsEntries.push({ type: 'income', amount, who, items, date, month: currentMonthKey() });
+        saveStats();
         items.forEach(it => {
             const match = stockProducts.find(p => p.name.toLowerCase() === it.name.toLowerCase());
             if (match) {
@@ -1156,7 +1159,6 @@ document.getElementById('stats-income-form').addEventListener('submit', function
             }
         });
     }
-    saveStats();
     renderStats();
     cancelIncomeEdit();
 });
@@ -1247,10 +1249,12 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
         const old = statsEntries[editingExpenseIdx];
         statsEntries[editingExpenseIdx] = { ...old, invoice, items, totalAmount };
         editingExpenseIdx = -1;
+        saveStats();
     } else {
         const now = new Date();
         const date = ('0' + now.getDate()).slice(-2) + '.' + ('0' + (now.getMonth() + 1)).slice(-2) + '.' + now.getFullYear();
         statsEntries.push({ type: 'expense', invoice, items, totalAmount, date, month: currentMonthKey() });
+        saveStats();
         items.forEach(it => {
             const existing = stockProducts.find(p => p.name.toLowerCase() === it.name.toLowerCase());
             if (existing) { existing.qty += it.qty; } else { stockProducts.push({ name: it.name, qty: it.qty }); }
@@ -1258,7 +1262,6 @@ document.getElementById('stats-expense-form').addEventListener('submit', functio
         saveStock();
         renderStock();
     }
-    saveStats();
     renderStats();
 
     cancelExpenseEdit();
