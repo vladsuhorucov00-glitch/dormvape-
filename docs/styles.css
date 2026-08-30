@@ -1245,6 +1245,62 @@ select.checkout-input option {
     font-weight: 600;
 }
 
+/* ===== CHECKOUT PICKUP ===== */
+.checkout-pickup {
+    margin: 12px 0 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: linear-gradient(135deg, rgba(82,136,193,0.16), rgba(255,255,255,0.03));
+}
+
+.checkout-pickup-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.checkout-pickup-sub {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+.checkout-pickup-address {
+    font-size: 13px;
+    color: #ddd;
+    background: rgba(255,255,255,0.06);
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.checkout-pickup-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.checkout-pickup-contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.checkout-pickup-contact:hover {
+    background: rgba(255,255,255,0.16);
+    transform: translateY(-1px);
+}
+
 .stats-header {
     display: flex;
     align-items: center;

@@ -110,15 +110,15 @@
                 <h2>Доставка и оплата</h2>
                 <div class="info-grid">
                     <div class="info-card glass">
-                        <h3>Доставка</h3>
-                        <p>Бесплатная доставка по общежитию и в Титаник. По горгу — 1-2 часа.</p>
+                        <h3>🚚 Доставка</h3>
+                        <p>Бесплатная доставка по общежитию и в Титаник. По городу — 1-2 часа.</p>
                     </div>
                     <div class="info-card glass">
-                        <h3>Оплата</h3>
+                        <h3>💳 Оплата</h3>
                         <p>Наличные, СБП, перевод на карту.</p>
                     </div>
                     <div class="info-card glass">
-                        <h3>Заказ другой продукции</h3>
+                        <h3>📦 Заказ другой продукции</h3>
                         <p>Нет в наличии? Напиши нам — закажем.</p>
                     </div>
                 </div>
@@ -214,6 +214,17 @@
             <div id="checkout-step-form">
                 <h3>Оформление заказа</h3>
                 <div class="checkout-summary" id="modal-summary"></div>
+                <div class="checkout-pickup">
+                    <div class="checkout-pickup-title">🏠 Или просто зайди к нам</div>
+                    <p class="checkout-pickup-sub">Не хочешь ждать доставку? Заказ будет готов — приходи сам.</p>
+                    <div class="checkout-pickup-address">📍 Комнаты 410а и 216а · п. Майский, ул. Садовая, 12Б</div>
+                    <div class="checkout-pickup-contacts">
+                        <a href="tel:+79524353929" class="checkout-pickup-contact">✆ 8-952-435-39-29</a>
+                        <a href="tel:+79524351892" class="checkout-pickup-contact">✆ 8-952-435-18-92</a>
+                        <a href="tg://resolve?domain=HIFONER" class="checkout-pickup-contact">✈︎ @HIFONER</a>
+                        <a href="tg://resolve?domain=senyyxx" class="checkout-pickup-contact">✈︎ @senyyxx</a>
+                    </div>
+                </div>
                 <form id="checkout-form">
                     <input type="text" id="checkout-name" placeholder="Имя *" required class="checkout-input">
                     <input type="tel" id="checkout-phone" placeholder="Телефон *" required class="checkout-input" inputmode="numeric" autocomplete="tel">
@@ -221,6 +232,8 @@
                     <div class="checkout-select-wrap">
                         <input type="text" id="checkout-address" placeholder="Адрес *" required class="checkout-input">
                         <div class="checkout-select-dropdown" id="checkout-address-dropdown">
+                            <div class="checkout-select-option" data-value="Самовывоз (комната 410а)">Самовывоз (комната 410а)</div>
+                            <div class="checkout-select-option" data-value="Самовывоз (комната 216а)">Самовывоз (комната 216а)</div>
                             <div class="checkout-select-option" data-value="Общага (п. Майский, ул. Садовая, 12Б)">Общага (п. Майский, ул. Садовая, 12Б)</div>
                             <div class="checkout-select-option" data-value="Титаник">Титаник</div>
                         </div>
