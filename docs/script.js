@@ -276,7 +276,10 @@ function saveStock() {
     firebaseSave('stock', stockProducts);
 }
 
+let lastLocalProductsWrite = 0;
+
 function saveCustomProducts() {
+    lastLocalProductsWrite = Date.now();
     localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
     firebaseSave('products', customProducts);
 }
@@ -307,7 +310,7 @@ db.ref('data').on('value', snap => {
         localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
         renderStock();
     }
-    if (d.products && JSON.stringify(d.products) !== JSON.stringify(customProducts)) {
+    if (d.products && JSON.stringify(d.products) !== JSON.stringify(customProducts) && Date.now() - lastLocalProductsWrite > 1500) {
         customProducts = d.products;
         localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
         renderProducts(currentFilter);
