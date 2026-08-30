@@ -421,6 +421,7 @@ function removeFromCart(id, flavor) {
     cart = cart.filter(i => !(i.id === id && i.flavor === (flavor || null)));
     saveCart();
     updateCartUI();
+    renderCartItems();
 }
 
 function clearCart() {
