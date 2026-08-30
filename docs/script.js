@@ -251,30 +251,7 @@ if (isTG && tg.initDataUnsafe?.user) {
 }
 
 // ===== PRODUCTS =====
-const products = [
-    { id: 1, name: 'HSB Mango Ice', category: 'liquid', brand: 'HSB', strength: '3мг', volume: '60мл', desc: 'Сочное манго с ментоловой свежестью', price: 690, oldPrice: 860, flavors: ['Манго', 'Манго-лёд', 'Манго-маракуйя'], images: ['img/1_1.jpg', 'img/1_2.jpg', 'img/1_3.jpg'] },
-    { id: 2, name: 'Pink Lemonade', category: 'liquid', brand: 'Pod Juice', strength: '6мг', volume: '60мл', desc: 'Розовый лимонад с кислинкой', price: 590, oldPrice: 740, flavors: ['Классический', 'Мятный', 'Малиновый'], images: ['img/2_1.jpg', 'img/2_2.jpg'] },
-    { id: 3, name: 'Blueberry Salt', category: 'liquid', brand: 'Salty Fish', strength: '20мг', volume: '30мл', desc: 'Черника со льдом', price: 450, oldPrice: null, flavors: ['Черника', 'Черника-лёд'], images: ['img/3_1.jpg', 'img/3_2.jpg'] },
-    { id: 4, name: 'Strawberry Cream', category: 'liquid', brand: 'HSB', strength: '3мг', volume: '60мл', desc: 'Клубника со сливками', price: 640, oldPrice: 800, flavors: ['Клубника', 'Клубника-сливки', 'Клубника-мёд'], images: ['img/4_1.jpg', 'img/4_2.jpg', 'img/4_3.jpg', 'img/4_4.jpg'] },
-    { id: 5, name: 'Жидкость 5', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/5_1.jpg', 'img/5_2.jpg', 'img/5_3.jpg', 'img/5_4.jpg'] },
-    { id: 6, name: 'Жидкость 6', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/6_1.jpg', 'img/6_2.jpg'] },
-    { id: 7, name: 'Жидкость 7', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/7_1.jpg', 'img/7_2.jpg', 'img/7_3.jpg'] },
-    { id: 8, name: 'Жидкость 8', category: 'liquid', brand: '—', strength: '—', volume: '—', desc: 'Ждём данные', price: 550, oldPrice: null, flavors: ['Вкус 1', 'Вкус 2'], images: ['img/8_1.jpg', 'img/8_2.jpg'] },
-    { id: 9, name: 'Вейп 1', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 490, oldPrice: null, flavors: [], images: ['img/v1_1.jpg', 'img/v1_2.jpg', 'img/v1_3.jpg'] },
-    { id: 10, name: 'Вейп 2', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 540, oldPrice: null, flavors: [], images: ['img/v2_1.jpg', 'img/v2_2.jpg', 'img/v2_3.jpg'] },
-    { id: 11, name: 'Вейп 3', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/v3_1.jpg', 'img/v3_2.jpg', 'img/v3_3.jpg', 'img/v3_4.jpg'] },
-    { id: 12, name: 'Вейп 4', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 2490, oldPrice: null, flavors: [], images: ['img/v4_1.jpg', 'img/v4_2.jpg', 'img/v4_3.jpg'] },
-    { id: 13, name: 'Вейп 5', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 3890, oldPrice: null, flavors: [], images: ['img/v5_1.jpg', 'img/v5_2.jpg', 'img/v5_3.jpg', 'img/v5_4.jpg'] },
-    { id: 14, name: 'Вейп 6', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 2190, oldPrice: null, flavors: [], images: ['img/v6_1.jpg', 'img/v6_2.jpg', 'img/v6_3.jpg', 'img/v6_4.jpg'] },
-    { id: 15, name: 'Вейп 7', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 1990, oldPrice: null, flavors: [], images: ['img/v7_1.jpg', 'img/v7_2.jpg', 'img/v7_3.jpg'] },
-    { id: 16, name: 'Вейп 8', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 1990, oldPrice: null, flavors: [], images: ['img/v8_1.jpg'] },
-    { id: 17, name: 'Вейп 9', category: 'device', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 1990, oldPrice: null, flavors: [], images: ['img/v9_1.jpg'] },
-    { id: 18, name: 'Испаритель 1', category: 'coil', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 490, oldPrice: null, flavors: [], images: ['img/c1_1.jpg'], ohm: '1.0Ω', coilVolume: null },
-    { id: 19, name: 'Испаритель 2', category: 'coil', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 540, oldPrice: null, flavors: [], images: ['img/c2_1.jpg'], ohm: '0.8Ω', coilVolume: null },
-    { id: 20, name: 'Картридж 1', category: 'coil', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/c3_1.jpg'], ohm: '1.2Ω', coilVolume: '2мл' },
-    { id: 21, name: 'Картридж 2', category: 'coil', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/c4_1.jpg'], ohm: '1.0Ω', coilVolume: '2мл' },
-    { id: 22, name: 'Испаритель на Aegis', category: 'coil', brand: '—', strength: null, volume: null, desc: 'Ждём данные', price: 380, oldPrice: null, flavors: [], images: ['img/c4_1.jpg'], ohm: '0.6Ω', coilVolume: null }
-];
+const products = [];
 
 let customProducts = [];
 let statsEntries = [];
