@@ -220,159 +220,28 @@ function sendTelegramPhotoGroupTo(imgs, text, chatId) {
     }).catch(() => {});
 }
 
-function loadImage(src) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('img load'));
-        img.src = src;
-    });
-}
-
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = String(text).split(' ');
-    let line = '';
-    let yy = y;
-    for (const w of words) {
-        const test = line ? line + ' ' + w : w;
-        if (ctx.measureText(test).width > maxWidth && line) {
-            ctx.fillText(line, x, yy);
-            line = w;
-            yy += lineHeight;
-        } else {
-            line = test;
-        }
-    }
-    if (line) ctx.fillText(line, x, yy);
-}
-
-function roundRectPath(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-}
-
-async function createProductInfographic(p, src) {
-    const W = 1080, H = 1240;
-    const cv = document.createElement('canvas');
-    cv.width = W; cv.height = H;
-    const ctx = cv.getContext('2d');
-
-    ctx.fillStyle = '#0d0d0d';
-    ctx.fillRect(0, 0, W, H);
-
-    const photoH = Math.round(H * 0.66);
-    try {
-        const img = await loadImage(src);
-        const scale = Math.max(W / img.width, photoH / img.height);
-        const iw = img.width * scale, ih = img.height * scale;
-        ctx.drawImage(img, (W - iw) / 2, 0, iw, ih);
-    } catch (e) {
-        ctx.fillStyle = '#17181c';
-        ctx.fillRect(0, 0, W, photoH);
-        ctx.fillStyle = '#555';
-        ctx.font = '110px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('🛒', W / 2, photoH / 2);
-    }
-
-    const bandY = photoH;
-    const grad = ctx.createLinearGradient(0, bandY, 0, H);
-    grad.addColorStop(0, 'rgba(13,13,13,0)');
-    grad.addColorStop(0.25, '#0d0d0d');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, bandY, W, H - bandY);
-
-    const catName = { liquid: '🧪 Жидкость', device: '༄ Под / одноразка', coil: '⚙️ Испаритель / картридж' }[p.category] || 'Товар';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.font = '34px sans-serif';
-    ctx.fillStyle = '#9db4dd';
-    ctx.fillText(catName, 56, bandY + 76);
-
-    ctx.font = 'bold 54px sans-serif';
-    ctx.fillStyle = '#ffffff';
-    wrapText(ctx, p.name, 56, bandY + 168, W - 112, 66);
-
-    let specLine = '';
-    if (p.category === 'coil') specLine = [Array.isArray(p.ohm) ? p.ohm.join(' / ') : p.ohm, p.coilVolume].filter(Boolean).join(' · ');
-    else specLine = [p.strength, p.volume].filter(s => s && s !== '—').join(' · ');
-    if (specLine) {
-        ctx.font = '36px sans-serif';
-        ctx.fillStyle = '#a8a8a8';
-        ctx.fillText(specLine, 56, bandY + 300);
-    }
-
-    ctx.font = 'bold 74px sans-serif';
-    ctx.fillStyle = '#5bd66f';
-    ctx.fillText(p.price + ' ₽', 56, bandY + 420);
-
-    const btnW = W - 112, btnH = 118, btnY = bandY + 470;
-    const btnGrad = ctx.createLinearGradient(0, btnY, 0, btnY + btnH);
-    btnGrad.addColorStop(0, '#3f74bf');
-    btnGrad.addColorStop(1, '#2b4f88');
-    ctx.fillStyle = btnGrad;
-    roundRectPath(ctx, 56, btnY, btnW, btnH, 26);
-    ctx.fill();
-    ctx.font = 'bold 46px sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.fillText('🛒 Заказать: @DormVapeShopBot', W / 2, btnY + btnH / 2 + 16);
-
-    return new Promise(res => cv.toBlob(res, 'image/jpeg', 0.92));
-}
-
-function sendTelegramPhotoBlobTo(blob, text, chatId) {
-    const form = new FormData();
-    form.append('chat_id', chatId);
-    form.append('photo', blob, 'photo.jpg');
-    if (text) {
-        form.append('caption', text);
-        form.append('parse_mode', 'HTML');
-    }
-    fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendPhoto`, {
-        method: 'POST',
-        body: form
-    }).catch(() => {});
-}
-
 function postProductToChannel(productData) {
     const catName = { liquid: '🧪 Жидкость', device: '༄ Под / одноразка', coil: '⚙️ Испаритель / картридж' }[productData.category] || 'Товар';
-    const infoCaption =
-        '🆕 <b>Новинка в DormVape!</b>\n\n' +
+    const caption =
+        '🆕 <b>Новый товар!</b>\n\n' +
         '<b>' + productData.name + '</b>\n' +
         (productData.flavors && productData.flavors.length ? '🍓 Вкусы:\n  ' + productData.flavors.map(f => '• ' + f).join('\n  ') + '\n' : '') +
         (productData.strength && productData.strength !== '—' ? '💪 Крепость: ' + productData.strength + '\n' : '') +
         (productData.ohm ? '⚡️ Омы: ' + (Array.isArray(productData.ohm) ? productData.ohm.join(' / ') : productData.ohm) + '\n' : '') +
         (productData.coilVolume ? '📦 Объём: ' + productData.coilVolume + '\n' : '') +
         '💰 Цена: <b>' + productData.price + '₽</b>\n\n' +
-        '🛒 Заказать: @DormVapeShopBot';
-    const firstImg = (productData.images || [])[0];
-    if (firstImg) {
-        const caption =
-            '🆕 <b>Новинка в DormVape!</b>\n\n' +
-            '<b>' + catName + '</b>\n' +
-            '📍 Самовывоз: комнаты 410а и 216а\n' +
-            '🚚 Доставка по общаге и в Титаник — бесплатно\n\n' +
-            '🛒 Заказать: @DormVapeShopBot';
-        createProductInfographic(productData, firstImg).then(blob => {
-            if (blob) sendTelegramPhotoBlobTo(blob, caption, TG_CHANNEL_ID);
-            else sendTelegramPhotoTo(firstImg, infoCaption, TG_CHANNEL_ID);
-        }).catch(() => sendTelegramPhotoTo(firstImg, infoCaption, TG_CHANNEL_ID));
+        '🛒 Заказать: @DormVapeShopBot\n' +
+        catName;
+    const imgs = (productData.images || []).filter(i => i && i.startsWith('data:'));
+    if (imgs.length > 1) {
+        sendTelegramPhotoGroupTo(imgs, caption, TG_CHANNEL_ID);
+    } else if (imgs.length === 1) {
+        sendTelegramPhotoTo(imgs[0], caption, TG_CHANNEL_ID);
     } else {
         fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: TG_CHANNEL_ID, text: infoCaption, parse_mode: 'HTML' })
+            body: JSON.stringify({ chat_id: TG_CHANNEL_ID, text: caption, parse_mode: 'HTML' })
         }).catch(() => {});
     }
 }
