@@ -267,12 +267,12 @@ function firebaseSave(path, val) {
 }
 
 function saveStats() {
-    localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries));
+    try { localStorage.setItem('dormvape_stats', JSON.stringify(statsEntries)); } catch (e) {}
     firebaseSave('stats', statsEntries);
 }
 
 function saveStock() {
-    localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts));
+    try { localStorage.setItem('dormvape_stock', JSON.stringify(stockProducts)); } catch (e) {}
     firebaseSave('stock', stockProducts);
 }
 
@@ -280,7 +280,7 @@ let lastLocalProductsWrite = 0;
 
 function saveCustomProducts() {
     lastLocalProductsWrite = Date.now();
-    localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts));
+    try { localStorage.setItem('dormvape_custom_products', JSON.stringify(customProducts)); } catch (e) {}
     firebaseSave('products', customProducts);
 }
 
