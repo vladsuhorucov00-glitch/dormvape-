@@ -271,6 +271,9 @@ function postProductToChannel(productData) {
         (productData.coilVolume ? '📦 Объём: ' + productData.coilVolume + '\n' : '') +
         '💰 Цена: <b>' + productData.price + '₽</b>\n\n' +
         '🛒 Заказать: @DormVapeShopBot\n' +
+        '✆ 8-952-435-39-29 · 8-952-435-18-92\n' +
+        '✈︎ @HIFONER · @senyyxx\n' +
+        '📍 Самовывоз: комнаты 410а и 216а\n' +
         catName;
     const imgs = (productData.images || []).filter(i => i && i.startsWith('data:'));
     if (imgs.length > 1) {
