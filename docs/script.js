@@ -15,7 +15,7 @@ const db = firebase.database();
 const TG_BOT_TOKEN_OLD = '8998190707:AAGdER2nAXMVywoXl-WEzVQPA3kUtA6bW8k';
 const TG_BOT_TOKEN = '8775545408:AAECP7FBjbLlUmuFDZ7zNpw6Up6j_JkYCVE';
 const TG_CHAT_ID = '1951895339';
-const TG_CHANNEL_ID = '-1004363935334';
+const TG_CHANNEL_ID = '-1003803429360';
 
 function sendTelegram(text) {
     fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN_OLD}/sendMessage`, {
