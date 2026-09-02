@@ -1485,9 +1485,16 @@ function renderCustomProducts() {
     list.innerHTML = customProducts.map((p, i) =>
         '<div class="stock-item">' +
         '<span class="stock-item-name">' + p.name + ' — ' + p.price + '₽</span>' +
+        '<button class="stock-btn" onclick="repostProductToChannel(' + i + ')" style="color:#4ea8f5" title="Переслать в канал">📨</button>' +
         '<button class="stock-btn" onclick="editProduct(' + i + ')" style="color:#4ea8f5">✎</button>' +
         '<button class="stock-btn" onclick="removeProduct(' + i + ')" style="color:#f55">✕</button></div>'
     ).join('');
+}
+
+function repostProductToChannel(idx) {
+    const p = customProducts[idx];
+    if (!p) return;
+    postProductToChannel(p);
 }
 
 function editProduct(idx) {
