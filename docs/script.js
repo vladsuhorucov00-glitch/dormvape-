@@ -159,13 +159,19 @@ function compressImage(file, maxSize, quality) {
 
 document.getElementById('notify-img').addEventListener('change', function() {
     const files = Array.from(this.files || []);
-    files.slice(0, MAX_NOTIFY_IMGS - notifyImgs.length).forEach(f => {
+    const max = MAX_NOTIFY_IMGS - notifyImgs.length;
+    this.value = '';
+    let i = 0;
+    function next() {
+        if (i >= files.length || notifyImgs.length >= MAX_NOTIFY_IMGS) return;
+        const f = files[i++];
         compressImage(f).then(dataUrl => {
             notifyImgs.push(dataUrl);
             renderNotifyPreviews();
-        }).catch(() => {});
-    });
-    this.value = '';
+            next();
+        }).catch(() => next());
+    }
+    next();
 });
 
 function renderNotifyPreviews() {
@@ -1536,13 +1542,18 @@ let prodImgs = [];
 
 document.getElementById('prod-img').addEventListener('change', function() {
     const files = Array.from(this.files || []);
-    files.forEach(f => {
+    this.value = '';
+    let i = 0;
+    function next() {
+        if (i >= files.length) return;
+        const f = files[i++];
         compressImage(f).then(dataUrl => {
             prodImgs.push(dataUrl);
             renderProdImgPreviews();
-        }).catch(() => {});
-    });
-    this.value = '';
+            next();
+        }).catch(() => next());
+    }
+    next();
 });
 
 function renderProdImgPreviews() {
