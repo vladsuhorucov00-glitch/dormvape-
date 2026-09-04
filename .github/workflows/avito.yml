@@ -1,12 +1,7 @@
 name: Avito monitor
 
 on:
-  schedule:
-    - cron: '*/30 * * * *'
   workflow_dispatch:
-  push:
-    paths:
-      - 'avito-monitor/**'
 
 permissions:
   contents: write
