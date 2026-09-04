@@ -128,6 +128,7 @@ async function sendTg(text) {
 }
 
 async function main() {
+  if (!fs.existsSync(SEEN_FILE)) saveSeen({});
   const url = `https://www.avito.ru/${CITY}?q=${encodeURIComponent(QUERY)}`;
   const { status, html } = await fetchPage(url);
   const statusObj = { ts: new Date().toISOString(), url, httpStatus: status };
