@@ -30,7 +30,7 @@ cat > config.json <<EOF
 EOF
 
 echo "[4/4] Запускаю мониторинг (каждые 30 минут)..."
-termux-wake-lock
+termux-wake-lock || true
 nohup bash termux-run.sh > avito.log 2>&1 &
 echo ""
 echo "ГОТОВО! Мониторинг работает."
